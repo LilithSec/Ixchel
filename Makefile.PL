@@ -20,9 +20,22 @@ my %WriteMakefileArgs = (
 	},
 	PREREQ_PM => {
 		'File::Slurp' => 0,
+		'JSON'        => 0,
+		'Template'    => 0,
 	},
-	dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-	clean => { FILES    => 'Ixchel-*' },
+	dist       => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+	clean      => { FILES    => 'Ixchel-*' },
+	META_MERGE => {
+		"meta-spec" => { version => 2 },
+		resources   => {
+			repository => {
+				type => 'git',
+				url  => 'git@github.com:LilithSec/Ixchel.git',
+				web  => 'https://github.com/LilithSec/Ixchel',
+			},
+		},
+	}
+
 );
 
 # Compatibility with old versions of ExtUtils::MakeMaker

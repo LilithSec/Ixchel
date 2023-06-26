@@ -2,4 +2,109 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
+use Getopt::Long qw(:config pass_through);
+use File::Slurp;
+use TOML qw(from_toml);
+use JSON qw(decode_json);
+use YAML qw(Load);
+use Ixchel;
+
+sub version {
+	print "ixchel v. 0.0.1\n";
+}
+
+# disable color if asked
+if ( defined( $ENV{NO_COLOR} ) ) {
+	$ENV{ANSI_COLORS_DISABLED} = 1;
+}
+
+my $config_file;
+my $action;
+my $help;
+my $version;
+my $noConfig;
+GetOptions(
+	'a=s'      => \$action,
+	'config'   => \$config_file,
+	'noConfig' => \$noConfig,
+	'help'     => \$help,
+	'version'  => \$version,
+);
+
+if ($version) {
+	&version;
+}
+
+if ($help) {
+	&version;
+
+	print '
+
+-a <action>       The action to perform.
+--config <file>   The config file to load. May be JSON, YAML, or TOML.
+                  If not specified the first one found below is used.
+                  Default: /usr/local/etc/server.toml
+                           /usr/local/etc/server.json
+                           /usr/local/etc/server.yaml
+
+--noConfig        Do not attempt to load the config even if it exists.
+
+';
+
+	if ( !defined($action) ) {
+		print 'For help on a specific topic use --help with the specified action in question.
+
+For a list of actions use the action list_actions
+';
+		exit 0;
+	}
+
+	my $i => Ixchel->new;
+	print $i->help($action);
+
+	exit 0;
+} ## end if ($help)
+
+# try figure out what config file to try if non is specified
+if ( !defined($config_file) ) {
+	if ( -e '/usr/local/etc/server.toml' ) {
+		$config_file = '/usr/local/etc/server.toml';
+	} elsif ( -e '/usr/local/etc/server.json' ) {
+		$config_files = '/usr/local/etc/server.json';
+	} elsif ('/usr/local/etc/server.yaml') {
+		$config_file = '/usr/local/etc/server.yaml';
+	}
+} ## end if ( !defined($config_file) )
+
+my $parsed_config;
+if ( defined($config_file) ) {
+
+	my $raw_config = read_file($config_file) || die( 'Failed to read "' . $config_file . '"' );
+
+	if ( $config_file =~ /[Jj][Ss][Oo][Nn]$/ ) {
+		eval { $parsed_config = decode_json($raw_config); };
+		if ($@) {
+			die( 'Parsing "' . $config_file . '" failed... ' . $@ );
+		}
+	} elsif ( $config_file =~ /([Yy][Mm][Ll]|[Yy][Aa][Mm][Ll])$/ ) {
+		eval { $parsed_config = Load($raw_config); };
+		if ($@) {
+			die( 'Parsing "' . $include_file . '" failed... ' . $@ );
+		}
+	} elsif ( $config_file =~ /[Tt][Oo][Mm][Ll]$/ ) {
+		eval {
+			my $err;
+			( $parsed_config, $err ) = from_toml($raw_config);
+			unless ($parsed_config) {
+				die($err);
+			}
+		};
+		if ($@) {
+			die( 'Parsing "' . $config_file . '" failed... ' . $@ );
+		}
+	} ## end elsif ( $config_file =~ /[Tt][Oo][Mm][Ll]$/ )
+} ## end if ( defined($config_file) )
+
+my $i => Ixchel->new($parsed_config);
+$i->help($action);
+

@@ -3,50 +3,75 @@ package Ixchel;
 use 5.006;
 use strict;
 use warnings;
+use Template;
 
 =head1 NAME
 
-Ixchel - The great new Ixchel!
+Ixchel - 
 
 =head1 VERSION
 
-Version 0.01
+Version 0.0.1
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.0.1';
 
+=head1 METHODS
 
-=head1 SYNOPSIS
-
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
-
-    use Ixchel;
-
-    my $foo = Ixchel->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
-
-=head1 SUBROUTINES/METHODS
-
-=head2 function1
+=head2 new
 
 =cut
 
-sub function1 {
-}
+sub new {
+	my ( $empty, %opts ) = @_;
 
-=head2 function2
+	my $self = {
+		config => undef,
+		t      => Template->new(
+			{
+				EVAL_PERL   => 1,
+				INTERPOLATE => 1,
+				POST_CHOMP  => 1,
+			}
+		),
+	};
+	bless $self;
+
+	if (defined($opts{config})) {
+		$self->{config}=$opts{config};
+	}
+
+	return $self;
+} ## end sub new
+
+=head2 help
+
+Fetches help.
 
 =cut
 
-sub function2 {
+sub help{
+	my $self=$_[0];
+	my $action=$_[1];
+
+	if (!defined($action)) {
+		die('No action to fetch help for defined');
+	}
+
+	# make sure the action only contains sane characters for when we eval
+	if ($action=~/[^a-zA-Z0-9\_]/) {
+		die('"'.$action.'" matched /[^a-zA-Z0-9\_]/, which is not a valid action name');
+	}
+
+	my $help;
+	my $to_eval='use Ixchel::Actions::'.$action.'; $help=Ixchel::Actions::'.$action.'->help;';
+	eval( $to_eval );
+	if ($@) {
+		die('Help eval failed... '.$@);
+	}
+
+	return $help;
 }
 
 =head1 AUTHOR
@@ -77,13 +102,13 @@ You can also look for information at:
 
 L<https://rt.cpan.org/NoAuth/Bugs.html?Dist=Ixchel>
 
-=item * CPAN Ratings
-
-L<https://cpanratings.perl.org/d/Ixchel>
-
 =item * Search CPAN
 
 L<https://metacpan.org/release/Ixchel>
+
+=item * Github
+
+L<https://github.com/LilithSec/Ixchel>
 
 =back
 
@@ -102,4 +127,4 @@ This is free software, licensed under:
 
 =cut
 
-1; # End of Ixchel
+1;    # End of Ixchel
