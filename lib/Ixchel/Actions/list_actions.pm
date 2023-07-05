@@ -61,5 +61,8 @@ sub short {
 	return 'Lists the available actions.';
 }
 
-1;
+sub opts_data{
+	return undef;
+}
 
+1;

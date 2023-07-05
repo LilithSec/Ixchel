@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Template;
 use File::ShareDir ":ALL";
+use Getopt::Long;
 
 =head1 NAME
 
@@ -37,7 +38,8 @@ sub new {
 				INCLUDE_PATH => dist_dir("Ixchel") . '/templates/',
 			}
 		),
-		share_dir => dist_dir("Ixchel"),
+		share_dir     => dist_dir("Ixchel"),
+		options_array => undef,
 	};
 	bless $self;
 
@@ -62,14 +64,27 @@ sub action {
 		die('No action to fetch help for defined');
 	}
 
+	# split it appart and remove comments and blank lines
+	my $opts_data;
+	my %parsed_options;
+	my $to_eval = 'use Ixchel::Actions::' . $action . '; $opts_data=Ixchel::Actions::' . $action . '->opts_data;';
+	eval($to_eval);
+	if ( defined($opts_data) ) {
+		my @options = split( /\n/, $opts_data );
+		@options = grep( !/^#/, @options );
+		@options = grep( !/^$/, @options );
+		GetOptions( \%parsed_options, @options );
+	}
+
 	my $action_return;
 	my $action_obj;
-	my $to_eval
+	$to_eval
 		= 'use Ixchel::Actions::'
 		. $action
 		. '; $action_obj=Ixchel::Actions::'
 		. $action
-		. '->new(config=>$self->{config}, t=>$self->{t}, share_dir=>$self->{share_dir}); $action_return=$action_obj->action;';
+		. '->new(config=>$self->{config}, t=>$self->{t}, share_dir=>$self->{share_dir}, opts=>\%parsed_options, argv=>\@ARGV);'
+		. '$action_return=$action_obj->action;';
 	eval($to_eval);
 	if ($@) {
 		die( 'Help eval failed... ' . $@ );
