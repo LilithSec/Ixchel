@@ -2,6 +2,9 @@ use 5.006;
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
+use File::ShareDir::Install;
+
+install_share 'share';
 
 my %WriteMakefileArgs = (
 	NAME               => 'Ixchel',
@@ -22,6 +25,7 @@ my %WriteMakefileArgs = (
 		'File::Slurp' => 0,
 		'JSON'        => 0,
 		'Template'    => 0,
+		'Module::List' => 0,
 	},
 	dist       => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean      => { FILES    => 'Ixchel-*' },
@@ -57,3 +61,6 @@ delete $WriteMakefileArgs{LICENSE}
 	unless eval { ExtUtils::MakeMaker->VERSION('6.31'); 1 };
 
 WriteMakefile(%WriteMakefileArgs);
+
+package MY;
+use File::ShareDir::Install qw(postamble);

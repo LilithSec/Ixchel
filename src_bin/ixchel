@@ -59,8 +59,8 @@ For a list of actions use the action list_actions
 		exit 0;
 	}
 
-	my $i => Ixchel->new;
-	print $i->help($action);
+	my $i = Ixchel->new;
+	print $i->help($action) . "\n";
 
 	exit 0;
 } ## end if ($help)
@@ -70,14 +70,14 @@ if ( !defined($config_file) ) {
 	if ( -e '/usr/local/etc/server.toml' ) {
 		$config_file = '/usr/local/etc/server.toml';
 	} elsif ( -e '/usr/local/etc/server.json' ) {
-		$config_files = '/usr/local/etc/server.json';
+		$config_file = '/usr/local/etc/server.json';
 	} elsif ('/usr/local/etc/server.yaml') {
 		$config_file = '/usr/local/etc/server.yaml';
 	}
-} ## end if ( !defined($config_file) )
+}
 
 my $parsed_config;
-if ( defined($config_file) ) {
+if ( defined($config_file) && -e $config_file ) {
 
 	my $raw_config = read_file($config_file) || die( 'Failed to read "' . $config_file . '"' );
 
@@ -89,7 +89,7 @@ if ( defined($config_file) ) {
 	} elsif ( $config_file =~ /([Yy][Mm][Ll]|[Yy][Aa][Mm][Ll])$/ ) {
 		eval { $parsed_config = Load($raw_config); };
 		if ($@) {
-			die( 'Parsing "' . $include_file . '" failed... ' . $@ );
+			die( 'Parsing "' . $config_file . '" failed... ' . $@ );
 		}
 	} elsif ( $config_file =~ /[Tt][Oo][Mm][Ll]$/ ) {
 		eval {
@@ -103,8 +103,11 @@ if ( defined($config_file) ) {
 			die( 'Parsing "' . $config_file . '" failed... ' . $@ );
 		}
 	} ## end elsif ( $config_file =~ /[Tt][Oo][Mm][Ll]$/ )
-} ## end if ( defined($config_file) )
+} elsif ( defined($config_file) && !-e $config_file && !$noConfig ) {
+	die( '"' . $config_file . '" does not exist and --noConfig is not specified' );
+}
 
-my $i => Ixchel->new($parsed_config);
-$i->help($action);
+my $i = Ixchel->new(config=>$parsed_config);
+
+$i->action($action);
 

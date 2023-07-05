@@ -4,6 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 use Template;
+use File::ShareDir ":ALL";
 
 =head1 NAME
 
@@ -30,20 +31,52 @@ sub new {
 		config => undef,
 		t      => Template->new(
 			{
-				EVAL_PERL   => 1,
-				INTERPOLATE => 1,
-				POST_CHOMP  => 1,
+				EVAL_PERL    => 1,
+				INTERPOLATE  => 1,
+				POST_CHOMP   => 1,
+				INCLUDE_PATH => dist_dir("Ixchel") . '/templates/',
 			}
 		),
+		share_dir => dist_dir("Ixchel"),
 	};
 	bless $self;
 
-	if (defined($opts{config})) {
-		$self->{config}=$opts{config};
+	if ( defined( $opts{config} ) ) {
+		$self->{config} = $opts{config};
 	}
 
 	return $self;
 } ## end sub new
+
+=head2 action
+
+The action to perform.
+
+=cut
+
+sub action {
+	my $self   = $_[0];
+	my $action = $_[1];
+
+	if ( !defined($action) ) {
+		die('No action to fetch help for defined');
+	}
+
+	my $action_return;
+	my $action_obj;
+	my $to_eval
+		= 'use Ixchel::Actions::'
+		. $action
+		. '; $action_obj=Ixchel::Actions::'
+		. $action
+		. '->new(config=>$self->{config}, t=>$self->{t}, share_dir=>$self->{share_dir}); $action_return=$action_obj->action;';
+	eval($to_eval);
+	if ($@) {
+		die( 'Help eval failed... ' . $@ );
+	}
+
+	return $action_return;
+} ## end sub action
 
 =head2 help
 
@@ -51,28 +84,28 @@ Fetches help.
 
 =cut
 
-sub help{
-	my $self=$_[0];
-	my $action=$_[1];
+sub help {
+	my $self   = $_[0];
+	my $action = $_[1];
 
-	if (!defined($action)) {
-		die('No action to fetch help for defined');
+	if ( !defined($action) ) {
+		die('No action to run defined');
 	}
 
 	# make sure the action only contains sane characters for when we eval
-	if ($action=~/[^a-zA-Z0-9\_]/) {
-		die('"'.$action.'" matched /[^a-zA-Z0-9\_]/, which is not a valid action name');
+	if ( $action =~ /[^a-zA-Z0-9\_]/ ) {
+		die( '"' . $action . '" matched /[^a-zA-Z0-9\_]/, which is not a valid action name' );
 	}
 
 	my $help;
-	my $to_eval='use Ixchel::Actions::'.$action.'; $help=Ixchel::Actions::'.$action.'->help;';
-	eval( $to_eval );
+	my $to_eval = 'use Ixchel::Actions::' . $action . '; $help=Ixchel::Actions::' . $action . '->help;';
+	eval($to_eval);
 	if ($@) {
-		die('Help eval failed... '.$@);
+		die( 'Help eval failed... ' . $@ );
 	}
 
 	return $help;
-}
+} ## end sub help
 
 =head1 AUTHOR
 
