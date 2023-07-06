@@ -29,7 +29,12 @@ our $VERSION = '0.0.1';
 
 =head2 cpu_count
 
+Returns CPU count starting from 1.
 
+Supported OSes...
+
+    FreeBSD
+    Linux
 
 =cut
 
@@ -37,7 +42,7 @@ sub cpu_count {
 	my $count;
 
 	if ( $^O eq 'freebsd' ) {
-		my $output=`sysctl -n kern.smp.cpus`;
+		my $output=`/sbin/sysctl -n kern.smp.cpus`;
 		chomp($output);
 		$count=$output;
 	} elsif ( $^O eq 'linux' ) {
