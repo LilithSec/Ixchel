@@ -33,7 +33,7 @@ sub new {
 		t      => Template->new(
 			{
 				EVAL_PERL    => 1,
-				INTERPOLATE  => 1,
+				INTERPOLATE  => 0,
 				POST_CHOMP   => 1,
 				INCLUDE_PATH => dist_dir("Ixchel") . '/templates/',
 			}
@@ -87,7 +87,7 @@ sub action {
 		. '$action_return=$action_obj->action;';
 	eval($to_eval);
 	if ($@) {
-		die( 'Help eval failed... ' . $@ );
+		die( 'Action eval failed... ' . $@ );
 	}
 
 	return $action_return;
@@ -159,7 +159,6 @@ L<https://metacpan.org/release/Ixchel>
 L<https://github.com/LilithSec/Ixchel>
 
 =back
-
 
 =head1 ACKNOWLEDGEMENTS
 

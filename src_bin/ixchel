@@ -60,7 +60,7 @@ For a list of actions use the action list_actions
 	}
 
 	my $i = Ixchel->new;
-	print $i->help($action) . "\n";
+	print "Action specific help... \n\n" . $i->help($action) . "\n";
 
 	exit 0;
 } ## end if ($help)
