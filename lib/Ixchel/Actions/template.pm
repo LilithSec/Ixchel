@@ -65,10 +65,10 @@ sub action {
 	my $template_file;
 	if ( -f $template ) {
 		$template_file = $template;
-	} elsif ( -f $self->{share_dir} . '/' . $template ) {
-		$template_file = $self->{share_dir} . '/' . $template;
-	} elsif ( -f $self->{share_dir} . '/' . $template . '.tt' ) {
-		$template_file = $self->{share_dir} . '/' . $template . '.tt';
+	} elsif ( -f $self->{share_dir} . '/templates/' . $template ) {
+		$template_file = $self->{share_dir} . '/templates/' . $template;
+	} elsif ( -f $self->{share_dir} . '/templates/' . $template . '.tt' ) {
+		$template_file = $self->{share_dir} . '/templates/' . $template . '.tt';
 	} else {
 		die( 'Unable to locate template "' . $template . '" in either the current dir or ' . $self->{share_dir} );
 	}
