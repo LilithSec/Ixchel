@@ -25,7 +25,7 @@ my $version;
 my $noConfig;
 GetOptions(
 	'a=s'      => \$action,
-	'config'   => \$config_file,
+	'config=s'   => \$config_file,
 	'noConfig' => \$noConfig,
 	'help'     => \$help,
 	'version'  => \$version,
@@ -67,12 +67,12 @@ For a list of actions use the action list_actions
 
 # try figure out what config file to try if non is specified
 if ( !defined($config_file) ) {
-	if ( -e '/usr/local/etc/server.toml' ) {
-		$config_file = '/usr/local/etc/server.toml';
-	} elsif ( -e '/usr/local/etc/server.json' ) {
-		$config_file = '/usr/local/etc/server.json';
-	} elsif ('/usr/local/etc/server.yaml') {
-		$config_file = '/usr/local/etc/server.yaml';
+	if ( -e '/usr/local/etc/ixchel/server.toml' ) {
+		$config_file = '/usr/local/etc/ixchel/server.toml';
+	} elsif ( -e '/usr/local/etc/ixchel/server.json' ) {
+		$config_file = '/usr/local/etc/ixchel/server.json';
+	} elsif ('/usr/local/etc/ixchel/server.yaml') {
+		$config_file = '/usr/local/etc/ixchel/server.yaml';
 	}
 }
 

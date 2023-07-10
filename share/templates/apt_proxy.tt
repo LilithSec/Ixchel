@@ -1,0 +1,9 @@
+[% IF config.apt.proxy.http %]
+Acquire::http::proxy "[% config.apt.proxy.http %]";
+[% END %]
+[% IF config.apt.proxy.https %]
+Acquire::https::proxy "[% config.apt.proxy.https %]";
+[% END %]
+[% IF config.apt.proxy.ftp %]
+Acquire::ftp::proxy "[% config.apt.proxy.ftp %]";
+[% END %]
