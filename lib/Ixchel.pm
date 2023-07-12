@@ -6,6 +6,8 @@ use warnings;
 use Template;
 use File::ShareDir ":ALL";
 use Getopt::Long;
+use Ixchel::DefaultConfig;
+use Hash::Merge;
 
 =head1 NAME
 
@@ -29,8 +31,7 @@ sub new {
 	my ( $empty, %opts ) = @_;
 
 	my $self = {
-		config => undef,
-		t      => Template->new(
+		t => Template->new(
 			{
 				EVAL_PERL    => 1,
 				INTERPOLATE  => 0,
@@ -43,8 +44,15 @@ sub new {
 	};
 	bless $self;
 
+	my %default_config = %{ Ixchel::DefaultConfig->get };
 	if ( defined( $opts{config} ) ) {
-		$self->{config} = $opts{config};
+		my $merger    = Hash::Merge->new('RIGHT_PRECEDENT');
+		my %tmp_config=%{ $opts{config} };
+		my %tmp_shash = %{ $merger->merge( \%default_config, \%tmp_config ) };
+
+		$self->{config} = \%tmp_shash;
+	} else {
+		$self->{config} = \%default_config;
 	}
 
 	return $self;

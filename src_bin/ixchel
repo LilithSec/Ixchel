@@ -76,6 +76,10 @@ if ( !defined($config_file) ) {
 	}
 }
 
+if ($action eq 'list_actions') {
+	$noConfig=1;
+}
+
 my $parsed_config;
 if ( defined($config_file) && -e $config_file ) {
 
