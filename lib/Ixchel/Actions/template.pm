@@ -88,7 +88,9 @@ sub action {
 	my $output='';
 	$self->{t}->process(\$template_data, $vars, \$output);
 
-	print $output;
+	if (!$self->{opts}->{np}) {
+		print $output;
+	}
 
 	return $output;
 } ## end sub action
@@ -97,6 +99,9 @@ sub help {
 	return 'Fills in a template.
 
 -t <template>     Template to fill in.
+
+--np              Do not print it, just return after filling it in.
+                  Only used if you want to call this module directly.
 ';
 }
 
@@ -105,7 +110,8 @@ sub short {
 }
 
 sub opts_data {
-	return 't=s';
+	return 't=s
+np';
 }
 
 1;
