@@ -1,5 +1,20 @@
 #!perl
 
+=head1 NAME
+
+ixchel -
+
+=head1 SYNOPSIS
+
+
+
+=head1 DESCRIPTION
+
+
+
+=cut
+
+
 use strict;
 use warnings;
 use Getopt::Long qw(:config pass_through);
@@ -76,7 +91,8 @@ if ( !defined($config_file) ) {
 	}
 }
 
-if ($action eq 'list_actions') {
+# set noConfig for items that won't need it
+if ($action eq 'list_actions' || $action eq 'sys_info' ) {
 	$noConfig=1;
 }
 

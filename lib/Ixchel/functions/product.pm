@@ -35,7 +35,7 @@ If not ran as root, this will return blank.
 
 =cut
 
-sub manufacturer {
+sub product {
 	my $output = `dmidecode --string=system-product-name 2> /dev/null`;
 	chomp($output);
 

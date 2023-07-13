@@ -8,6 +8,9 @@ use Exporter 'import';
 our @EXPORT = qw(sys_info);
 use Rex -feature => [qw/1.4/];
 use Rex::Hardware;
+use Ixchel::functions::product;
+use Ixchel::functions::serial;
+
 
 # prevents Rex from printing out rex is exiting after the script ends
 $::QUIET = 2;
@@ -41,6 +44,9 @@ Calls L<Rex::Hardware>->get and returns the data as a hash ref.
 
 sub sys_info {
 	my %all=Rex::Hardware->get(qw/ All /);
+
+	$all{Host}{product}=product;
+	$all{Host}{serial}=serial_num;
 
 	return \%all;
 }

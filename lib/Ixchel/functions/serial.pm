@@ -1,4 +1,4 @@
-package Ixchel::functions::product;
+package Ixchel::functions::serial;
 
 use 5.006;
 use strict;
@@ -47,6 +47,6 @@ sub serial_num {
 	chomp($output);
 
 	return $output;
-} ## end sub serial_num
+}
 
 1;

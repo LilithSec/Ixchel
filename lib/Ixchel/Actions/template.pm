@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use File::Slurp;
 use Ixchel::functions::sys_info;
+use String::ShellQuote;
 
 =head1 NAME
 
@@ -74,10 +75,40 @@ sub action {
 	}
 
 	my $vars = {
-		'opts'     => $self->{opts},
-		'config'   => $self->{config},
-		'argv'     => $self->{argv},
-		'sys_info' => sys_info,
+		opts        => $self->{opts},
+		config      => $self->{config},
+		argv        => $self->{argv},
+		sys_info    => sys_info,
+		shell_quote => \&shell_quote,
+		read_file   => sub {
+			eval { return read_file( $_[0] ); };
+		},
+		is_systemd => sub {
+			if ( $^O eq 'linux' && ( -f '/usr/bin/systemctl' || -f '/bin/systemctl' ) ) {
+				return 1;
+			}
+			return 0;
+		},
+		file_exists => sub {
+			eval {
+				if ( -f $_[0] ) {
+					return 1;
+				}
+				return 0;
+			};
+		},
+		is_freebsd => sub {
+			if ( $^O eq 'freebsd' ) {
+				return 1;
+			}
+			return 0;
+		},
+		is_linux => sub {
+			if ( $^O eq 'linux' ) {
+				return 1;
+			}
+			return 0;
+		},
 	};
 
 	my $template_data = read_file($template_file);
@@ -85,10 +116,10 @@ sub action {
 		die( '"' . $template_file . '" could not be read' );
 	}
 
-	my $output='';
-	$self->{t}->process(\$template_data, $vars, \$output);
+	my $output = '';
+	$self->{t}->process( \$template_data, $vars, \$output );
 
-	if (!$self->{opts}->{np}) {
+	if ( !$self->{opts}->{np} ) {
 		print $output;
 	}
 

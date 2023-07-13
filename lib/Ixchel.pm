@@ -46,9 +46,30 @@ sub new {
 
 	my %default_config = %{ Ixchel::DefaultConfig->get };
 	if ( defined( $opts{config} ) ) {
-		my $merger    = Hash::Merge->new('RIGHT_PRECEDENT');
-		my %tmp_config=%{ $opts{config} };
-		my %tmp_shash = %{ $merger->merge( \%default_config, \%tmp_config ) };
+		my $merger = Hash::Merge->new('RIGHT_PRECEDENT');
+		# make sure arrays from the actual config replace any arrays in the defaultconfig
+		$merger->add_behavior_spec(
+			{
+				'SCALAR' => {
+					'SCALAR' => sub { $_[1] },
+					'ARRAY'  => sub { [ $_[0], @{ $_[1] } ] },
+					'HASH'   => sub { $_[1] },
+				},
+				'ARRAY' => {
+					'SCALAR' => sub { $_[1] },
+					'ARRAY'  => sub { [ @{ $_[1] } ] },
+					'HASH'   => sub { $_[1] },
+				},
+				'HASH' => {
+					'SCALAR' => sub { $_[1] },
+					'ARRAY'  => sub { [ values %{ $_[0] }, @{ $_[1] } ] },
+					'HASH'   => sub { Hash::Merge::_merge_hashes( $_[0], $_[1] ) },
+				},
+			},
+			'My Behavior',
+		);
+		my %tmp_config = %{ $opts{config} };
+		my %tmp_shash  = %{ $merger->merge( \%default_config, \%tmp_config ) };
 
 		$self->{config} = \%tmp_shash;
 	} else {
