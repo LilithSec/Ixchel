@@ -1,3 +1,20 @@
+[% FOREACH to_include IN config.cron.includes %]
+[% IF file_exists( to_include ) %]
+##
+## start of include from [% to_include %] ...
+##
+[% INCLUDE $to_include %]
+##
+## end of nclude from [% to_include %] ...
+##
+[% ELSE %]
+##
+## [% to_include %] in config.cron.includes
+## but the file does not exist... skipping
+##
+[% END %]
+[% END %]
+
 [% IF config.sneck.enable && config.snmp.extends.sneck.enable %]
 */5 * * * * root /usr/bin/env [% config.snmp.extend_env %] sneck -u -b
 [% END %]
@@ -27,11 +44,14 @@
 [% END %]
 [% IF config.snmp.extends.smart.enable %]
 */5 * * * * root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/smart -c [% config.snmp.extends.smart.config %] -u 2> /dev/null > /dev/null
-[% IF config.snmp.extends.smart.enable %]
-@daily root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/smart -c [% config.snmp.extends.smart.config %] -t [% config.snmp.extends.smart.long %] 2> /dev/null > /dev/null
+[% IF config.snmp.extends.smart.enable && config.snmp.extends.smart.nightly_test_enable  %]
+@daily root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/smart -c [% config.snmp.extends.smart.config %] -t [% config.snmp.extends.smart.nightly_test %] 2> /dev/null > /dev/null
 [% END %]
 [% END %]
 
 [% IF config.snmp.extends.sagan.enable %]
 */5 * * * * root /usr/bin/env [% config.snmp.extend_env %] sagan_stat_check -u [% config.snmp.extends.sagan.args %] > /dev/null 2> /dev/null
+[% END %]
+[% IF config.snmp.extends.suricata.enable %]
+*/5 * * * * root /usr/bin/env [% config.snmp.extend_env %] suricata_stat_check -u [% config.snmp.extends.suricata.args %] > /dev/null 2> /dev/null
 [% END %]

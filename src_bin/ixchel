@@ -58,9 +58,9 @@ if ($help) {
 -a <action>       The action to perform.
 --config <file>   The config file to load. May be JSON, YAML, or TOML.
                   If not specified the first one found below is used.
-                  Default: /usr/local/etc/server.toml
-                           /usr/local/etc/server.json
-                           /usr/local/etc/server.yaml
+                  Default: /usr/local/etc/ixchel/server.toml
+                           /usr/local/etc/ixchel/server.json
+                           /usr/local/etc/ixchel/server.yaml
 
 --noConfig        Do not attempt to load the config even if it exists.
 

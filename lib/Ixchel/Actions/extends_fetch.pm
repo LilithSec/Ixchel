@@ -56,7 +56,7 @@ sub new {
 sub action {
 	my $self = $_[0];
 
-	if ( !-f $self->{config}{snmp}{extend_base_dir} ) {
+	if ( !-d $self->{config}{snmp}{extend_base_dir} ) {
 		mkdir( $self->{config}{snmp}{extend_base_dir} )
 			|| die( $self->{config}{snmp}{extend_base_dir} . ' does not exist and could not be created... $@' );
 	}

@@ -3,6 +3,7 @@ package Ixchel::DefaultConfig;
 use 5.006;
 use strict;
 use warnings;
+#use Rex::Hardware::Host;
 
 =head1 NAME
 
@@ -36,7 +37,7 @@ sub get {
 		suricata => {
 			multi_intance => 0,
 			config_base   => '/etc/suricata/',
-			instances     => '',
+			instances     => [],
 			enable        => 0,
 		},
 		suricata_extract => {
@@ -55,7 +56,7 @@ sub get {
 		sagan => {
 			multi_intance => 0,
 			config_base   => '/usr/local/etc/',
-			instances     => '',
+			instances     => [],
 			enable        => 0,
 		},
 		meer => {
@@ -64,15 +65,16 @@ sub get {
 			instances     => '',
 			enable        => 0,
 		},
+		cape => {
+			enable => 0,
+		},
 		mariadb => {
 			enable => 0,
 		},
 		apache2 => {
 			enable  => 0,
 			version => '2.4',
-		},
-		apache2 => {
-			enable => 0,
+			logdir  => '/var/log/apache',
 		},
 		chronyd => {
 			enable => 0,
@@ -88,6 +90,10 @@ sub get {
 			http  => '',
 			https => '',
 		},
+		cron => {
+			enable   => 1,
+			includes => [],
+		},
 		apt => {
 			proxy_https => '',
 			proxy_http  => '',
@@ -97,6 +103,7 @@ sub get {
 			install => {},
 			cpanm   => {},
 		},
+
 		snmp => {
 			community         => 'public',
 			extend_env        => 'PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin LC_ALL=C',
@@ -116,7 +123,7 @@ sub get {
 					enable                 => 0,
 					cache                  => '/var/cache/smart',
 					use_cache              => 0,
-					nightly_test           => 1,
+					nightly_test_enable    => 1,
 					nightly_test           => 'long',
 					config                 => '/usr/local/etc/smart-extend.conf',
 					additional_update_args => '',
@@ -132,20 +139,36 @@ sub get {
 				supvervisord       => { enable => 0, },
 				linux_softnet_stat => { enable => 0, },
 				opensearch         => { enable => 0, host     => '127.0.0.1', port => 9200 },
-				osupdate           => { enable => 1, interval => '*/5 * * * * ', },
+				osupdate           => { enable => 1, interval => '*/5 * * * *', },
 				privoxy            => { enable => 0, log      => '/var/log/privoxy/logfile' },
 				chronyd            => { enable => 0, },
 				zfs                => { enable => 0, },
 				squid              => { enable => 0, },
 				ifAlias            => { enable => 0, },
 				ntp_client         => { enable => 0, },
+				logsize            => {
+					enable          => 0,
+					remote          => 1,
+					remote_sub_dirs => 0,
+					remote_exclude    => [ 'achive', ],
+					suricata_flows  => 1,
+					suricata_base   => 0,
+									   sagan_base      => 0,
+									   apache2=>1,
+					var_log         => 1,
+				},
 			},
 		},
 	};
 
+	#	my $host_info=Rex::Hardware::Host->get();
+
 	if ( $^O eq 'linux' ) {
 		$config->{snmp}{extend_base_dir} = '/etc/snmp/';
 		$config->{snmp}{linux_softnet_stat}{enable} = 1;
+
+		#		if ($host_info->{operating_system} eq 'Debian' || $host_info->{operating_system} eq 'Ubuntu') {
+		#		}
 	}
 
 	return $config;

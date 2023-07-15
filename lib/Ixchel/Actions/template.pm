@@ -6,6 +6,7 @@ use warnings;
 use File::Slurp;
 use Ixchel::functions::sys_info;
 use String::ShellQuote;
+use File::Find::Rule;
 
 =head1 NAME
 
@@ -80,21 +81,28 @@ sub action {
 		argv        => $self->{argv},
 		sys_info    => sys_info,
 		shell_quote => \&shell_quote,
-		read_file   => sub {
-			eval { return read_file( $_[0] ); };
-		},
-		is_systemd => sub {
-			if ( $^O eq 'linux' && ( -f '/usr/bin/systemctl' || -f '/bin/systemctl' ) ) {
-				return 1;
-			}
-			return 0;
-		},
 		file_exists => sub {
 			eval {
 				if ( -f $_[0] ) {
 					return 1;
 				}
 				return 0;
+			};
+		},
+		dir_exists => sub {
+			eval {
+				if ( -d $_[0] ) {
+					return 1;
+				}
+				return 0;
+			};
+		},
+		get_sub_dirs => sub {
+			eval {
+				if ( !defined( $_[0] ) ) {
+					return;
+				}
+				return File::Find::Rule->directory->maxdepth(1)->in( $_[0] );
 			};
 		},
 		is_freebsd => sub {
@@ -108,6 +116,15 @@ sub action {
 				return 1;
 			}
 			return 0;
+		},
+		is_systemd => sub {
+			if ( $^O eq 'linux' && ( -f '/usr/bin/systemctl' || -f '/bin/systemctl' ) ) {
+				return 1;
+			}
+			return 0;
+		},
+		read_file => sub {
+			eval { return read_file( $_[0] ); };
 		},
 	};
 

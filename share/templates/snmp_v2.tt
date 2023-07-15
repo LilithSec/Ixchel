@@ -86,64 +86,85 @@ dlmod cmaX /usr/lib/libcmaX64.so
 
 [% IF config.nptd.enable && config.snmp.extends.ntp_client.enable %]
 extend ntp-client /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/ntp_client
+
 [% END %]
 [% IF config.snmp.extends.linux_softnet_stat.enable && is_linux %]
 extend linux_softnet_stat /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/linux_softnet_stat
+
 [% END %]
 [% IF config.suricata.enable && config.snmp.extends.suricata.enable %]
 extend suricata-stats /usr/bin/env [% config.snmp.extend_env %] suricata_stat_check -c -b
+
 [% END %]
 [% IF config.suricata.enable && config.suricata_extract.enable && config.snmp.extends.suricata_extract.enable %]
 extend suricata_extract /usr/bin/env [% config.snmp.extend_env %] suricata_extract_submit_extend
+
 [% END %]
-[% IF config.sneck.enable && config.snmp.extends.sneck.enable %]
+[% IF config.snmp.extends.sneck.enable %]
 extend /usr/bin/env [% config.snmp.extend_env %] sneck -c -b
+
 [% END %]
 [% IF config.fail2ban.enable && config.snmp.extends.fail2ban.enable %]
 extend /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/fail2ban -c
+
 [% END %]
 [% IF ( config.opensearch.enable || config.elasticsearch.enable ) && config.snmp.extends.opensearch.enable %]
 extend opensearch /bin/cat /var/cache/opensearch.json
+
 [% END %]
 [% IF config.snmp.extends.logsize.enable %]
 extend logsize /bin/cat /var/cache/logsize_extend/extend_return
+
 [% END %]
 [% IF config.mysql.enable && config.snmp.extends.mysql.enable %]
 extend mysql /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/mysql
+
 [% END %]
 [% IF config.snmp.extends.hv_monitor.enable %]
 extend hv-monitor /bin/cat /var/cache/hv-monitor.json
+
 [% END %]
 [% IF config.snmp.extends.systemd.enable && is_systemd %]
 extend systemd /bin/cat /var/cache/systemd.extend
+
 [% END %]
 [% IF config.supervisord.enable && config.snmp.extends.supervisord.enable %]
 extend supervisord /bin/cat /var/cache/supervisord.extend
+
 [% END %]
 [% IF sys_info.VirtInfo.virtualization_role != 'guest' && config.snmp.extends.smart.enable %]
 extend smart /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/smart -c [% config.snmp.extends.smart.config %]
+
 [% END %]
 [% IF config.privoxy.enable && config.snmp.extends.privoxy.enable %]
 extend privoxy /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/privoxy -f [% config.snmp.extends.privoxy.log %]
+
 [% END %]
-[% IF config.chronyd.enable && config.snmp.extends.chronyd.enable %]
-extend chronyd /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/chronyd
+[% IF config.chronyd.enable && config.snmp.extends.chronyd.enable %]e
+xtend chronyd /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/chronyd
+
 [% END %]
 [% IF config.zfs.enable && config.snmp.extends.zfs.enable %]
-extend chronyd /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/zfs
+extend zfs /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/zfs
+
 [% END %]
 [% IF config.squid.enable && config.snmp.extends.squid.enable %]
 proxy -v 2c -c public 127.0.0.1:3401 1.3.6.1.4.1.3495
+
 [% END %]
 [% IF config.snmp.extends.ifAlias.enable %]
 pass .1.3.6.1.2.1.31.1.1.1.18 [% config.snmp.extend_base_dir %]/ifAlias
+
 [% END %]
 [% IF config.snmp.extends.sagan.enable %]
 extend sagan-stats /usr/bin/env [% config.snmp.extend_env %] sagan_stat_check -c [% config.snmp.extends.sagan.args %] -b > /dev/null 2> /dev/null
+
 [% END %]
 [% IF config.snmp.extends.suricata.enable %]
 extend suricata-stats /usr/bin/env [% config.snmp.extend_env %] suricata_stat_check -c [% config.snmp.extends.suricata.args %] -b > /dev/null 2> /dev/null
+
 [% END %]
+
 
 [% FOREACH listen_type IN config.snmp.listen_types %]
 [% IF listen_type == 'array' %]
@@ -154,9 +175,11 @@ agentaddress [% listen_address %]
 [% ELSIF listen_type == 'file' %]
 [% FOREACH line IN read_file( config.snmp.listen_file ) %]
 agentaddress [% line %]
+
 [% END %]
 [% ELSIF listen_type == 'localhost' %]
 agentaddress udp:127.0.0.1
 agentaddress tcp:127.0.0.1
+
 [% END %]
 [% END %]
