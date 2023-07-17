@@ -24,6 +24,10 @@ our $VERSION = '0.0.1';
 
     print Dumper( Ixchel::DefaultConfig->get );
 
+Also can easily be dumped via...
+
+    ixchel -a dump_config --noConfig -o yaml
+
 =head1 Functions
 
 =head2 get
