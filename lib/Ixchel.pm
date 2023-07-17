@@ -25,6 +25,38 @@ our $VERSION = '0.0.1';
 
 =head2 new
 
+Initiates a new instance of Ixchel.
+
+One option argument is taken and that is a hash ref
+named config.
+
+    my $ixchel=Ixchel->new( config=>$config );
+
+If config is defined, it will be merged with Ixchel::DefaultConfig via
+Hash::Merge using the following behavior.
+
+			{
+				'SCALAR' => {
+					'SCALAR' => sub { $_[1] },
+					'ARRAY'  => sub { [ $_[0], @{ $_[1] } ] },
+					'HASH'   => sub { $_[1] },
+				},
+				'ARRAY' => {
+					'SCALAR' => sub { $_[1] },
+					'ARRAY'  => sub { [ @{ $_[1] } ] },
+					'HASH'   => sub { $_[1] },
+				},
+				'HASH' => {
+					'SCALAR' => sub { $_[1] },
+					'ARRAY'  => sub { [ values %{ $_[0] }, @{ $_[1] } ] },
+					'HASH'   => sub { Hash::Merge::_merge_hashes( $_[0], $_[1] ) },
+				},
+			}
+
+Using this, the passed config will be merged into the default config. Worth noting
+that any arrays in the default config will be completely replaced by the array from
+the passed config.
+
 =cut
 
 sub new {
@@ -68,7 +100,7 @@ sub new {
 					'HASH'   => sub { Hash::Merge::_merge_hashes( $_[0], $_[1] ) },
 				},
 			},
-			'My Behavior',
+			'Ixchel',
 		);
 		my %tmp_config = %{ $opts{config} };
 		my %tmp_shash  = %{ $merger->merge( \%default_config, \%tmp_config ) };
@@ -84,6 +116,25 @@ sub new {
 =head2 action
 
 The action to perform.
+
+    - action :: The action to perform. This a required variable.
+      Default :: undef
+
+    - opts :: What to pass for opts. If not defined, GetOptions will be used to parse the options
+              based on the options as defined by the action in question. If passing one manually this
+              should be be a hash ref as would be return via GetOptions.
+      Default :: undef
+
+    - argv :: What to use for ARGV instead of @ARGV.
+      Default :: undef
+
+So if you want to render the template akin to '-a template -t extend_logsize' you can do it like below.
+
+    my $rendered_template=$ixchel->action( action=>'template', opts=>{ t=>'extend_logsize' });
+
+Now if we want to pass '--np' to not print it, we would do it like below.
+
+    my $rendered_template=$ixchel->action( action=>'template', opts=>{ t=>'extend_logsize', np=>1 });
 
 =cut
 
@@ -142,6 +193,10 @@ sub action {
 =head2 help
 
 Fetches help.
+
+One argument is required and that is the action to fetch info on.
+
+    my $help=Ixchel->help($action);
 
 =cut
 
