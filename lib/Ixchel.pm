@@ -180,7 +180,7 @@ sub action {
 		. $action
 		. '; $action_obj=Ixchel::Actions::'
 		. $action
-		. '->new(config=>$self->{config}, t=>$self->{t}, share_dir=>$self->{share_dir}, opts=>$opts_to_use, argv=>$argv_to_use);'
+		. '->new(config=>$self->{config}, t=>$self->{t}, share_dir=>$self->{share_dir}, opts=>$opts_to_use, argv=>$argv_to_use, ixchel=>$self,);'
 		. '$action_return=$action_obj->action;';
 	eval($to_eval);
 	if ($@) {

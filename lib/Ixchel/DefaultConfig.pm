@@ -107,7 +107,9 @@ sub get {
 			install => {},
 			cpanm   => {},
 		},
-
+		systemd => {
+			auto       => {},
+		},
 		snmp => {
 			community         => 'public',
 			extend_env        => 'PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin LC_ALL=C',
@@ -154,11 +156,11 @@ sub get {
 					enable          => 0,
 					remote          => 1,
 					remote_sub_dirs => 0,
-					remote_exclude    => [ 'achive', ],
+					remote_exclude  => [ 'achive', ],
 					suricata_flows  => 1,
 					suricata_base   => 0,
-									   sagan_base      => 0,
-									   apache2=>1,
+					sagan_base      => 0,
+					apache2         => 1,
 					var_log         => 1,
 				},
 			},

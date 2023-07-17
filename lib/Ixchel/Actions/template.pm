@@ -63,6 +63,10 @@ sub new {
 		$self->{vars} = $opts{vars};
 	}
 
+	if ( defined( $opts{vars} ) ) {
+		$self->{vars} = $opts{vars};
+	}
+
 	return $self;
 } ## end sub new
 
