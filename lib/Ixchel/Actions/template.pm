@@ -22,14 +22,19 @@ our $VERSION = '0.0.1';
 
 =head1 SYNOPSIS
 
-Prints out a list of available actions.
+Fills in the specified template.
 
 =cut
 
 sub new {
 	my ( $empty, %opts ) = @_;
 
-	my $self = { config => {}, };
+	my $self = {
+		config => {},
+		vars   => {},
+		arggv  => [],
+		opts   => {},
+	};
 	bless $self;
 
 	if ( defined( $opts{config} ) ) {
@@ -38,6 +43,8 @@ sub new {
 
 	if ( defined( $opts{t} ) ) {
 		$self->{t} = $opts{t};
+	} else {
+		die('$opts{t} is undef');
 	}
 
 	if ( defined( $opts{share_dir} ) ) {
@@ -50,6 +57,10 @@ sub new {
 
 	if ( defined( $opts{argv} ) ) {
 		$self->{argv} = $opts{argv};
+	}
+
+	if ( defined( $opts{vars} ) ) {
+		$self->{vars} = $opts{vars};
 	}
 
 	return $self;
@@ -79,6 +90,7 @@ sub action {
 		opts        => $self->{opts},
 		config      => $self->{config},
 		argv        => $self->{argv},
+		vars        => $self->{vars},
 		sys_info    => sys_info,
 		shell_quote => \&shell_quote,
 		file_exists => sub {

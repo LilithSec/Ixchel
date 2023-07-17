@@ -88,33 +88,48 @@ The action to perform.
 =cut
 
 sub action {
-	my $self   = $_[0];
-	my $action = $_[1];
+	my ( $self, %opts ) = @_;
 
-	if ( !defined($action) ) {
-		die('No action to fetch help for defined');
+	if ( !defined( $opts{action} ) ) {
+		die('No action defined');
+	}
+	my $action = $opts{action};
+
+	# if custom opts are not defined, read the commandline args and fetch what we should use
+	my $opts_to_use;
+	if ( !defined( $opts{opts} ) ) {
+		my %parsed_options;
+		# split it appart and remove comments and blank lines
+		my $opts_data;
+		my $to_eval = 'use Ixchel::Actions::' . $action . '; $opts_data=Ixchel::Actions::' . $action . '->opts_data;';
+		eval($to_eval);
+		if ( defined($opts_data) ) {
+			my @options = split( /\n/, $opts_data );
+			@options = grep( !/^#/, @options );
+			@options = grep( !/^$/, @options );
+			GetOptions( \%parsed_options, @options );
+		}
+		$opts_to_use = \%parsed_options;
+	} else {
+		$opts_to_use = $opts{opts};
 	}
 
-	# split it appart and remove comments and blank lines
-	my $opts_data;
-	my %parsed_options;
-	my $to_eval = 'use Ixchel::Actions::' . $action . '; $opts_data=Ixchel::Actions::' . $action . '->opts_data;';
-	eval($to_eval);
-	if ( defined($opts_data) ) {
-		my @options = split( /\n/, $opts_data );
-		@options = grep( !/^#/, @options );
-		@options = grep( !/^$/, @options );
-		GetOptions( \%parsed_options, @options );
+	# if custom ARGV is specified, use taht
+	my $argv_to_use;
+	if ( defined( $opts{ARGV} ) ) {
+		$argv_to_use = $opts{ARGV};
+	} else {
+		$argv_to_use = \@ARGV;
 	}
 
 	my $action_return;
 	my $action_obj;
-	$to_eval
+	my $to_eval
 		= 'use Ixchel::Actions::'
 		. $action
 		. '; $action_obj=Ixchel::Actions::'
 		. $action
-		. '->new(config=>$self->{config}, t=>$self->{t}, share_dir=>$self->{share_dir}, opts=>\%parsed_options, argv=>\@ARGV);'
+		. '->new(config=>$self->{config}, t=>$self->{t}, share_dir=>$self->{share_dir}, opts=>$opts_to_use, argv=>$argv_to_use);'
 		. '$action_return=$action_obj->action;';
 	eval($to_eval);
 	if ($@) {

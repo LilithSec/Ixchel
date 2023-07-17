@@ -129,5 +129,5 @@ if ( defined($config_file) && -e $config_file ) {
 
 my $i = Ixchel->new(config=>$parsed_config);
 
-$i->action($action);
+$i->action(action=>$action);
 
