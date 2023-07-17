@@ -173,6 +173,12 @@ sub action {
 		$argv_to_use = \@ARGV;
 	}
 
+	# pass various vars if specified
+	my $vars;
+	if (defined($opts{vars})) {
+		$vars=$opts{vars};
+	}
+
 	my $action_return;
 	my $action_obj;
 	my $to_eval
@@ -180,7 +186,7 @@ sub action {
 		. $action
 		. '; $action_obj=Ixchel::Actions::'
 		. $action
-		. '->new(config=>$self->{config}, t=>$self->{t}, share_dir=>$self->{share_dir}, opts=>$opts_to_use, argv=>$argv_to_use, ixchel=>$self,);'
+		. '->new(config=>$self->{config}, t=>$self->{t}, share_dir=>$self->{share_dir}, opts=>$opts_to_use, argv=>$argv_to_use, ixchel=>$self, vars=>$vars,);'
 		. '$action_return=$action_obj->action;';
 	eval($to_eval);
 	if ($@) {
