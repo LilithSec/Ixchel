@@ -8,6 +8,7 @@ use TOML qw(to_toml);
 use JSON qw(to_json);
 use YAML qw(Dump);
 use Data::Dumper;
+use JSON::Path;
 
 =head1 NAME
 
@@ -34,6 +35,13 @@ Format to print it in.
 Available: json, yaml, toml
 
 Default: toml
+
+=head2 -s <section>
+
+A JSON style path used for fetching a sub section of the
+config via L<JSON::Path>.
+
+Default: undef
 
 =cut
 
@@ -71,18 +79,26 @@ sub action {
 		die( '-o is set to "' . $self->{opts}->{o} . '" which is not a understood setting' );
 	}
 
+	my $config;
+	if (defined($self->{opts}{s})) {
+		my $jpath   = JSON::Path->new($self->{opts}{s});
+		$config=$jpath->get($self->{config});
+	}else {
+		$config=$self->{config};
+	}
+
 	my $string;
 	if ( $self->{opts}->{o} eq 'toml' ) {
-		$string = to_toml( $self->{config}) . "\n";
+		$string = to_toml( $config ) . "\n";
 		print $string;
 	} elsif ( $self->{opts}->{o} eq 'json' ) {
 		my $json = JSON->new;
 		$json->canonical(1);
 		$json->pretty(1);
-		$string = $json->encode($self->{config});
+		$string = $json->encode($config);
 		print $string;
 	} elsif ( $self->{opts}->{o} eq 'yaml' ) {
-		$string = Dump($self->{config});
+		$string = Dump($config);
 		print $string;
 	}
 
@@ -95,6 +111,9 @@ sub help {
 -o <format>     Format to print it in.
                 Available: json, yaml, toml
                 Default: toml
+
+-s <section>    A JSON Path style variable used for selecting a sub
+                section of the config to return.
 ';
 }
 
@@ -103,7 +122,8 @@ sub short {
 }
 
 sub opts_data {
-	return 'o=s';
+	return 'o=s
+s=s';
 }
 
 1;
