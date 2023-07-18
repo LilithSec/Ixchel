@@ -39,9 +39,10 @@ Returns a hash reference of the default config.
 sub get {
 	my $config = {
 		suricata => {
-			multi_intance     => 0,
+			multi_instance     => 0,
 			config_base       => '/usr/local/etc/suricata',
 			instances         => {},
+			config            => {},
 			enable            => 0,
 			enable_fastlog    => 1,
 			enable_syslog     => 0,

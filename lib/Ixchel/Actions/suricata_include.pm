@@ -1,14 +1,14 @@
-package Ixchel::Actions::suricata_outputs;
+package Ixchel::Actions::suricata_include;
 
 use 5.006;
 use strict;
 use warnings;
 use File::Slurp;
-use String::ShellQuote;
+use YAML qw(Dump);
 
 =head1 NAME
 
-Ixchel::Actions::suricata_ouputs :: Generate a outputs include for suricata.
+Ixchel::Actions::suricata_include :: Generates the instance specific include for a suricata instance.
 
 =head1 VERSION
 
@@ -22,7 +22,7 @@ our $VERSION = '0.0.1';
 
     use Data::Dumper;
 
-    my $results=$ixchel->action(action=>'suricata_outputs', opts=>{np=>1, w=>1, });
+    my $results=$ixchel->action(action=>'suricata_include', opts=>{np=>1, w=>1, });
 
     print Dumper($results);
 
@@ -43,7 +43,7 @@ A instance to operate on.
 =head1 RESULT HASH REF
 
     .errors :: A array of errors encountered.
-    .status_text :: A string description of what was done and the results.
+    .status_text :: A string description of what was done and teh results.
     .ok :: Set to zero if any of the above errored.
 
 =cut
@@ -114,32 +114,46 @@ sub action {
 			@instances = keys( %{ $self->{config}{suricata}{instances} } );
 		}
 		foreach my $instance (@instances) {
-			my $vars = {
-				enable_fastlog    => $self->{config}{suricata}{enable_fastlog},
-				enable_syslog     => $self->{config}{suricata}{enable_syslog},
-				filestore_enable  => $self->{config}{suricata}{filestore_enable},
-				dhcp_in_alert_eve => $self->{config}{suricata}{dhcp_in_alert_eve},
-				instance_part     => '-' . $instance,
-			};
-
-			foreach my $to_migrate (@vars_to_migrate) {
-				if ( defined( $self->{config}{suricata}{instances}{$instance}{$to_migrate} ) ) {
-					$vars->{$to_migrate} = $self->{config}{suricata}{instances}{$instance}{$to_migrate};
-				}
-			}
-
 			my $filled_in;
 			eval {
-				$filled_in = $self->{ixchel}->action(
-					action => 'template',
-					vars   => $vars,
-					opts   => {
-						np => 1,
-						t  => 'suricata_outputs',
+				my $base_config = $self->{config}{suricata}{config};
+
+				if ( !defined( $self->{config}{suricata}{instances}{$instance} ) ) {
+					die( $instance . ' does not exist under .suricata.instances' );
+				}
+
+				my $config = $self->{config}{suricata}{instances}{$instance};
+
+				my $merger = Hash::Merge->new('RIGHT_PRECEDENT');
+				# make sure arrays from the actual config replace any arrays in the defaultconfig
+				$merger->add_behavior_spec(
+					{
+						'SCALAR' => {
+							'SCALAR' => sub { $_[1] },
+							'ARRAY'  => sub { [ $_[0], @{ $_[1] } ] },
+							'HASH'   => sub { $_[1] },
+						},
+						'ARRAY' => {
+							'SCALAR' => sub { $_[1] },
+							'ARRAY'  => sub { [ @{ $_[1] } ] },
+							'HASH'   => sub { $_[1] },
+						},
+						'HASH' => {
+							'SCALAR' => sub { $_[1] },
+							'ARRAY'  => sub { [ values %{ $_[0] }, @{ $_[1] } ] },
+							'HASH'   => sub { Hash::Merge::_merge_hashes( $_[0], $_[1] ) },
+						},
 					},
-				);
+					'Ixchel',
+										   );
+				my %tmp_config=%{ $config };
+				my %tmp_base_config=%{ $base_config };
+				my $merged = $merger->merge( \%tmp_base_config, \%tmp_config );
+
+				$filled_in = '%YAML 1.1'."\n".Dump($merged);
+
 				if ( $self->{opts}{w} ) {
-					write_file( $config_base . '/outputs-' . $instance . '.yaml', $filled_in );
+					write_file( $config_base . '/include-' . $instance . '.yaml', $filled_in );
 				}
 			};
 			if ($@) {
@@ -157,59 +171,46 @@ sub action {
 					. ' ]-------------------------------------' . "\n"
 					. $filled_in . "\n";
 			}
+
 		} ## end foreach my $instance (@instances)
 	} else {
 		if ( defined( $self->{opts}{i} ) ) {
-			die('-i may not be used in single instance mode');
+			die('-i may not be used in single instance mode, .suricata.multi_intance=1, ,');
 		}
-
-		my $vars = {
-			enable_fastlog    => $self->{config}{suricata}{enable_fastlog},
-			enable_syslog     => $self->{config}{suricata}{enable_syslog},
-			filestore_enable  => $self->{config}{suricata}{filestore_enable},
-			dhcp_in_alert_eve => $self->{config}{suricata}{dhcp_in_alert_eve},
-			instance_part     => '',
-		};
 
 		my $filled_in;
 		eval {
-			$filled_in = $self->{ixchel}->action(
-				action => 'template',
-				vars   => $vars,
-				opts   => {
-					np => 1,
-					t  => 'suricata_outputs',
-				},
-			);
+			my $config = $self->{config}{suricata}{config};
+			$filled_in = '%YAML 1.1'."\n".Dump($config);
 
 			if ( $self->{opts}{w} ) {
-				write_file( $config_base . '/outputs.yaml', $filled_in );
+				write_file( $config_base . '/include.yaml', $filled_in );
 			}
 		};
 		if ($@) {
-			$results->{status_text} = '# ' . $@ . "\n";
+			$results->{status_text} = '# ' . $@;
 		} else {
 			$results->{status_text} = $filled_in;
 		}
-	} ## end else [ if ( $self->{config}{suricata}{multi_instance...})]
+	} ## end else [ if ( $self->{config}{suricata}{multi_intance...})]
 
 	if ( !$self->{opts}{np} ) {
 		print $results->{status_text};
 	}
 
-	if ( !defined( $results->{errors}[0] ) ) {
-		$results->{ok} = 1;
+	if (!defined($results->{errors}[0])) {
+		$results->{ok}=1;
 	}
 
 	return $results;
 } ## end sub action
 
 sub help {
-	return 'Generate a outputs include for suricata.
+	return 'Generates the instance specific include for a suricata instance.
 
 --np          Do not print the status of it.
 
--w            Write the generated services to service files.
+-w            Write the generated includes out.
 
 -i <instance> A instance to operate on.
 
@@ -217,7 +218,7 @@ sub help {
 } ## end sub help
 
 sub short {
-	return 'Generate a outputs include for suricata.';
+	return 'Generates the instance specific include for a suricata instance.';
 }
 
 sub opts_data {
