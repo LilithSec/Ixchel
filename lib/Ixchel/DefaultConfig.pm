@@ -39,7 +39,7 @@ Returns a hash reference of the default config.
 sub get {
 	my $config = {
 		suricata => {
-			multi_instance     => 0,
+			multi_instance    => 0,
 			config_base       => '/usr/local/etc/suricata',
 			instances         => {},
 			config            => {},
@@ -114,7 +114,8 @@ sub get {
 			cpanm   => {},
 		},
 		systemd => {
-			auto => {},
+			auto     => {},
+			journald => {},
 		},
 		snmp => {
 			community         => 'public',
