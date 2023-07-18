@@ -8,7 +8,7 @@ use String::ShellQuote;
 
 =head1 NAME
 
-Ixchel::Actions::systemd_auto :: 
+Ixchel::Actions::systemd_auto :: Generate systemd service files using the systemd_service template.
 
 =head1 VERSION
 
@@ -19,6 +19,20 @@ Version 0.0.1
 our $VERSION = '0.0.1';
 
 =head1 SYNOPSIS
+
+    use Data::Dumper;
+
+    my $results=$ixchel->action(action=>'systemd_auto', opts=>{np=>1, w=>1, reload=>1, enable=>1, start=>1, });
+
+    print Dumper($results);
+
+The template used is systemd_service.
+
+The generated services will be named ixchelAuto-$service.
+
+Should be noted that the this can return what the generated templates will contain via checking the
+output on non-systemd systems attempting to use -w or the like outside of systemd systems will result
+in it failing. Printing the results on other systems is meant primarily for testing/debugging purposes.
 
 =head1 FLAGS
 
@@ -49,6 +63,17 @@ Start the generated services.
 =head2 --restart
 
 Restart the generated services.
+
+=head1 RESULT HASH REF
+
+    .errors :: A array of errors encountered.
+    .status_text :: A string description of what was done and teh results.
+    .is_systemd :: Set to 1 if the system in question is systemd.
+    .started :: Set to 0 if starting anything failed.
+    .restarted :: Set to 0 if restarting anything failed.
+    .enabled :: Set to 0 if enabling anything failed.
+    .reloaded :: Set to 0 if reloading systemd failed.
+    .ok :: Set to zero if any of the above errored.
 
 =cut
 
@@ -102,10 +127,24 @@ sub action {
 	my $results = {
 		errors      => [],
 		status_text => '',
+		is_systemd  => 0,
+		written     => 1,
+		started     => 1,
+		restarted   => 1,
+		enabled     => 1,
+		reloaded    => 1,
+		ok          => 0,
 	};
+
+	# not dying here is intentional for testing purposes
+	if ( $^O eq 'linux' && ( -f '/usr/bin/systemctl' || -f '/bin/systemctl' ) ) {
+		$results->{is_systemd} = 1;
+	}
 
 	my @units;
 
+	# if we have a single service specified via -s, use that
+	# otherwise act upon them all
 	my @services;
 	if ( defined( $self->{opts}{s} ) ) {
 		if ( !defined( $self->{config}{systemd}{auto}{ $self->{opts}{s} } ) ) {
@@ -116,10 +155,12 @@ sub action {
 		@services = keys( %{ $self->{config}{systemd}{auto} } );
 	}
 
+	# if we don't have any services, nothing we can do
 	if ( !defined( $services[0] ) ) {
 		die('There are no configured auto services under .systemd.auto');
 	}
 
+	# attempt to configure the various services
 	foreach my $service (@services) {
 		my $service_vars = $self->{config}{systemd}{auto}{$service};
 
@@ -145,6 +186,7 @@ sub action {
 			}
 		};
 		if ($@) {
+			$results->{written} = 0;
 			my $error = $@;
 			push( @{ $results->{errors} }, $error );
 			if ( !defined($filled_in) ) {
@@ -168,12 +210,14 @@ sub action {
 		}
 	} ## end foreach my $service (@services)
 
+	# if asked to reload systemd, attempt to do so
 	if ( $self->{opts}{reload} ) {
 		my $output = `systemctl daemon-reload 2>&1`;
 		if ( !defined($output) ) {
 			$output = '';
 		}
 		if ( $? != 0 ) {
+			$results->{reloaded} = 0;
 			$results->{status_text}
 				= $results->{status_text}
 				. '-----[ Reload Error ]-------------------------------------' . "\n"
@@ -188,6 +232,7 @@ sub action {
 		}
 	} ## end if ( $self->{opts}{reload} )
 
+	# if asked to enable the services, attempt to do so
 	if ( $self->{opts}{enable} ) {
 		foreach my $unit (@units) {
 			my $escaped_unit = shell_quote($unit);
@@ -197,6 +242,7 @@ sub action {
 				$output = '';
 			}
 			if ( $? != 0 ) {
+				$results->{enabled} = 0;
 				$results->{status_text}
 					= $results->{status_text}
 					. '-----[ Enable '
@@ -218,6 +264,7 @@ sub action {
 		} ## end foreach my $unit (@units)
 	} ## end if ( $self->{opts}{enable} )
 
+	# if asked to start the services, attempt to do so
 	if ( $self->{opts}{start} ) {
 		foreach my $unit (@units) {
 			my $escaped_unit = shell_quote($unit);
@@ -227,6 +274,7 @@ sub action {
 				$output = '';
 			}
 			if ( $? != 0 ) {
+				$results->{started} = 0;
 				$results->{status_text}
 					= $results->{status_text}
 					. '-----[ Start '
@@ -248,6 +296,7 @@ sub action {
 		} ## end foreach my $unit (@units)
 	} ## end if ( $self->{opts}{start} )
 
+	# if asked to restart the services, attempt to do so
 	if ( $self->{opts}{restart} ) {
 		foreach my $unit (@units) {
 			my $escaped_unit = shell_quote($unit);
@@ -257,6 +306,7 @@ sub action {
 				$output = '';
 			}
 			if ( $? != 0 ) {
+				$results->{restarted} = 0;
 				$results->{status_text}
 					= $results->{status_text}
 					. '-----[ Retart '
@@ -282,6 +332,18 @@ sub action {
 		print $results->{status_text};
 	}
 
+	# only set ok to true if all the all the following are also true
+	# otherwise some error was encountered
+	if (   $results->{is_systemd}
+		&& $results->{written}
+		&& $results->{started}
+		&& $results->{restarted}
+		&& $results->{enabled}
+		&& $results->{reloaded} )
+	{
+		$results->{ok} = 1;
+	}
+
 	return $results;
 } ## end sub action
 
@@ -302,7 +364,7 @@ sub help {
 
 --restart     Restart the generated services.
 ';
-}
+} ## end sub help
 
 sub short {
 	return 'Handles generation of service file as specified under .systemd.auto .';
