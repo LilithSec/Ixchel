@@ -39,10 +39,15 @@ Returns a hash reference of the default config.
 sub get {
 	my $config = {
 		suricata => {
-			multi_intance => 0,
-			config_base   => '/etc/suricata/',
-			instances     => [],
-			enable        => 0,
+			multi_intance     => 0,
+			config_base       => '/usr/local/etc/suricata',
+			instances         => {},
+			enable            => 0,
+			enable_fastlog    => 1,
+			enable_syslog     => 0,
+			filestore_enable  => 1,
+			dhcp_in_alert_eve => 0,
+			base_config       => '',
 		},
 		suricata_extract => {
 			enable      => 0,
@@ -108,7 +113,7 @@ sub get {
 			cpanm   => {},
 		},
 		systemd => {
-			auto       => {},
+			auto => {},
 		},
 		snmp => {
 			community         => 'public',
@@ -170,7 +175,8 @@ sub get {
 	#	my $host_info=Rex::Hardware::Host->get();
 
 	if ( $^O eq 'linux' ) {
-		$config->{snmp}{extend_base_dir} = '/etc/snmp/';
+		$config->{suricata}{config_base}            = '/etc/suricata';
+		$config->{snmp}{extend_base_dir}            = '/etc/snmp/';
 		$config->{snmp}{linux_softnet_stat}{enable} = 1;
 
 		#		if ($host_info->{operating_system} eq 'Debian' || $host_info->{operating_system} eq 'Ubuntu') {

@@ -395,7 +395,7 @@ outputs:
       community-id-seed: 0
       types:
         - ikev2
-[% vars.dhcp_in_alert_eve %]
+[% IF vars.dhcp_in_alert_eve %]
   - eve-log:
       enabled: yes
       filetype: regular
