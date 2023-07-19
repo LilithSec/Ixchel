@@ -181,6 +181,9 @@ sub action {
 		my $filled_in;
 		eval {
 			my $config = $self->{config}{sagan}{config};
+
+			$config->{include}=$config_base . '/sagan-rules.yaml';
+
 			$filled_in = '%YAML 1.1'."\n".Dump($config);
 
 			if ( $self->{opts}{w} ) {
