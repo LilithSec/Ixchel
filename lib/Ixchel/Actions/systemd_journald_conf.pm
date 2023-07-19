@@ -41,6 +41,10 @@ Write it out to /etc/systemd/journald.conf.d/99-ixchel.conf
 
 Do not print out the results.
 
+=head2 --die
+
+Die on write failure.
+
 =cut
 
 sub new {
@@ -110,6 +114,9 @@ sub action {
 		}
 	};
 	if ($@) {
+		if ( $self->{opts}{die} ) {
+			die($@);
+		}
 		$string = '# ' . $@ . "\n" . $string;
 	}
 
@@ -126,8 +133,10 @@ sub help {
 -w        Write it out to /etc/systemd/journald.conf.d/99-ixchel.conf
 
 --np      Do not print out the results.
+
+--die     Die on write failure.
 ';
-}
+} ## end sub help
 
 sub short {
 	return 'Generate a systemd journald config include';
@@ -135,7 +144,8 @@ sub short {
 
 sub opts_data {
 	return 'w
-np';
+np
+die';
 }
 
 1;
