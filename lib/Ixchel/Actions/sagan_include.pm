@@ -1,4 +1,4 @@
-package Ixchel::Actions::suricata_include;
+package Ixchel::Actions::sagan_include;
 
 use 5.006;
 use strict;
@@ -8,7 +8,7 @@ use YAML qw(Dump);
 
 =head1 NAME
 
-Ixchel::Actions::suricata_include :: Generates the instance specific include for a suricata instance.
+Ixchel::Actions::sagan_include :: Generates the instance specific include for a sagan instance.
 
 =head1 VERSION
 
@@ -22,7 +22,7 @@ our $VERSION = '0.0.1';
 
     use Data::Dumper;
 
-    my $results=$ixchel->action(action=>'suricata_include', opts=>{np=>1, w=>1, });
+    my $results=$ixchel->action(action=>'sagan_include', opts=>{np=>1, w=>1, });
 
     print Dumper($results);
 
@@ -101,26 +101,26 @@ sub action {
 		ok          => 0,
 	};
 
-	my $config_base = $self->{config}{suricata}{config_base};
+	my $config_base = $self->{config}{sagan}{config_base};
 
-	if ( $self->{config}{suricata}{multi_instance} ) {
+	if ( $self->{config}{sagan}{multi_instance} ) {
 		my @instances;
 
 		if ( defined( $self->{opts}{i} ) ) {
 			@instances = ( $self->{opts}{i} );
 		} else {
-			@instances = keys( %{ $self->{config}{suricata}{instances} } );
+			@instances = keys( %{ $self->{config}{sagan}{instances} } );
 		}
 		foreach my $instance (@instances) {
 			my $filled_in;
 			eval {
-				my $base_config = $self->{config}{suricata}{config};
+				my $base_config = $self->{config}{sagan}{config};
 
-				if ( !defined( $self->{config}{suricata}{instances}{$instance} ) ) {
-					die( $instance . ' does not exist under .suricata.instances' );
+				if ( !defined( $self->{config}{sagan}{instances}{$instance} ) ) {
+					die( $instance . ' does not exist under .sagan.instances' );
 				}
 
-				my $config = $self->{config}{suricata}{instances}{$instance};
+				my $config = $self->{config}{sagan}{instances}{$instance};
 
 				my $merger = Hash::Merge->new('RIGHT_PRECEDENT');
 				# make sure arrays from the actual config replace any arrays in the defaultconfig
@@ -148,10 +148,12 @@ sub action {
 				my %tmp_base_config=%{ $base_config };
 				my $merged = $merger->merge( \%tmp_base_config, \%tmp_config );
 
+				$merged->{include}=$config_base . '/sagan-rules-' . $instance . '.yaml';
+
 				$filled_in = '%YAML 1.1'."\n".Dump($merged);
 
 				if ( $self->{opts}{w} ) {
-					write_file( $config_base . '/include-' . $instance . '.yaml', $filled_in );
+					write_file( $config_base . '/sagan-include-' . $instance . '.yaml', $filled_in );
 				}
 			};
 			if ($@) {
@@ -173,12 +175,12 @@ sub action {
 		} ## end foreach my $instance (@instances)
 	} else {
 		if ( defined( $self->{opts}{i} ) ) {
-			die('-i may not be used in single instance mode, .suricata.multi_intance=1, ,');
+			die('-i may not be used in single instance mode, .sagan.multi_intance=1, ,');
 		}
 
 		my $filled_in;
 		eval {
-			my $config = $self->{config}{suricata}{config};
+			my $config = $self->{config}{sagan}{config};
 			$filled_in = '%YAML 1.1'."\n".Dump($config);
 
 			if ( $self->{opts}{w} ) {
@@ -190,7 +192,7 @@ sub action {
 		} else {
 			$results->{status_text} = $filled_in;
 		}
-	} ## end else [ if ( $self->{config}{suricata}{multi_intance...})]
+	} ## end else [ if ( $self->{config}{sagan}{multi_intance...})]
 
 	if ( !$self->{opts}{np} ) {
 		print $results->{status_text};
@@ -204,7 +206,7 @@ sub action {
 } ## end sub action
 
 sub help {
-	return 'Generates the instance specific include for a suricata instance.
+	return 'Generates the instance specific include for a sagan instance.
 
 --np          Do not print the status of it.
 
@@ -216,7 +218,7 @@ sub help {
 } ## end sub help
 
 sub short {
-	return 'Generates the instance specific include for a suricata instance.';
+	return 'Generates the instance specific include for a sagan instance.';
 }
 
 sub opts_data {

@@ -48,7 +48,7 @@ sub get {
 			enable_syslog     => 0,
 			filestore_enable  => 1,
 			dhcp_in_alert_eve => 0,
-			base_config       => '',
+			base_config       => 'https://raw.githubusercontent.com/OISF/suricata/master/suricata.yaml.in',
 		},
 		suricata_extract => {
 			enable      => 0,
@@ -66,8 +66,10 @@ sub get {
 		sagan => {
 			multi_intance => 0,
 			config_base   => '/usr/local/etc/',
-			instances     => [],
+			instances     => {},
+			config        => {},
 			enable        => 0,
+			base_config   => 'https://raw.githubusercontent.com/quadrantsec/sagan/main/etc/sagan.yaml',
 		},
 		meer => {
 			multi_intance => 0,
