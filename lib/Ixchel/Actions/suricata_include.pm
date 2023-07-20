@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 use File::Slurp;
-use YAML qw(Dump);
+use YAML::XS qw(Dump);
 
 =head1 NAME
 

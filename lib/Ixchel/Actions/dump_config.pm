@@ -6,7 +6,7 @@ use warnings;
 use Ixchel::functions::sys_info;
 use TOML qw(to_toml);
 use JSON qw(to_json);
-use YAML qw(Dump);
+use YAML::XS qw(Dump);
 use Data::Dumper;
 use JSON::Path;
 

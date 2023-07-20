@@ -1,14 +1,15 @@
-package Ixchel::Actions::sagan_include;
+package Ixchel::Actions::sagan_rules;
 
 use 5.006;
 use strict;
 use warnings;
 use File::Slurp;
-use YAML::XS qw(Dump);
+use YAML::XS   qw(Dump);
+use List::Util qw(uniq);
 
 =head1 NAME
 
-Ixchel::Actions::sagan_include :: Generates the instance specific include for a sagan instance.
+Ixchel::Actions::sagan_rules :: Generate the rules include for Sagan.
 
 =head1 VERSION
 
@@ -22,9 +23,16 @@ our $VERSION = '0.0.1';
 
     use Data::Dumper;
 
-    my $results=$ixchel->action(action=>'sagan_include', opts=>{np=>1, w=>1, });
+    my $results=$ixchel->action(action=>'sagan_rules', opts=>{np=>1, w=>1, });
 
     print Dumper($results);
+
+Generates the rules include for sagan using the array .sagan.rules and
+if .sagan.instances_rules.$instance exists, that will be merged into it.
+
+The resulting array is deduplicated using uniq.
+
+Any item that does not match /\// has '$RULE_PATH/' prepended to it.
 
 =head1 FLAGS
 
@@ -114,46 +122,24 @@ sub action {
 		foreach my $instance (@instances) {
 			my $filled_in;
 			eval {
-				my $base_config = $self->{config}{sagan}{config};
+				my @rules = @{ $self->{config}{sagan}{rules} };
+				if ( defined( $self->{config}{sagan}{instances_rules}{$instance} ) ) {
+					push( @rules, @{ $self->{config}{sagan}{instances_rules}{$instance} } );
+				}
+				@rules = uniq( sort(@rules) );
 
-				if ( !defined( $self->{config}{sagan}{instances}{$instance} ) ) {
-					die( $instance . ' does not exist under .sagan.instances' );
+				my $int = 0;
+				while ( defined( $rules[$int] ) ) {
+					if ( $rules[$int] !~ /\// ) {
+						$rules[$int] = '$RULE_PATH/' . $rules[$int];
+					}
+					$int++;
 				}
 
-				my $config = $self->{config}{sagan}{instances}{$instance};
-
-				my $merger = Hash::Merge->new('RIGHT_PRECEDENT');
-				# make sure arrays from the actual config replace any arrays in the defaultconfig
-				$merger->add_behavior_spec(
-					{
-						'SCALAR' => {
-							'SCALAR' => sub { $_[1] },
-							'ARRAY'  => sub { [ $_[0], @{ $_[1] } ] },
-							'HASH'   => sub { $_[1] },
-						},
-						'ARRAY' => {
-							'SCALAR' => sub { $_[1] },
-							'ARRAY'  => sub { [ @{ $_[1] } ] },
-							'HASH'   => sub { $_[1] },
-						},
-						'HASH' => {
-							'SCALAR' => sub { $_[1] },
-							'ARRAY'  => sub { [ values %{ $_[0] }, @{ $_[1] } ] },
-							'HASH'   => sub { Hash::Merge::_merge_hashes( $_[0], $_[1] ) },
-						},
-					},
-					'Ixchel',
-										   );
-				my %tmp_config=%{ $config };
-				my %tmp_base_config=%{ $base_config };
-				my $merged = $merger->merge( \%tmp_base_config, \%tmp_config );
-
-				$merged->{include}=$config_base . '/sagan-rules-' . $instance . '.yaml';
-
-				$filled_in = '%YAML 1.1'."\n".Dump($merged);
+				$filled_in = '%YAML 1.1' . "\n" . Dump( { 'rules-files' => \@rules } );
 
 				if ( $self->{opts}{w} ) {
-					write_file( $config_base . '/sagan-include-' . $instance . '.yaml', $filled_in );
+					write_file( $config_base . '/sagan-rules-' . $instance . '.yaml', $filled_in );
 				}
 			};
 			if ($@) {
@@ -180,14 +166,21 @@ sub action {
 
 		my $filled_in;
 		eval {
-			my $config = $self->{config}{sagan}{config};
+			my @rules = @{ $self->{config}{sagan}{rules} };
+			@rules = uniq( sort(@rules) );
 
-			$config->{include}=$config_base . '/sagan-rules.yaml';
+			my $int = 0;
+			while ( defined( $rules[$int] ) ) {
+				if ( $rules[$int] !~ /\// ) {
+					$rules[$int] = '$RULE_PATH/' . $rules[$int];
+				}
+				$int++;
+			}
 
-			$filled_in = '%YAML 1.1'."\n".Dump($config);
+			$filled_in = '%YAML 1.1' . "\n" . Dump( { 'rules-files' => \@rules } );
 
 			if ( $self->{opts}{w} ) {
-				write_file( $config_base . '/include.yaml', $filled_in );
+				write_file( $config_base . '/sagan-rules.yaml', $filled_in );
 			}
 		};
 		if ($@) {
@@ -195,21 +188,21 @@ sub action {
 		} else {
 			$results->{status_text} = $filled_in;
 		}
-	} ## end else [ if ( $self->{config}{sagan}{multi_intance...})]
+	} ## end else [ if ( $self->{config}{sagan}{multi_instance...})]
 
 	if ( !$self->{opts}{np} ) {
 		print $results->{status_text};
 	}
 
-	if (!defined($results->{errors}[0])) {
-		$results->{ok}=1;
+	if ( !defined( $results->{errors}[0] ) ) {
+		$results->{ok} = 1;
 	}
 
 	return $results;
 } ## end sub action
 
 sub help {
-	return 'Generates the instance specific include for a sagan instance.
+	return 'Generate the rules include for Sagan.
 
 --np          Do not print the status of it.
 
@@ -221,7 +214,7 @@ sub help {
 } ## end sub help
 
 sub short {
-	return 'Generates the instance specific include for a sagan instance.';
+	return 'Generate the rules include for Sagan.';
 }
 
 sub opts_data {
