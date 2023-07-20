@@ -157,6 +157,7 @@ sub action {
 				}
 			};
 			if ($@) {
+				push(@{$results->{errors}}, $@);
 				$results->{status_text}
 					= $results->{status_text}
 					. '-----[ Errored: '
@@ -192,6 +193,7 @@ sub action {
 			}
 		};
 		if ($@) {
+			push(@{$results->{errors}}, $@);
 			$results->{status_text} = '# ' . $@;
 			$self->{ixchel}{errors_count}++;
 		} else {

@@ -149,6 +149,7 @@ sub action {
 					. $instance
 					. ' ]-------------------------------------' . "\n" . '# '
 					. $@ . "\n";
+				push(@{$results->{errors}}, $@);
 				$self->{ixchel}{errors_count}++;
 			} else {
 				$results->{status_text}
@@ -187,6 +188,7 @@ sub action {
 		if ($@) {
 			$results->{status_text} = '# ' . $@;
 			$self->{ixchel}{errors_count}++;
+			push(@{$results->{errors}}, $@);
 		} else {
 			$results->{status_text} = $filled_in;
 		}
