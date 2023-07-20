@@ -21,8 +21,9 @@ use Getopt::Long qw(:config pass_through);
 use File::Slurp;
 use TOML qw(from_toml);
 use JSON qw(decode_json);
-use YAML qw(Load);
+use YAML::XS qw(Load);
 use Ixchel;
+use utf8;
 
 sub version {
 	print "ixchel v. 0.0.1\n";
@@ -107,6 +108,7 @@ if ( defined($config_file) && -e $config_file ) {
 			die( 'Parsing "' . $config_file . '" failed... ' . $@ );
 		}
 	} elsif ( $config_file =~ /([Yy][Mm][Ll]|[Yy][Aa][Mm][Ll])$/ ) {
+		utf8::encode($raw_config);
 		eval { $parsed_config = Load($raw_config); };
 		if ($@) {
 			die( 'Parsing "' . $config_file . '" failed... ' . $@ );

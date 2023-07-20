@@ -6,6 +6,7 @@ use warnings;
 use File::Slurp;
 use Exporter 'import';
 our @EXPORT = qw(file_get);
+use LWP::Simple;
 
 =head1 NAME
 
@@ -51,7 +52,7 @@ but the ones above will take president over that and set the env vars.
 =cut
 
 sub file_get {
-	my ( $self, %opts ) = @_;
+	my ( %opts ) = @_;
 
 	if ( !defined( $opts{url} ) ) {
 		die('url not specified');
