@@ -74,7 +74,8 @@ sub new {
 			}
 		),
 		share_dir     => dist_dir("Ixchel"),
-		options_array => undef,
+				options_array => undef,
+				errors_count=>0,
 	};
 	bless $self;
 

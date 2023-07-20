@@ -34,6 +34,7 @@ sub new {
 		vars   => {},
 		arggv  => [],
 		opts   => {},
+		ixchel => $opts{ixchel},
 	};
 	bless $self;
 
@@ -87,6 +88,7 @@ sub action {
 	} elsif ( -f $self->{share_dir} . '/templates/' . $template . '.tt' ) {
 		$template_file = $self->{share_dir} . '/templates/' . $template . '.tt';
 	} else {
+		$self->{ixchel}{errors_count}++;
 		die( 'Unable to locate template "' . $template . '" in either the current dir or ' . $self->{share_dir} );
 	}
 
@@ -146,6 +148,7 @@ sub action {
 
 	my $template_data = read_file($template_file);
 	if ( !defined($template_data) ) {
+		$self->{ixchel}{errors_count}++;
 		die( '"' . $template_file . '" could not be read' );
 	}
 

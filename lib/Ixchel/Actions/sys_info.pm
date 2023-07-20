@@ -40,7 +40,7 @@ Default: toml
 sub new {
 	my ( $empty, %opts ) = @_;
 
-	my $self = { config => undef, opts => {} };
+	my $self = { config => undef, opts => {}, ixchel=>$opts{ixchel} };
 	bless $self;
 
 	if ( defined( $opts{opts} ) ) {
@@ -57,11 +57,12 @@ sub action {
 		$self->{opts}->{o} = 'toml';
 	}
 
-	if (   $self->{opts}->{o} eq 'toml'
-		&& $self->{opts}->{o} eq 'json'
-		&& $self->{opts}->{o} eq 'dumper'
-		&& $self->{opts}->{o} eq 'yaml' )
+	if (   $self->{opts}->{o} ne 'toml'
+		&& $self->{opts}->{o} ne 'json'
+		&& $self->{opts}->{o} ne 'dumper'
+		&& $self->{opts}->{o} ne 'yaml' )
 	{
+		$self->{ixchel}{errors_count}++;
 		die( '-o is set to "' . $self->{opts}->{o} . '" which is not a understood setting' );
 	}
 

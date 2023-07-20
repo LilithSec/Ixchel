@@ -199,6 +199,7 @@ sub action {
 				. ' ]-------------------------------------' . "\n" . '# '
 				. $error
 				. $filled_in . "\n";
+			$self->{ixchel}{errors_count}++;
 		} else {
 			push( @units, $unit );
 			$results->{status_text}
@@ -223,6 +224,7 @@ sub action {
 				. '-----[ Reload Error ]-------------------------------------' . "\n"
 				. "# systemctl daemon-reload 2>&1 exited non zero...\n"
 				. $output . "\n";
+			$self->{ixchel}{errors_count}++;
 		} else {
 			$results->{status_text}
 				= $results->{status_text}
@@ -251,6 +253,7 @@ sub action {
 					. $command
 					. " exited non zero...\n"
 					. $output . "\n";
+				$self->{ixchel}{errors_count}++;
 			} else {
 				$results->{status_text}
 					= $results->{status_text}
@@ -283,6 +286,7 @@ sub action {
 					. $command
 					. " exited non zero...\n"
 					. $output . "\n";
+				$self->{ixchel}{errors_count}++;
 			} else {
 				$results->{status_text}
 					= $results->{status_text}
@@ -315,6 +319,7 @@ sub action {
 					. $command
 					. " exited non zero...\n"
 					. $output . "\n";
+				$self->{ixchel}{errors_count}++;
 			} else {
 				$results->{status_text}
 					= $results->{status_text}

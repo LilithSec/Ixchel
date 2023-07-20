@@ -118,6 +118,7 @@ sub action {
 			die($@);
 		}
 		$string = '# ' . $@ . "\n" . $string;
+		$self->{ixchel}{errors_count}++;
 	}
 
 	if ( !$self->{opts}{np} ) {

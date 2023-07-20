@@ -38,6 +38,7 @@ sub new {
 		vars   => {},
 		arggv  => [],
 		opts   => {},
+		ixchel => $opts{ixchel},
 	};
 	bless $self;
 
@@ -73,17 +74,17 @@ sub new {
 sub action {
 	my $self = $_[0];
 
-	my @services=keys(%{ $self->{config}{systemd}{auto} });
+	my @services = keys( %{ $self->{config}{systemd}{auto} } );
 
-	if (! $self->{opts}{np} ) {
-		print join("\n", @services);
-		if (defined($services[0])) {
+	if ( !$self->{opts}{np} ) {
+		print join( "\n", @services );
+		if ( defined( $services[0] ) ) {
 			print "\n";
 		}
 	}
 
 	return @services;
-}
+} ## end sub action
 
 sub help {
 	return 'List systemd auto generated services.

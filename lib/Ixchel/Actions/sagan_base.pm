@@ -174,6 +174,7 @@ sub action {
 					my $error = 'Writing ' . $config_file . ' failed... ' . $@;
 					push( @{ $results->{errors} }, $error );
 					$results->{status_text} = $results->{status_text} . '# ' . $error . "\n";
+					$self->{ixchel}{errors_count}++;
 				} ## end if ($@)
 			} ## end foreach my $instance (@instances)
 		} else {
@@ -193,6 +194,7 @@ sub action {
 				my $error = 'Writing ' . $config_file . ' failed... ' . $@;
 				push( @{ $results->{errors} }, $error );
 				$results->{status_text} = $results->{status_text} . '# ' . $error . "\n";
+				$self->{ixchel}{errors_count}++;
 			}
 		} ## end else [ if ( $self->{config}{sagan}{multi_instance...})]
 	} ## end if ($have_config)

@@ -133,3 +133,4 @@ my $i = Ixchel->new(config=>$parsed_config);
 
 $i->action(action=>$action);
 
+exit $i->{errors_count};

@@ -163,6 +163,7 @@ sub action {
 					. $instance
 					. ' ]-------------------------------------' . "\n" . '# '
 					. $@ . "\n";
+				$self->{ixchel}{errors_count}++;
 			} else {
 				$results->{status_text}
 					= $results->{status_text}
@@ -192,6 +193,7 @@ sub action {
 		};
 		if ($@) {
 			$results->{status_text} = '# ' . $@;
+			$self->{ixchel}{errors_count}++;
 		} else {
 			$results->{status_text} = $filled_in;
 		}

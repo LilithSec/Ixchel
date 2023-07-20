@@ -39,7 +39,7 @@ None.
 sub new {
 	my ( $empty, %opts ) = @_;
 
-	my $self = { config => undef, opts => {} };
+	my $self = { config => undef, opts => {}, ixchel => $opts{ixchel} };
 	bless $self;
 
 	if ( defined( $opts{config} ) ) {
@@ -103,6 +103,7 @@ sub action {
 				my $output = $self->{config}{snmp}{extend_base_dir} . '/' . $extend;
 				eval { write_file( $output, $content ); };
 				if ($@) {
+					$self->{ixchel}{errors_count}++;
 					$status = 'Writing ' . $url . ' to ' . $output . ' failed... ' . $@;
 					print $status;
 				} else {
@@ -127,6 +128,7 @@ sub action {
 				my $output = $self->{config}{snmp}{extend_base_dir} . '/' . $extend;
 				eval { write_file( $output, $content ); };
 				if ($@) {
+					$self->{ixchel}{errors_count}++;
 					$status = 'Writing ' . $url . ' to ' . $output . ' failed... ' . $@;
 					print $status;
 				} else {
@@ -156,7 +158,7 @@ The following are used for setting the proxy.
     .proxy.http
     .proxy.https
 ';
-}
+} ## end sub help
 
 sub short {
 	return 'Prints data from the sys_info function.';
