@@ -112,6 +112,7 @@ sub get {
 			proxy_https => '',
 			proxy_http  => '',
 			proxy_ftp   => '',
+			global      => 0,
 		},
 		pkgs => {
 			install => {},

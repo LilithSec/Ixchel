@@ -32,7 +32,13 @@ our $VERSION = '0.0.1';
     use Ixchel::functions::sys_info;
     use Data::Dumper;
 
-    print Dumper(sys_info);
+    my $returned=sys_info;
+
+    print Dumper($returned);
+
+$returned->{Host}{product} is filled in via Ixchel::functions::product and
+$returned->{Host}{serial} is filled in via Ixchel::functions::serial for the purpose
+making sure those are handled properly in a cross platform manner given a bug in Rex.
 
 =head1 Functions
 
