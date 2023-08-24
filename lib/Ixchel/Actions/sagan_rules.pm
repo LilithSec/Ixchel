@@ -32,7 +32,11 @@ if .sagan.instances_rules.$instance exists, that will be merged into it.
 
 The resulting array is deduplicated using uniq.
 
-Any item that does not match /\// has '$RULE_PATH/' prepended to it.
+Any item that does not match /\// or /\$/ has '$RULE_PATH/' prepended to it.
+
+If told to write it out, .sagan.config_base is used as the base directory to write
+to with the file name being 'sagan-rules.yaml' or in the case of multi instance
+"sagan-rules-$instance.yaml".
 
 =head1 FLAGS
 
@@ -130,7 +134,7 @@ sub action {
 
 				my $int = 0;
 				while ( defined( $rules[$int] ) ) {
-					if ( $rules[$int] !~ /\// ) {
+					if ( $rules[$int] !~ /\// || $rules[$int] !~ /\$/ ) {
 						$rules[$int] = '$RULE_PATH/' . $rules[$int];
 					}
 					$int++;
@@ -149,7 +153,7 @@ sub action {
 					. $instance
 					. ' ]-------------------------------------' . "\n" . '# '
 					. $@ . "\n";
-				push(@{$results->{errors}}, $@);
+				push( @{ $results->{errors} }, $@ );
 				$self->{ixchel}{errors_count}++;
 			} else {
 				$results->{status_text}
@@ -173,7 +177,7 @@ sub action {
 
 			my $int = 0;
 			while ( defined( $rules[$int] ) ) {
-				if ( $rules[$int] !~ /\// ) {
+				if ( $rules[$int] !~ /\// || $rules[$int] !~ /\$/ ) {
 					$rules[$int] = '$RULE_PATH/' . $rules[$int];
 				}
 				$int++;
@@ -188,7 +192,7 @@ sub action {
 		if ($@) {
 			$results->{status_text} = '# ' . $@;
 			$self->{ixchel}{errors_count}++;
-			push(@{$results->{errors}}, $@);
+			push( @{ $results->{errors} }, $@ );
 		} else {
 			$results->{status_text} = $filled_in;
 		}

@@ -34,6 +34,12 @@ The following keys are removed from the file.
     .processors
     .outputs
 
+.sagan.base_config is used as the URL for the config to use.
+
+.include is set to .sagan.config_base.'/sagan-include.yaml' in the case of single
+instance setups if .sagan.multi_instance is set to 1 then
+.sagan.config_base."/sagan-include-$instance.yaml"
+
 =head1 FLAGS
 
 =head2 --np

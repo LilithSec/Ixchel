@@ -26,6 +26,12 @@ our $VERSION = '0.0.1';
 
     print Dumper($results);
 
+This calls runs the following actions.
+
+    sagan_base
+    sagan_include
+    sagan_rules
+
 =head1 FLAGS
 
 =head2 --np
