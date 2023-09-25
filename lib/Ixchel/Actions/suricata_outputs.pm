@@ -26,6 +26,38 @@ our $VERSION = '0.0.1';
 
     print Dumper($results);
 
+The template used is 'suricata_outputs'.
+
+    .suricata.enable_fastlog :: Perl boolean if to enable fastlog output.
+        Default ::
+        Map To :: .vars.enable_fastlog
+
+    .suricata.enable_syslog :: Perl boolean if to enable syslog output.
+        Default ::
+        Map To :: .vars.enable_syslog
+
+    .suricata.filestore_enable :: Perl boolean if to enable the filestore.
+        Default ::
+        Map To :: .vars.filestore_enable
+
+    .suricata.dhcp_in_alert_eve :: Perl boolean if DHCP type items should be in the alert eve.
+        Default ::
+        Map To :: .vars.dhcp_in_alert_eve
+
+    .suricata.config_base :: The variable used for controlling where the outputs.yaml
+            file is created.
+
+Multiinstance handling. Ixchel supports multiple Suricata instances on Linux.
+If .suricata.multi_instace is set to 1, then the following is done.
+
+    1: Instance vars are generated via first copying the ones above and then
+       overwriting them with .suricata.instances.$instance.$var .
+
+    2: .vars.instance_part is set to "-$instance". If instances are not in use
+       this value is ''.
+
+    3: The output file is named  "outputs-$instance.yaml".
+
 =head1 FLAGS
 
 =head2 --np
