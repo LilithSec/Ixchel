@@ -21,7 +21,7 @@ our $VERSION = '0.0.1';
 
     use Data::Dumper;
 
-    my $results=$ixchel->action(action=>'suricata_outputs', opts=>{np=>1, w=>1, });
+    my $results=$ixchel->action(action=>'systemd_journald_conf', opts=>{np=>1, w=>1, });
 
 This takes .config.systemd.journald and generates a config that can be used with journald.
 
