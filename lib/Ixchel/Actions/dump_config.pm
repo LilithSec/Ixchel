@@ -24,6 +24,8 @@ our $VERSION = '0.0.1';
 
 =head1 SYNOPSIS
 
+    $ixchel->action(action=>'dump_config', opts=>{ o=>'toml' });
+
 Prints out the config.
 
 =head1 Switches

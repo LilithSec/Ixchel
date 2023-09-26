@@ -25,6 +25,10 @@ our $VERSION = '0.0.1';
 
 The template used is 'apt_proxy'.
 
+The returned value is the filed in template.
+
+The template used is apt_proxy.
+
 =head1 FLAGS
 
 =head2 -w

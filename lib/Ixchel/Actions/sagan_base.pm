@@ -34,7 +34,9 @@ The following keys are removed from the file.
     .processors
     .outputs
 
-.sagan.base_config is used as the URL for the config to use.
+.sagan.base_config is used as the URL for the config to use and needs to be something
+understood by L<Ixchel::functions::file_get>. By default
+'https://raw.githubusercontent.com/quadrantsec/sagan/main/etc/sagan.yaml' is used.
 
 .include is set to .sagan.config_base.'/sagan-include.yaml' in the case of single
 instance setups if .sagan.multi_instance is set to 1 then

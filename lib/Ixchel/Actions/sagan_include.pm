@@ -30,7 +30,27 @@ Generates the Sagan include config.
 
 The base include used is .sagan.config. If .sagan.multi_instance is set to 1,
 then .sagan.instances.$instance is merged on top of it using L<HASH::Merge>
-with RIGHT_PRECEDENT.
+with RIGHT_PRECEDENT as below with arrays being replaced.
+
+```
+    {
+        'SCALAR' => {
+            'SCALAR' => sub { $_[1] },
+            'ARRAY'  => sub { [ $_[0], @{ $_[1] } ] },
+            'HASH'   => sub { $_[1] },
+        },
+        'ARRAY' => {
+            'SCALAR' => sub { $_[1] },
+            'ARRAY'  => sub { [ @{ $_[1] } ] },
+            'HASH'   => sub { $_[1] },
+        },
+        'HASH' => {
+            'SCALAR' => sub { $_[1] },
+            'ARRAY'  => sub { [ values %{ $_[0] }, @{ $_[1] } ] },
+            'HASH'   => sub { Hash::Merge::_merge_hashes( $_[0], $_[1] ) },
+        },
+    }
+```
 
 If told to write it out, .sagan.config_base is used as the base directory to write
 to with the file name being 'sagan-include.yaml' or in the case of multi instance

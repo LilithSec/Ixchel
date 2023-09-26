@@ -30,13 +30,13 @@ our $VERSION = '0.0.1';
 Generates the rules include for sagan using the array .sagan.rules and
 if .sagan.instances_rules.$instance exists, that will be merged into it.
 
-The resulting array is deduplicated using uniq.
+The resulting array is deduplicated using L<List::Util>->uniq.
 
 Any item that does not match /\// or /\$/ has '$RULE_PATH/' prepended to it.
 
 If told to write it out, .sagan.config_base is used as the base directory to write
 to with the file name being 'sagan-rules.yaml' or in the case of multi instance
-"sagan-rules-$instance.yaml".
+"sagan-rules-$instance.yaml"
 
 =head1 FLAGS
 

@@ -22,7 +22,23 @@ our $VERSION = '0.0.1';
 
 =head1 SYNOPSIS
 
+    use Data::Dumper;
+
+    my $results=$ixchel->action(action=>'template', opts=>{np=>1, t=>$template_name});
+
+    print Dumper($results);
+
 Fills in the specified template.
+
+=head1 FLAGS
+
+=head2 --np
+
+Do not print the the filled in template.
+
+=head2 -t
+
+The name of the template to use.
 
 =cut
 

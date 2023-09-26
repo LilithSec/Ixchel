@@ -19,7 +19,12 @@ our $VERSION = '0.0.1';
 
 =head1 SYNOPSIS
 
-Prints out a list of available actions.
+    use Data::Dumper;
+
+    $ixchel->action(action=>'list_actions');
+
+Prints out a list of available actions and the short
+description for each.
 
 =cut
 
