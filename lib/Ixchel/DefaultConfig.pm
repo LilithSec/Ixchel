@@ -122,6 +122,9 @@ sub get {
 			auto     => {},
 			journald => {},
 		},
+		xeno_build => {
+			build_dir => '/tmp',
+		},
 		nss_pam => {
 			nscd_enable                   => 0,
 			uri                           => '',
