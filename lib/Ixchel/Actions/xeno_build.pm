@@ -11,6 +11,8 @@ use Rex::Commands::Pkg;
 use LWP::Simple;
 use Ixchel::functions::perl_module_via_pkg;
 use Ixchel::functions::install_cpanm;
+use Ixchel::functions::python_module_via_pkg;
+use Ixchel::functions::install_pip;
 
 =head1 NAME
 
@@ -179,7 +181,7 @@ Variables for template are as below.
 
 Install python stuff.
 
-    - .python.install :: A Perl boolean for if it should install python. By default only installs
+    - .python.pip_install :: A Perl boolean for if it should install python. By default only installs
             python and pip if .python.pip[0] or .python.pkgs[0] is defined.
         - Default :: 1
 
@@ -702,7 +704,6 @@ sub action {
 					);
 					system(@cpanm_args);
 					if ( $? != 0 ) {
-						print "failed to execute: $!\n";
 						$self->status_add(
 							type   => $type,
 							status => 'cpanm failed: ' . join( ' ', @cpanm_args ),
@@ -720,6 +721,79 @@ sub action {
 			##
 			##
 			##
+			$self->status_add( status => 'Starting type "' . $type . '"...' );
+
+			# keeps track of what was installed
+			my %installed;
+
+			# tracks if pip was already installed or not
+			my $pip_installed = 0;
+			if ( defined( $self->{opts}{xeno_build}{$type}{pip_install} )
+				&& !$self->{opts}{xeno_build}{$type}{pip_install} )
+			{
+				$pip_installed = 1;
+			}
+
+			# holds a list of package to be installed
+			my @modules;
+			if (   defined( $self->{opts}{xeno_build}{$type}{pip} )
+				&& defined( $self->{opts}{xeno_build}{$type}{pip}[0] ) )
+			{
+				push( @modules, @{ $self->{opts}{xeno_build}{$type}{pip} } );
+			}
+
+			# try to add packages for various modules
+			if (   defined( $self->{opts}{xeno_build}{$type}{pkgs} )
+				&& defined( $self->{opts}{xeno_build}{$type}{pkgs}[0] ) )
+			{
+				my @pkgs;
+				push( @pkgs, @{ $self->{opts}{xeno_build}{$type}{pkgs} } );
+				foreach my $module (@pkgs) {
+					eval { python_module_via_pkg( module => $module ) };
+					if ( !$@ ) {
+						push( @modules, $pkg );
+					} else {
+						$installed{$modules} = 1;
+					}
+				}
+
+				# install all modules for python via pip, including ones that could not be installed via packages
+				foreach my $module (@modules) {
+					if ( !$installed{$module} ) {
+						if ( !$pip_installed ) {
+							eval { install_pip; };
+							if ($@) {
+								$self->status_add(
+									type   => $type,
+									status => 'Installing pip failed... ' . $@,
+									error  => 1,
+								);
+								return $self->{results};
+							}
+							my @pip_cmd;
+							my $pip3 = `which pip3 2> /dev/null`;
+							if ( $? == 0 ) {
+								push( @pip_cmd, 'pip3', 'install', $module );
+							} else {
+								push( @pip_cmd, 'pip', 'install', $module );
+							}
+							$self->status_add(
+								type   => $type,
+								status => 'invoking pip: ' . join( ' ', @pip_cmd ),
+							);
+							system(@pip_cmd);
+							if ( $? != 0 ) {
+								$self->status_add(
+									type   => $type,
+									status => 'pip failed: ' . join( ' ', @pip_cmd ),
+									error  => 1,
+								);
+								return $self->{results};
+							}
+						} ## end if ( !$pip_installed )
+					} ## end if ( !$installed{$module} )
+				} ## end foreach my $module (@modules)
+			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
 
 		} elsif ( $type =~ /^exec[0-9]*$/ ) {
 			##
@@ -729,6 +803,7 @@ sub action {
 			##
 			##
 			##
+			$self->status_add( status => 'Starting type "' . $type . '"...' );
 
 		} ## end elsif ( $type =~ /^exec[0-9]*$/ )
 	} ## end foreach my $type (@types)
