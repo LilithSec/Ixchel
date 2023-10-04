@@ -9,6 +9,8 @@ use Rex::Commands::Gather;
 use File::Temp qw/ tempdir /;
 use Rex::Commands::Pkg;
 use LWP::Simple;
+use Ixchel::functions::perl_module_via_pkg;
+use Ixchel::functions::install_cpanm;
 
 =head1 NAME
 
@@ -223,6 +225,36 @@ Unknown types will result in an error.
     .status_text :: A string description of what was done and teh results.
     .ok :: 
 
+=head1 Determining OS
+
+L<Rex::Commands::Gather> is used for this.
+
+First the module get_operating_system is used. Then the following is ran.
+
+    if (is_freebsd) {
+        $self->{os}='FreeBSD';
+    }elsif (is_debian) {
+        $self->{os}='Debian';
+    }elsif (is_redhat) {
+        $self->{os}='Redhat';
+    }elsif (is_arch) {
+        $self->{os}='Arch';
+    }elsif (is_suse) {
+        $self->{os}='Suse';
+    }elsif (is_alt) {
+        $self->{os}='Alt';
+    }elsif (is_netbsd) {
+        $self->{os}='NetBSD';
+    }elsif (is_openbsd) {
+        $self->{os}='OpenBSD';
+    }elsif (is_mageia) {
+        $self->{os}='Mageia';
+    }elsif (is_void) {
+        $self->{os}='Void';
+    }
+
+Which will set it to that if one of those matches.
+
 =cut
 
 sub new {
@@ -244,11 +276,33 @@ sub new {
 	# having it in two places for the purposes of simplicity
 	$self->{template_vars}{os} = $self->{os};
 
+	if (is_freebsd) {
+		$self->{os} = 'FreeBSD';
+	} elsif (is_debian) {
+		$self->{os} = 'Debian';
+	} elsif (is_redhat) {
+		$self->{os} = 'Redhat';
+	} elsif (is_arch) {
+		$self->{os} = 'Arch';
+	} elsif (is_suse) {
+		$self->{os} = 'Suse';
+	} elsif (is_alt) {
+		$self->{os} = 'Alt';
+	} elsif (is_netbsd) {
+		$self->{os} = 'NetBSD';
+	} elsif (is_openbsd) {
+		$self->{os} = 'OpenBSD';
+	} elsif (is_mageia) {
+		$self->{os} = 'Mageia';
+	} elsif (is_void) {
+		$self->{os} = 'Void';
+	}
+
 	# set is_systemd template var
 	if ( $^O eq 'linux' && ( -f '/usr/bin/systemctl' || -f '/bin/systemctl' ) ) {
-		$self->{template_vars}{is_systemd}=1;
-	}else {
-		$self->{template_vars}{is_systemd}=0;
+		$self->{template_vars}{is_systemd} = 1;
+	} else {
+		$self->{template_vars}{is_systemd} = 0;
 	}
 
 	if ( defined( $opts{config} ) ) {
@@ -287,7 +341,7 @@ sub new {
 sub action {
 	my $self = $_[0];
 
-	my $results = {
+	$self->{results} = {
 		errors      => [],
 		status_text => '',
 		ok          => 0,
@@ -295,14 +349,15 @@ sub action {
 
 	# if this is not set, no reason to continue
 	if ( !defined( $self->{opts}{xeno_build} ) ) {
-		push( @{ $results->{errors} }, '.opts.xeno_build was not set' );
-		return $results;
+		push( @{ $self->{results}{errors} }, '.opts.xeno_build was not set' );
+		return $self->{results};
 	}
 
 	# define the order if not specified
 	if ( !defined( $self->{opts}{xeno_build}{order} ) ) {
 		$self->{opts}{xeno_build}{order} = [ 'fetch', 'pkgs', 'cpanm', 'python', 'exec', ];
 	}
+	$self->status_add( status => 'Order: ' . join( ', ', @{ $self->{opts}{xeno_build}{order} } ) );
 
 	# set default options if needed
 	if ( !defined( $self->{opts}{xeno_build}{options} ) ) {
@@ -323,6 +378,8 @@ sub action {
 		= File::Temp->newdir( DIR => $self->{opts}{xeno_build}{options}{build_dir} );
 	# now that options are setup, save it as a usable template variable
 	$self->{template_vars}{options} = $self->{opts}{xeno_build}{options};
+	$self->status_add( status => 'Build Dir, .options.build_dir: ' . $self->{opts}{xeno_build}{options}{build_dir} );
+	$self->status_add( status => 'Temp Dir, .options.tmpdir: ' . $self->{opts}{xeno_build}{options}{tmpdir} );
 
 	# figure out the types we are going to use
 	my @types;
@@ -334,8 +391,8 @@ sub action {
 			&& $type !~ /^python[0-9]*$/
 			&& $type !~ /^exec[0-9]*$/ )
 		{
-			push( @{ $results->{errors} }, '"' . $type . '" is not of a known type' );
-			return $results;
+			$self->status_add( status => '"' . $type . '" is not of a known type', error => 1 );
+			return $self->{results};
 		}
 		# if it exists, add it to the @types array
 		if ( defined $self->{opts}{xeno_build}{$type} ) {
@@ -344,43 +401,96 @@ sub action {
 	} ## end foreach my $type ( @{ $self->{opts}{xeno_build}...})
 
 	foreach my $type (@types) {
+		$self->status_add( status => 'Starting type "' . $type . '"...' );
 		if ( $type =~ /^fetch[0-9]*$/ ) {
+			##
+			##
+			##
+			## start of fetch
+			##
+			##
+			##
+
 			# get the names of the items to fetch
 			my @fetch_names;
 			if ( !defined( $self->{opts}{xeno_build}{$type}{items} ) ) {
 				@fetch_names = keys( %{ $self->{opts}{xeno_build}{$type}{items} } );
 			}
+			if ( !defined( $fetch_names[0] ) ) {
+				$self->status_add( type => $type, status => 'Itmes to fetch: ' . join( ', ', @fetch_names ) );
+			} else {
+				$self->status_add( type => $type, status => 'Nothing to fetch.' );
+			}
 			# figure out if we should template it or not
-			my $template_it=0;
-			if (defined( $self->{opts}{xeno_build}{$type}{template} )) {
-				$template_it=$self->{opts}{xeno_build}{$type}{template};
+			my $template_it = 0;
+			if ( defined( $self->{opts}{xeno_build}{$type}{template} ) ) {
+				$template_it = $self->{opts}{xeno_build}{$type}{template};
 			}
 			foreach my $fetch_name (@fetch_names) {
+				$self->status_add( type => $type, status => 'Fetching ' . $fetch_name );
 				if (   defined( $self->{opts}{xeno_build}{$type}{items}{url} )
 					&& defined( $self->{opts}{xeno_build}{$type}{items}{dst} ) )
 				{
+					$self->status_add( type => $type, status => 'Fetching ' . $fetch_name );
 					my $url = $self->{opts}{xeno_build}{$type}{items}{url};
 					my $dst = $self->{opts}{xeno_build}{$type}{items}{dst};
+					$self->status_add( type => $type, status => 'Fetch "' . $fetch_name . '" URL: ' . $url );
+					$self->status_add( type => $type, status => 'Fetch "' . $fetch_name . '" DST: ' . $dst );
+					$self->status_add(
+						type   => $type,
+						status => 'Fetch "' . $fetch_name . '" Template: ' . $template_it
+					);
 					if ($template_it) {
 						# template the url
-						my $output='';
+						my $output = '';
 						$self->{t}->process( \$url, $self->{template_vars}, \$output );
-						$url=$output;
-						$self->{opts}{xeno_build}{$type}{items}{url}=$url;
+						$url = $output;
+						$self->{opts}{xeno_build}{$type}{items}{url} = $url;
 						# template the dst
-						$output='';
+						$output = '';
 						$self->{t}->process( \$dst, $self->{template_vars}, \$output );
-						$dst=$output;
-						$self->{opts}{xeno_build}{$type}{items}{dst}=$dst;
+						$dst = $output;
+						$self->{opts}{xeno_build}{$type}{items}{dst} = $dst;
+						$self->status_add(
+							type   => $type,
+							status => 'Fetch "' . $fetch_name . '" URL Template Results: ' . $url
+						);
+						$self->status_add(
+							type   => $type,
+							status => 'Fetch "' . $fetch_name . '" DST Template Results: ' . $dst
+						);
+					} else {
+						$self->status_add(
+							type   => $type,
+							status => 'Fetch "' . $fetch_name . '" missing url or dst',
+							error  => 1
+						);
 					}
-					my $return_code=getstore($url, $dst);
-				}
-			}
+					my $return_code = getstore( $url, $dst );
+					$self->status_add(
+						type   => $type,
+						status => 'Fetch "' . $fetch_name . '" Return Code: ' . $return_code
+					);
+				} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
+			} ## end foreach my $fetch_name (@fetch_names)
 		} elsif ( $type =~ /^pkgs[0-9]*$/ ) {
+			##
+			##
+			##
+			## start of pkgs
+			##
+			##
+			##
+
+			$self->status_add( status => 'Starting type "' . $type . '"...' );
 			# set .pkgs.update_package_db to 1 if it is undef
 			if ( !defined( $self->{opts}{xeno_build}{$type}{update_package_db} ) ) {
 				$self->{opts}{xeno_build}{$type}{update_package_db} = 1;
 			}
+			$self->status_add(
+				type   => $type,
+				status => 'Pkgs Update DB: ' . $self->{opts}{xeno_build}{$type}{update_package_db}
+			);
 
 			# update the db if requested to always do it
 			# only
@@ -388,41 +498,247 @@ sub action {
 			if ( defined( $self->{opts}{xeno_build}{$type}{update_package_db_force} )
 				&& $self->{opts}{xeno_build}{$type}{update_package_db_force} )
 			{
+				$self->status_add( type => $type, status => 'update_packages_db_force=1 ... updating DB' );
 				$updated = 1;
-				update_package_db;
-			}
-			# handle .pkgs.latest
-			if ( defined( $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} } ) ) {
-				# handle latest
-				if ( defined( $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} }[0] ) ) {
-					if ( !$updated && $self->{opts}{xeno_build}{$type}{update_package_db} ) {
-						update_package_db;
-					}
-					foreach my $pkg ( @{ $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} } } ) {
-						pkg( $pkg, ensure => 'latest' );
-					}
-				}
-				# handle present
-				if ( defined( $self->{opts}{xeno_build}{$type}{present}{ $self->{os} }[0] ) ) {
-					foreach my $pkg ( @{ $self->{opts}{xeno_build}{$type}{present}{ $self->{os} } } ) {
-						pkg( $pkg, ensure => 'present' );
-					}
-				}
-				# handle absent
-				if ( defined( $self->{opts}{xeno_build}{$type}{absent}{ $self->{os} }[0] ) ) {
-					foreach my $pkg ( @{ $self->{opts}{xeno_build}{$type}{absent}{ $self->{os} } } ) {
-						pkg( $pkg, ensure => 'absent' );
-					}
+				eval { update_package_db; };
+				if ($@) {
+					$self->status_add( type => $type, status => 'Pkgs DB update failed...' . $@, error => 1, );
 				}
 			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
+			# handle .pkgs.latest
+			if (   defined( $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} } )
+				&& defined( $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} }[0] ) )
+			{
+				if ( !$updated && $self->{opts}{xeno_build}{$type}{update_package_db} ) {
+					eval {
+						$self->status_add( type => $type, status => 'updating DB' );
+						update_package_db;
+					};
+					if ($@) {
+						$self->status_add( type => $type, status => 'Pkgs DB update failed...' . $@, error => 1, );
+					}
+				}
+				foreach my $pkg ( @{ $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} } } ) {
+					$self->status_add(
+						type   => $type,
+						status => 'Ensuring latest ' . $pkg . ' for ' . $self->{os} . ' is installed',
+					);
+					eval { pkg( $pkg, ensure => 'latest' ); };
+					if ($@) {
+						$self->status_add(
+							type   => $type,
+							status => 'Failed installing latest ' . $pkg . ' for ' . $self->{os},
+							error  => 1,
+						);
+						return $self->{results};
+					}
+				} ## end foreach my $pkg ( @{ $self->{opts}{xeno_build}{...}})
+			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
+			# handle present
+			if (   defined( $self->{opts}{xeno_build}{$type}{present}{ $self->{os} } )
+				&& defined( $self->{opts}{xeno_build}{$type}{present}{ $self->{os} }[0] ) )
+			{
+				foreach my $pkg ( @{ $self->{opts}{xeno_build}{$type}{present}{ $self->{os} } } ) {
+					$self->status_add(
+						type   => $type,
+						status => 'Ensuring ' . $pkg . ' for ' . $self->{os} . ' is present',
+					);
+					eval { pkg( $pkg, ensure => 'present' ); };
+					if ($@) {
+						$self->status_add(
+							type   => $type,
+							status => 'Failed installing ' . $pkg . ' for ' . $self->{os},
+							error  => 1,
+						);
+						return $self->{results};
+					}
+				} ## end foreach my $pkg ( @{ $self->{opts}{xeno_build}{...}})
+			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
+			# handle absent
+			if ( defined( $self->{opts}{xeno_build}{$type}{absent}{ $self->{os} }[0] ) ) {
+				foreach my $pkg ( @{ $self->{opts}{xeno_build}{$type}{absent}{ $self->{os} } } ) {
+					eval { pkg( $pkg, ensure => 'absent' ); };
+					if ($@) {
+						$self->status_add(
+							type   => $type,
+							status => 'Failed uninstalling ' . $pkg . ' for ' . $self->{os},
+							error  => 1,
+						);
+						return $self->{results};
+					}
+				} ## end foreach my $pkg ( @{ $self->{opts}{xeno_build}{...}})
+			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
 		} elsif ( $type =~ /^cpanm[0-9]*$/ ) {
-			
+			##
+			##
+			##
+			## start of cpanm
+			##
+			##
+			##
+
+			$self->status_add( status => 'Starting type "' . $type . '"...' );
+
+			my @modules;
+			if ( defined( $self->{opts}{xeno_build}{$type}{modules} ) ) {
+				@modules = push( @modules, @{ $self->{opts}{xeno_build}{$type}{modules} } );
+			}
+			$self->status_add(
+				type   => $type,
+				status => 'Perl modules to install: ' . join( ', ', @modules ),
+			);
+
+			# get a list of modules to install via pkgs
+			my @pkgs;
+			if ( defined( $self->{opts}{xeno_build}{$type}{pkgs} ) ) {
+				push( @pkgs, @{ $self->{opts}{xeno_build}{$type}{pkgs} } );
+				$self->status_add(
+					type   => $type,
+					status => 'Perl modules to try to install via pkgs: ' . join( ', ', @pkgs ),
+				);
+			}
+
+			# pkgs_always_try is true, push the modules to onto the heap
+			if ( defined( $self->{opts}{xeno_build}{$type}{pkgs_always_try} )
+				&& $self->{opts}{xeno_build}{$type}{pkgs_always_try} )
+			{
+				push( @pkgs, @modules );
+				$self->status_add(
+					type   => $type,
+					status => 'pkgs_always_try=1 set',
+				);
+			}
+
+			# used for checking if the module was installed or not via pkg
+			my %modules_installed;
+
+			# handle Perl modules that must be installed via pkg
+			my @pkgs_require;
+			if ( defined( $self->{opts}{xeno_build}{$type}{pkgs_require} ) ) {
+				push( @pkgs_require, @{ $self->{opts}{xeno_build}{$type}{pkgs_require} } );
+				$self->status_add(
+					type   => $type,
+					status => 'Perl modules required to be installed via pkgs: ' . join( ', ', @pkgs_require ),
+				);
+			}
+			foreach my $module ( @pkgs_require, ) {
+				$self->status_add(
+					type   => $type,
+					status => 'Trying to install Perl ' . $module . ' via pkg',
+				);
+				my $returned = perl_module_via_pkg( module => $module );
+				# if this fails, set error and return as the module is required to be installed via pkg and we can't
+				if ($returned) {
+					$self->status_add(
+						type   => $type,
+						status => 'Perl module required to be installed via pkgs installed: ' . $module,
+					);
+					$modules_installed{$module} = 1;
+				} else {
+					$self->status_add(
+						type   => $type,
+						status => 'Perl module required to be installed via pkgs failed: ' . $module,
+						error  => 1,
+					);
+					return $self->{results};
+				}
+			} ## end foreach my $module ( @pkgs_require, )
+
+			# try via pkg modules that can be attempted to be installed that way
+			foreach my $module (@pkgs) {
+				$self->status_add(
+					type   => $type,
+					status => 'Trying to install Perl ' . $module . ' via pkg',
+				);
+				my $returned = perl_module_via_pkg( module => $module );
+				if ($returned) {
+					$self->status_add(
+						type   => $type,
+						status => 'Perl module to be installed via pkgs installed: ' . $module,
+					);
+					$modules_installed{$module} = 1;
+				}
+			} ## end foreach my $module (@pkgs)
+
+			my $installed_cpanm;
+			# if we don't want to install cpanm, set it as already as being installed
+			if ( defined( $self->{opts}{xeno_build}{$type}{install} )
+				&& !$self->{opts}{xeno_build}{$type}{install} )
+			{
+				$installed_cpanm = 1;
+			}
+
+			# try to install each module
+			foreach my $module (@modules) {
+				# if this is defined, it was installed via pkg, so we don't need to try it again
+				if ( !defined( $modules_installed{$module} ) ) {
+					if ( !$installed_cpanm ) {
+						eval { install_cpanm; };
+						if ($@) {
+							$self->status_add(
+								type   => $type,
+								status => 'Failed installing cpanm for ' . $self->{os} . ' ... ' . $@,
+								error  => 1,
+							);
+							return $self->{results};
+						}
+					} ## end if ( !$installed_cpanm )
+
+					my @cpanm_args = ('cpanm');
+					if ( defined( $self->{opts}{xeno_build}{$type}{reinstall} )
+						&& $self->{opts}{xeno_build}{$type}{reinstall} )
+					{
+						push( @cpanm_args, '--reinstall' );
+					}
+					if ( defined( $self->{opts}{xeno_build}{$type}{notest} )
+						&& $self->{opts}{xeno_build}{$type}{notest} )
+					{
+						push( @cpanm_args, '--notest' );
+					}
+					if ( defined( $self->{opts}{xeno_build}{$type}{install_force} )
+						&& $self->{opts}{xeno_build}{$type}{install_force} )
+					{
+						push( @cpanm_args, '--force' );
+					}
+					push( @cpanm_args, $module );
+					$self->status_add(
+						type   => $type,
+						status => 'invoking cpanm: ' . join( ' ', @cpanm_args ),
+					);
+					system(@cpanm_args);
+					if ( $? != 0 ) {
+						print "failed to execute: $!\n";
+						$self->status_add(
+							type   => $type,
+							status => 'cpanm failed: ' . join( ' ', @cpanm_args ),
+							error  => 1,
+						);
+						return $self->{results};
+					}
+				} ## end if ( !defined( $modules_installed{$module}...))
+			} ## end foreach my $module (@modules)
 		} elsif ( $type =~ /^python[0-9]*$/ ) {
+			##
+			##
+			##
+			## start of python
+			##
+			##
+			##
+
 		} elsif ( $type =~ /^exec[0-9]*$/ ) {
-		}
+			##
+			##
+			##
+			## start of cpanm
+			##
+			##
+			##
+
+		} ## end elsif ( $type =~ /^exec[0-9]*$/ )
 	} ## end foreach my $type (@types)
 
-	return $results;
+	return $self->{results};
 } ## end sub action
 
 sub help {
@@ -442,5 +758,31 @@ sub opts_data {
 	return '
 ';
 }
+
+sub status_add {
+	my ( $self, %opts ) = @_;
+
+	if ( !defined( $opts{status} ) ) {
+		return;
+	}
+
+	if ( !defined( $opts{error} ) ) {
+		$opts{error} = 0;
+	}
+
+	if ( !defined( $opts{type} ) ) {
+		$opts{type} = 'xeno_build';
+	}
+
+	my $status = '[' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
+
+	print $status;
+
+	$self->{results}{status} = $self->{results}{status} . "\n" . $self->{results}{status};
+
+	if ( $opts{error} ) {
+		push( @{ $self->{results}{errors} }, $opts{status} );
+	}
+} ## end sub status_add
 
 1;

@@ -33,6 +33,18 @@ our $VERSION = '0.0.1';
 
     print Dumper($returned);
 
+Supported OS families are...
+
+    Alt Linux
+    Arch Linux
+    Debian Linux
+    FreeBSD
+    Mageia Linux
+    NetBSD
+    OpenBSD
+    Redhat Linux
+    Suse Linux
+
 =head1 Functions
 
 =head2 perl_module_via_pkg
@@ -43,49 +55,48 @@ The function that makes it so.
 
 =cut
 
-sub  perl_module_via_pkg{
-	my ( %opts ) = @_;
+sub perl_module_via_pkg {
+	my (%opts) = @_;
 
-
-	if (!defined($opts{module})) {
+	if ( !defined( $opts{module} ) ) {
 		die('Nothing specified for a module to install');
 	}
 
-	my $os=get_operating_system;
-	my $pkg=$opts{module};
+	my $pkg = $opts{module};
 	my @pkg_alts;
 
-	if ($os eq 'FreeBSD') {
-		$pkg=~s/^/p5\-/;
-		$pkg=~s/\:\:/\-/g;
-	}elsif ($os eq 'Debian' || $os eq 'Ubuntu') {
-		$pkg=~s/\:\:/\-/g;
-		$pkg='lib'.lc($pkg).'-perl';
-	}elsif ($os eq 'Redhat') {
-		$pkg=~s/\:\:/\-/g;
-		$pkg='perl-'.$pkg;
-		push(@pkg_alts, lc($pkg));
+	if (is_freebsd) {
+		$pkg =~ s/^/p5\-/;
+		$pkg =~ s/\:\:/\-/g;
+	} elsif (is_debian) {
+		$pkg =~ s/\:\:/\-/g;
+		$pkg = 'lib' . lc($pkg) . '-perl';
+	} elsif (is_redhat) {
+		$pkg =~ s/\:\:/\-/g;
+		$pkg = 'perl-' . $pkg;
+	} elsif (is_arch) {
+		$pkg =~ s/\:\:/\-/g;
+		$pkg = 'perl-' . $pkg;
+	} elsif (is_suse) {
+		$pkg =~ s/\:\:/\-/g;
+		$pkg = 'perl-' . $pkg;
+	} elsif (is_alt) {
+		$pkg =~ s/\:\:/\-/g;
+		$pkg = 'perl-' . $pkg;
+	} elsif (is_netbsd) {
+		$pkg =~ s/^/p5\-/;
+		$pkg =~ s/\:\:/\-/g;
+	} elsif (is_openbsd) {
+		$pkg =~ s/^/p5\-/;
+		$pkg =~ s/\:\:/\-/g;
+	}elsif (is_mageia) {
+		$pkg =~ s/\:\:/\-/g;
+		$pkg = 'perl-' . $pkg;
 	}
 
-	eval{
-		pkg($pkg, ensure=>'present]');
-		return 1;
-	};
-	# pkg will die if installing it fails
-	if ($@) {
-		# try possible alts if we have them
-		if (defined( $pkg_alts[0] )) {
-			foreach my $alt_pkg (@pkg_alts) {
-				eval{
-					pkg($alt_pkg, ensure=>'present');
-					return 1;
-				};
-			}
-		}
-	}
+	pkg( $pkg, ensure => 'present]' );
 
-	# return false as we failed to install it
-	return 0;
-}
+	return 1;
+} ## end sub perl_module_via_pkg
 
 1;
