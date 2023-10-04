@@ -183,11 +183,6 @@ Install python stuff.
             python and pip if .python.pip[0] or .python.pkgs[0] is defined.
         - Default :: 1
 
-    - .python.version :: Version to use for installing python. 3 is used here by default as that will
-            generally work as it is likely to be symlinked to which ever version of python3 and that
-            extension pip as well.
-        - Default :: 3
-
     - .python.pip :: A array items to install via pip.
         - Default :: []
 
