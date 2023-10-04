@@ -83,8 +83,8 @@ sub install_pip {
 		pkg( "python",     ensure => "present" );
 		pkg( "python-pip", ensure => "present" );
 	} elsif (is_suse) {
-		pkg( "python3",     ensure => "present" );
-		pkg( "python3-pip", ensure => "present" );
+		pkg( "python311",     ensure => "present" );
+		pkg( "python311-pip", ensure => "present" );
 	} elsif (is_alt) {
 		pkg( "python3", ensure => "present" );
 		pkg( "pip",     ensure => "present" );
