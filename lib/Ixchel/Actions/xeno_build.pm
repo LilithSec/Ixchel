@@ -147,7 +147,7 @@ For the packages, if you want to make sure the package DB is up to date, you wil
     - .exec.command :: A command to run.
         - Default :: undef
 
-    . exec.dir :: Directory to use. If undef, this will use .options.build_dir .
+    . exec.dir :: Directory to use. If undef, this will use .options.tmpdir .
         - Default :: undef
 
    - .exec.exits :: A array of acceptable exit values. May start with >, >=, <, or <= .
@@ -158,6 +158,9 @@ For the packages, if you want to make sure the package DB is up to date, you wil
 
    - .exec.template_failure_ok :: A Perl boolean if it is okay for templating to fail.
        - Default :: 0
+
+   - .exec.for :: A array of OS families that the the command is for.
+       - Default :: undef
 
 Either .exec.commands or .exec.command must be used. If .exec.commands is used, each value in
 the array is a hash using the same keys, minus .commands, as .exec. So if .exec.commands[0].exits
@@ -440,13 +443,34 @@ sub action {
 					if ($template_it) {
 						# template the url
 						my $output = '';
-						$self->{t}->process( \$url, $self->{template_vars}, \$output );
-						$url = $output;
+						eval{
+							$self->{t}->process( \$url, $self->{template_vars}, \$output ) || die $self->{t}->error;
+							$url = $output;
+						};
+						if ($@) {
+							$self->status_add(
+											  type   => $type,
+											  status => 'Templating failed for "'.$fetch_name.' for the URL"... '.$@,
+											  error  => 1,
+											  );
+							return $self->{results};
+						}
 						$self->{opts}{xeno_build}{$type}{items}{url} = $url;
+
 						# template the dst
 						$output = '';
-						$self->{t}->process( \$dst, $self->{template_vars}, \$output );
-						$dst = $output;
+						eval{
+							$self->{t}->process( \$dst, $self->{template_vars}, \$output )  || die $self->{t}->error;
+							$dst = $output;
+						};
+						if ($@) {
+							$self->status_add(
+											  type   => $type,
+											  status => 'Templating failed for "'.$fetch_name.' for the URL"... '.$@,
+											  error  => 1,
+											  );
+							return $self->{results};
+						}
 						$self->{opts}{xeno_build}{$type}{items}{dst} = $dst;
 						$self->status_add(
 							type   => $type,
@@ -799,11 +823,108 @@ sub action {
 			##
 			##
 			##
-			## start of cpanm
+			## start of exec
 			##
 			##
 			##
 			$self->status_add( status => 'Starting type "' . $type . '"...' );
+
+			my @commands;
+			# if we have the default command, add it to the stack
+			if (defined( $self->{opts}{xeno_build}{$type}{command} )) {
+				push(@commands, {command=>$self->{opts}{xeno_build}{$type}{command} });
+			}
+
+			# if .exec.commands exists shove it onto the stack
+			if (defined( $self->{opts}{xeno_build}{$type}{commands} ) &&
+				defined( $self->{opts}{xeno_build}{$type}{commands}[0] )
+				) {
+				push(@commands, @{$self->{opts}{xeno_build}{$type}{commands} });
+			}
+
+			# process each command
+			my @to_possibly_copy=('command', 'exits', 'template', 'for', 'dir');
+			foreach my $command_hash (@commands) {
+				if (
+					defined( $self->{opts}{xeno_build}{$type}{command} ) ||
+					defined( $command_hash->{command})
+					{
+						foreach my $to_copy (@to_possibly_copy) {
+							if (!defined($command_hash->{$to_copy})&& defined( $self->{opts}{xeno_build}{$type}{$to_copy} ) ) {
+								$command_hash->{$to_copy} = $self->{opts}{xeno_build}{$type}{$to_copy};
+							}elsif (!defined($command_hash->{$to_copy})&& !defined( $self->{opts}{xeno_build}{$type}{$to_copy}) ) {
+								# don't need command as that will have been copied by the if earlier if and the previous
+								# before that means either this one or othe other is present
+								if ($to_copy eq 'dir') {
+									$command_hash->{$to_copy}=$self->{opts}{xeno_build}{options}{tmpdir};
+								}elsif ($to_copy eq 'exits') {
+									$command_hash->{exits}=[0];
+								}elsif ($to_copy eq 'template') {
+									$command_hash->{template}=0;
+								}elsif ($to_copy eq 'for') {
+									$command_hash->{for}=[];
+								}
+							}
+
+							# if requested to template it, process the command and dir
+							if ($command_hash->{template}) {
+								eval{
+									my $output = '';
+									my $command=$command_hash->{command};
+									$self->{t}->process( \$command, $self->{template_vars}, \$output ) || die $self->{t}->error;
+									$command_hash->{command} = $output;
+
+									$output = '';
+									my $dir==$command_hash->{dir};
+									$self->{t}->process( \$dir, $self->{template_vars}, \$output ) || die $self->{t}->error;
+									$command_hash->{dir} = $output;
+								};
+								if ($@) {
+									$self->status_add(
+													  type   => $type,
+													  status => 'Templating failed... '.$@,
+													  error  => 1,
+													  );
+									return $self->{results};
+								}
+							}
+
+							eval{
+								chdir($command_hash->{dir});
+							};
+							if ($@) {
+								$self->status_add(
+												  type   => $type,
+												  status => 'Failed to chdir to "'.$command_hash->{dir}.'"',
+												  error  => 1,
+												  );
+								return $self->{results};
+							}
+
+							system($command_hash->{command});
+							my $exit_code;
+							if ($? == -1) {
+								$exit_code=-1;
+							}else {
+								$exit_code=$? >> 8;
+							}
+							my $exit_code_matched=0;
+							foreach my $desired_exit_code (@{ $command_hash->{exits} }) {
+								if ($exit_code == $desired_exit_code) {
+									$exit_code_matched=1;
+								}
+							}
+							if (!$exit_code_matched) {
+								$self->status_add(
+												  type   => $type,
+												  status => 'Exit code mismatch... desired='.join(@{ $command_hash->{exits} }), ' actual='.$exit_code.' command="'.$command_hash->{command}.'"',
+												  error  => 1,
+												  );
+								return $self->{results};
+							}
+						}
+				}
+			}
 
 		} ## end elsif ( $type =~ /^exec[0-9]*$/ )
 	} ## end foreach my $type (@types)
