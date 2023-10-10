@@ -69,7 +69,7 @@ sub install_pip {
 		if ( $which_python3 !~ /python3$/ ) {
 			die( 'Unable to locate python3 with PATH=' . $ENV{PATH} );
 		}
-		my $python_link = readlinke($which_python3);
+		my $python_link = readlink($which_python3);
 		$python_link =~ s/.*python3\.//;
 		my $pkg = 'py3' . $python_link . '-pip';
 		pkg( $pkg, ensure => "present" );
