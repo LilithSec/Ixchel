@@ -29,7 +29,10 @@ our $VERSION = '0.0.1';
     use Ixchel::functions::perl_module_via_pkg;
     use Data::Dumper;
 
-    my $returned=perl_module_via_pkg(module=>'Monitoring::Sneck');
+    my $returned;
+    eval{
+        $returned=perl_module_via_pkg(module=>'Monitoring::Sneck');
+    };
 
     print Dumper($returned);
 
