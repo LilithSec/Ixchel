@@ -969,11 +969,14 @@ sub status_add {
 		$opts{type} = 'xeno_build';
 	}
 
-	my $status = '[' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
+	my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);
+	my $timestamp = sprintf( "%04d-%02d-%02dT%02d:%02d:%02d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
 
-	print $status;
+	my $status = '[' . $timestamp . '] [' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
 
-	$self->{results}{status} = $self->{results}{status} . "\n" . $self->{results}{status};
+	print $status. "\n";
+
+	$self->{results}{status} = $self->{results}{status} . $status;
 
 	if ( $opts{error} ) {
 		push( @{ $self->{results}{errors} }, $opts{status} );
