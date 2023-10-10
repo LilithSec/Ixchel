@@ -94,13 +94,16 @@ sub action {
 
 	$self->status_add( status => 'Installing cpanm via packges' );
 
-	eval { perl_module_via_pkg( module => $self->{opts}{module} ); };
+	my $status;
+	eval { $status=perl_module_via_pkg( module => $self->{opts}{module} ); };
 	if ($@) {
+		$self->{results}{status_text}=$self->{results}{status_text}.$@;
 		$self->status_add(
-			status => 'Failed to install ' . $self->{opts}{module} . ' via packages ... ' . $@,
+			status => 'Failed to install ' . $self->{opts}{module} . ' via packages',
 			error  => 1
 		);
 	} else {
+		$self->{results}{status_text}=$self->{results}{status_text}.$status;
 		$self->status_add( status => $self->{opts}{module} . ' installed' );
 	}
 

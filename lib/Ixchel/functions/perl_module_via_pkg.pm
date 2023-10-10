@@ -8,6 +8,7 @@ our @EXPORT = qw(perl_module_via_pkg);
 use Rex -feature => [qw/1.4/];
 use Rex::Commands::Gather;
 use Rex::Commands::Pkg;
+use Ixchel::functions::status;
 
 # prevents Rex from printing out rex is exiting after the script ends
 $::QUIET = 2;
@@ -68,36 +69,61 @@ sub perl_module_via_pkg {
 	my $pkg = $opts{module};
 	my @pkg_alts;
 
+	my $type = 'perl_module_via_pkg';
+
+	my $status = status(
+		type   => $type,
+		error  => 0,
+		status => 'Trying to install Python module ' . $opts{module}
+	);
+
 	if (is_freebsd) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family FreeBSD detectected' );
 		$pkg =~ s/^/p5\-/;
 		$pkg =~ s/\:\:/\-/g;
 	} elsif (is_debian) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family Debian detectected' );
 		$pkg =~ s/\:\:/\-/g;
 		$pkg = 'lib' . lc($pkg) . '-perl';
 	} elsif (is_redhat) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family Redhat detectected' );
 		$pkg =~ s/\:\:/\-/g;
 		$pkg = 'perl-' . $pkg;
 	} elsif (is_arch) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family Arch detectected' );
 		$pkg =~ s/\:\:/\-/g;
 		$pkg = 'perl-' . $pkg;
 	} elsif (is_suse) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family Suse detectected' );
 		$pkg =~ s/\:\:/\-/g;
 		$pkg = 'perl-' . $pkg;
 	} elsif (is_alt) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family Alt detectected' );
 		$pkg =~ s/\:\:/\-/g;
 		$pkg = 'perl-' . $pkg;
 	} elsif (is_netbsd) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family NetBSD detectected' );
 		$pkg =~ s/^/p5\-/;
 		$pkg =~ s/\:\:/\-/g;
 	} elsif (is_openbsd) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family OpenBSD detectected' );
 		$pkg =~ s/^/p5\-/;
 		$pkg =~ s/\:\:/\-/g;
-	}elsif (is_mageia) {
+	} elsif (is_mageia) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family Mageia detectected' );
 		$pkg =~ s/\:\:/\-/g;
 		$pkg = 'perl-' . $pkg;
 	}
 
-	pkg( $pkg, ensure => 'present' );
+	$status = $status . status( type => $type, error => 0, status => 'Ensuring package "' . $pkg . '" is present' );
+
+	eval { pkg( $pkg, ensure => 'present' ); };
+	if ($@) {
+		die( $status . "\n"
+				. status( type => $type, error => 1, status => 'Installing package "' . $pkg . '" failed ... ' . $@ ) );
+	}
+
+	$status = $status . status( type => $type, error => 0, status => 'Package "' . $pkg . '" is present' );
 
 	return 1;
 } ## end sub perl_module_via_pkg
