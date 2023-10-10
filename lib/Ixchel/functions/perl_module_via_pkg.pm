@@ -94,7 +94,7 @@ sub perl_module_via_pkg {
 		$pkg = 'perl-' . $pkg;
 	}
 
-	pkg( $pkg, ensure => 'present]' );
+	pkg( $pkg, ensure => 'present' );
 
 	return 1;
 } ## end sub perl_module_via_pkg
