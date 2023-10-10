@@ -1,4 +1,4 @@
-package Ixchel::functions::install_cpanm;
+package Ixchel::functions::install_pip;
 
 use 5.006;
 use strict;

@@ -144,7 +144,7 @@ sub action {
 		}
 	} ## end if ( defined( $self->{opts}{xb} ) )
 
-    return $self->{ixchel}->action(action=>'xeno_build', opts=>{xeno_build=>$xeno_build});	
+    return $self->{ixchel}->action(action=>'xeno_build', opts=>{xeno_build=>$xeno_build});
 } ## end sub action
 
 sub help {
