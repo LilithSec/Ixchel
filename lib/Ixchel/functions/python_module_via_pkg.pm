@@ -8,6 +8,7 @@ our @EXPORT = qw(python_module_via_pkg);
 use Rex -feature => [qw/1.4/];
 use Rex::Commands::Gather;
 use Rex::Commands::Pkg;
+use Ixchel::functions::status;
 
 # prevents Rex from printing out rex is exiting after the script ends
 $::QUIET = 2;
@@ -53,7 +54,7 @@ Supported OS families are...
 
 Tries to install a python3 module via packages.
 
-    eval{ python_module_via_pkg(module=>'django') };
+    eval{ python_module_via_pkg(module=>'Pillow') };
     if ($@) {
         print 'Failed to install python module ...'.$@;
     }
@@ -63,43 +64,180 @@ Tries to install a python3 module via packages.
 sub python_module_via_pkg {
 	my (%opts) = @_;
 
-	if (is_freebsd) {
-		my $which_python3 = `which python3 2> /dev/null`;
-		chomp($which_python3);
-		if ( $which_python3 !~ /python3$/ ) {
-			die( 'Unable to locate python3 with PATH=' . $ENV{PATH} );
-		}
-		my $python_link = readlink($which_python3);
-		$python_link =~ s/.*python3\.//;
-		my $pkg = 'py3' . $python_link . '-' . $opts{module};
-		eval { pkg( $pkg, ensure => "present" ); };
-		if ($@) {
-			eval { pkg( lc($pkg), ensure => "present" ); };
-			if ($@) {
-				die( 'Neither ' . $pkg . ' or ' . lc($pkg) . ' could be installed' );
-			}
-		}
-	} elsif (is_debian) {
-		pkg( 'python3-' . lc( $opts{module} ), ensure => 'present' );
-	} elsif (is_redhat) {
-		pkg( 'python3-' . lc( $opts{module} ), ensure => 'present' );
-	} elsif (is_arch) {
-		pkg( 'python3-' . lc( $opts{module} ), ensure => 'present' );
-	} elsif (is_suse) {
-		pkg( 'python311-' . lc( $opts{module} ), ensure => 'present' );
-	} elsif (is_alt) {
-		pkg( 'python3-module-' . lc( $opts{module} ), ensure => 'present' );
-	} elsif (is_netbsd) {
-		my $pkg = 'py311-' . lc( $opts{module} );
-	} elsif (is_openbsd) {
-		my $pkg = 'py311-' . lc( $opts{module} );
-	} elsif (is_mageia) {
-		pkg( 'python3-' . lc( $opts{module} ), ensure => 'present' );
-	} elsif (is_void) {
-		pkg( 'python3-' . lc( $opts{module} ), ensure => 'present' );
+	if ( !defined( $opts{module} ) ) {
+		die('modules is undef');
 	}
 
-	return 1;
+	my $status = '';
+
+	$status = $status
+		. status(
+			type   => 'python_module_via_pkg',
+			error  => 0,
+			status => 'Trying to install Python module ' . $opts{module}
+		);
+
+	my $pkg;
+	if (is_freebsd) {
+		$status = $status
+			. status( type => 'python_module_via_pkg', error => 0, status => 'OS Family FreeBSD detectected' );
+		my $which_python3 = `which python3 2> /dev/null`;
+		chomp($which_python3);
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'python3 path is "' . $which_python3 . '"'
+			);
+		if ( $which_python3 !~ /python3$/ ) {
+			die( $status . 'Unable to locate python3 with PATH=' . $ENV{PATH} );
+		}
+		my $python_link = readlink($which_python3);
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'python3 linked to "' . $python_link . '"'
+			);
+		$python_link =~ s/.*python3\.//;
+		$pkg    = 'py3' . $python_link . '-' . $opts{module};
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'Ensuring that package "' . $pkg . '" is present'
+			);
+		eval { pkg( $pkg, ensure => "present" ); };
+		if ($@) {
+			$status = $status
+				. status(
+					type   => 'python_module_via_pkg',
+					error  => 1,
+					status => 'Failed ensuring that package "' . $pkg . '" is present... ' . $@
+				);
+			$pkg    = lc($pkg);
+			$status = $status
+				. status(
+					type   => 'python_module_via_pkg',
+					error  => 0,
+					status => 'Trying ensuring that package "' . $pkg . '" is present'
+				);
+			eval { pkg( $pkg, ensure => "present" ); };
+			if ($@) {
+				$status = $status
+					. status(
+						type   => 'python_module_via_pkg',
+						error  => 1,
+						status => 'Failed ensuring that package "' . $pkg . '" is present... ' . $@
+					);
+				die( $status . 'Neither ' . $pkg . ' or ' . lc($pkg) . ' could be installed' );
+			}
+		} ## end if ($@)
+	} elsif (is_debian) {
+		$status
+			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Debian detectected' );
+		$pkg    = 'python3-' . lc( $opts{module} );
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'Ensuring that package "' . $pkg . '" is present'
+			);
+		pkg( $pkg, ensure => 'present' );
+	} elsif (is_redhat) {
+		$status
+			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Redhat detectected' );
+		$pkg    = 'python3-' . lc( $opts{module} );
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'Ensuring that package "' . $pkg . '" is present'
+			);
+		pkg( $pkg, ensure => 'present' );
+	} elsif (is_arch) {
+		$status
+			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Arch detectected' );
+		$pkg    = 'python3-' . lc( $opts{module} );
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'Ensuring that package "' . $pkg . '" is present'
+			);
+		pkg( $pkg, ensure => 'present' );
+	} elsif (is_suse) {
+		$status
+			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Suse detectected' );
+		$pkg    = 'python311-' . lc( $opts{module} );
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'Ensuring that package "' . $pkg . '" is present'
+			);
+		pkg( $pkg, ensure => 'present' );
+	} elsif (is_alt) {
+		$status
+			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Alt detectected' );
+		$pkg    = 'python3-module-' . lc( $opts{module} );
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'Ensuring that package "' . $pkg . '" is present'
+			);
+		pkg( $pkg, ensure => 'present' );
+	} elsif (is_netbsd) {
+		$status
+			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family NetBSD detectected' );
+		$pkg    = 'py311-' . lc( $opts{module} );
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'Ensuring that package "' . $pkg . '" is present'
+			);
+		pkg( $pkg, ensure => 'present' );
+	} elsif (is_openbsd) {
+		$status = $status
+			. status( type => 'python_module_via_pkg', error => 0, status => 'OS Family OpenBSD detectected' );
+		$pkg    = 'py311-' . lc( $opts{module} );
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'Ensuring that package "' . $pkg . '" is present'
+			);
+		pkg( $pkg, ensure => 'present' );
+	} elsif (is_mageia) {
+		$status
+			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Mageia detectected' );
+		$pkg    = 'python3-' . lc( $opts{module} );
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'Ensuring that package "' . $pkg . '" is present'
+			);
+		pkg( $pkg, ensure => 'present' );
+	} elsif (is_void) {
+		$status
+			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Void detectected' );
+		$pkg    = 'python3-' . lc( $opts{module} );
+		$status = $status
+			. status(
+				type   => 'python_module_via_pkg',
+				error  => 0,
+				status => 'Ensuring that package "' . $pkg . '" is present'
+			);
+		pkg( $pkg, ensure => 'present' );
+	} ## end elsif (is_void)
+
+	$status = $status
+		. status( type => 'python_module_via_pkg', error => 0, status => 'Package "' . $pkg . '" is present' );
+
+	return $status;
 } ## end sub python_module_via_pkg
 
 1;

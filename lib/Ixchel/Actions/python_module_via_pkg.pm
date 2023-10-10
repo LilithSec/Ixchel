@@ -93,13 +93,16 @@ sub action {
 
 	$self->status_add( status => 'Installing python3 module via packges' );
 
-	eval { python_module_via_pkg( module => $self->{opts}{module} ); };
+	my $status;
+	eval { $status=python_module_via_pkg( module => $self->{opts}{module}, no_print=>1 ); };
 	if ($@) {
+		$self->{results}{status_text}=$self->{results}{status_text}.$@;
 		$self->status_add(
-			status => 'Failed to install ' . $self->{opts}{module} . ' via packages ... ' . $@,
+			status => 'Failed to install ' . $self->{opts}{module} . ' via packages',
 			error  => 1
 		);
 	} else {
+		$self->{results}{status_text}=$self->{results}{status_text}.$status;
 		$self->status_add( status => $self->{opts}{module} . ' installed' );
 	}
 
