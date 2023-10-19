@@ -180,7 +180,7 @@ sub action {
 	}
 	$self->status_add( status => $new_status );
 
-	my @to_remove = ( '.logging', '.outputs', '.af-packet', '.pcap', '.include' );
+	my @to_remove = ( '.logging', '.outputs', '.af-packet', '.pcap', '.include', '.rule-files' );
 	eval {
 		my ( $tnp_fh, $tmp_file ) = tempfile();
 		write_file( $tmp_file, $base_config_raw );

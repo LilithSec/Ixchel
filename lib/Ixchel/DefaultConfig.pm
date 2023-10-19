@@ -42,7 +42,7 @@ sub get {
 			multi_instance    => 0,
 			config_base       => '/usr/local/etc/suricata',
 			instances         => {},
-			config            => {},
+			config            => { 'rule-files' => ['suricata.rules'] },
 			enable            => 0,
 			enable_fastlog    => 1,
 			enable_syslog     => 0,
@@ -273,6 +273,8 @@ sub get {
 
 		#		if ($host_info->{operating_system} eq 'Debian' || $host_info->{operating_system} eq 'Ubuntu') {
 		#		}
+	} elsif ( $^O eq 'freebsd' ) {
+		$config->{suricata}{base_fill_in}{e_defaultruledir} = '/var/lib/suricata/rules';
 	}
 
 	return $config;
