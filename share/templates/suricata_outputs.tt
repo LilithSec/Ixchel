@@ -443,3 +443,55 @@ outputs:
       community-id-seed: 0
       types:
         - sip
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: /var/log/suricata/flows/current/http2.json
+      pcap-file: false
+      community-id: false
+      community-id-seed: 0
+      types:
+        - http2
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: /var/log/suricata/flows/current/pgsql.json
+      pcap-file: false
+      community-id: false
+      community-id-seed: 0
+      types:
+        - pgsql
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: /var/log/suricata/flows/current/quic.json
+      pcap-file: false
+      community-id: false
+      community-id-seed: 0
+      types:
+        - quic
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: /var/log/suricata/flows/current/mqtt.json
+      pcap-file: false
+      community-id: false
+      community-id-seed: 0
+      types:
+        - mqtt
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: /var/log/suricata/flows/current/bittorrent-dht.json
+      pcap-file: false
+      community-id: false
+      community-id-seed: 0
+      types:
+        - bittorrent-dht
+[% IF vars.enable_pcap_log %]
+    - pcap-log:
+      enabled: yes
+      filename: pcap/[% vars.instance_part2 %].pcap
+      limit: 32
+      conditional: alerts
+[% END %]

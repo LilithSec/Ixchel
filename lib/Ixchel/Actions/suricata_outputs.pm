@@ -33,19 +33,23 @@ The template used is 'suricata_outputs'.
         Map To :: .vars.enable_fastlog
 
     .suricata.enable_syslog :: Perl boolean if to enable syslog output.
-        Default ::
+        Default :: 0
         Map To :: .vars.enable_syslog
 
     .suricata.filestore_enable :: Perl boolean if to enable the filestore.
-        Default ::
+        Default :: 0
         Map To :: .vars.filestore_enable
 
     .suricata.dhcp_in_alert_eve :: Perl boolean if DHCP type items should be in the alert eve.
-        Default ::
+        Default :: 0
         Map To :: .vars.dhcp_in_alert_eve
 
     .suricata.config_base :: The variable used for controlling where the outputs.yaml
             file is created.
+
+    .suricata.enable_pcap_log :: Enable PCAP logging.
+        Default :: 0
+        Map To :: .vars.dhcp_in_alert_eve
 
 Multiinstance handling. Ixchel supports multiple Suricata instances on Linux.
 If .suricata.multi_instace is set to 1, then the following is done.
@@ -56,7 +60,10 @@ If .suricata.multi_instace is set to 1, then the following is done.
     2: .vars.instance_part is set to "-$instance". If instances are not in use
        this value is ''.
 
-    3: The output file is named  "outputs-$instance.yaml".
+    3: .vars.instance_part2 is set to "$instance.". If instances are not in use
+       this value is ''.
+
+    4: The output file is named  "outputs-$instance.yaml".
 
 =head1 FLAGS
 
@@ -152,6 +159,7 @@ sub action {
 				filestore_enable  => $self->{config}{suricata}{filestore_enable},
 				dhcp_in_alert_eve => $self->{config}{suricata}{dhcp_in_alert_eve},
 				instance_part     => '-' . $instance,
+				instance_part2    => $instance . '.',
 			};
 
 			foreach my $to_migrate (@vars_to_migrate) {
@@ -202,6 +210,7 @@ sub action {
 			filestore_enable  => $self->{config}{suricata}{filestore_enable},
 			dhcp_in_alert_eve => $self->{config}{suricata}{dhcp_in_alert_eve},
 			instance_part     => '',
+			instance_part2    => '',
 		};
 
 		my $filled_in;
