@@ -50,6 +50,20 @@ sub get {
 			dhcp_in_alert_eve => 0,
 			enable_pcap_log   => 0,
 			base_config       => 'https://raw.githubusercontent.com/OISF/suricata/master/suricata.yaml.in',
+			base_fill_in      => {
+				e_logdir             => '/var/log/suricata/',
+				e_magic_file_comment => '',
+				e_magic_file         => '/usr/share/misc/magic',
+				e_defaultruledir     => '/etc/suricata/rules',
+			},
+			logging_in_outputs      => 1,
+			logging_level           => 'notice',
+			logging_console         => 'no',
+			logging_file            => 'yes',
+			logging_file_level      => 'info',
+			logging_syslog          => 'no',
+			logging_syslog_facility => 'local5',
+			logging_syslog_format   => '[%i] <%d> -- '
 		},
 		suricata_extract => {
 			enable      => 0,

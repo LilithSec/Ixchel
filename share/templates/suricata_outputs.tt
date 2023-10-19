@@ -495,3 +495,26 @@ outputs:
       limit: 32
       conditional: alerts
 [% END %]
+
+[% IF vars.logging_in_outputs %]
+logging:
+  default-log-level: [% vars.logging_level %]
+
+  default-output-filter:
+  outputs:
+    - console:
+        enabled: [% vars.logging_console %]
+
+    - file:
+        enabled: [% vars.logging_file %]
+
+        level: [% vars.logging_syslog %]
+
+        filename: /var/log/suricata/suricata[% vars.instance_part %].log
+    - syslog:
+        enabled: [% vars.logging_syslog %]
+
+        facility: [% vars.logging_syslog_facility %]
+
+        format: "[% vars.logging_syslog_format %]"
+[% END %]

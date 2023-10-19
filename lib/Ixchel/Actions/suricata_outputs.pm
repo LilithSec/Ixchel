@@ -49,7 +49,39 @@ The template used is 'suricata_outputs'.
 
     .suricata.enable_pcap_log :: Enable PCAP logging.
         Default :: 0
-        Map To :: .vars.dhcp_in_alert_eve
+        Map To :: .vars.enable_pcap_log
+
+    .suricata.logging_in_outputs :: Put the .logging section in the outputs include.
+        Default :: 1
+        Map To :: .vars.logging_in_outputs
+
+    .suricata.logging_level :: Value for .logging.default-log-level .
+        Default :: notice
+        Map To :: .vars.logging_level
+
+    .suricata.logging_console :: If enabled should be yes or no for the syslog console output.
+        Default :: no
+        Map To :: .vars.logging_console
+
+    .suricata.logging_file :: If enabled should be yes or no for the file logging output.
+        Default :: yes
+        Map To :: .vars.logging_file
+
+    .suricata.logging_file_level :: Value for level for the file output.
+        Default :: info
+        Map To :: .vars.logging_file_level
+
+    .suricata.logging_syslog :: If enabled should be yes or no for the syslog logging output.
+        Default :: no
+        Map To :: .vars.logging_syslog
+
+    .suricata.logging_syslog_facility :: Value for facility for syslog logging output.
+        Default :: local5
+        Map To :: .vars.logging_syslog_facility
+
+    .suricata.logging_syslog_format :: Value for format for syslog logging output.
+        Default :: "[%i] <%d> -- "
+        Map To :: .vars.logging_syslog_format
 
 Multiinstance handling. Ixchel supports multiple Suricata instances on Linux.
 If .suricata.multi_instace is set to 1, then the following is done.
@@ -154,12 +186,21 @@ sub action {
 		}
 		foreach my $instance (@instances) {
 			my $vars = {
-				enable_fastlog    => $self->{config}{suricata}{enable_fastlog},
-				enable_syslog     => $self->{config}{suricata}{enable_syslog},
-				filestore_enable  => $self->{config}{suricata}{filestore_enable},
-				dhcp_in_alert_eve => $self->{config}{suricata}{dhcp_in_alert_eve},
-				instance_part     => '-' . $instance,
-				instance_part2    => $instance . '.',
+				enable_fastlog          => $self->{config}{suricata}{enable_fastlog},
+				enable_syslog           => $self->{config}{suricata}{enable_syslog},
+				filestore_enable        => $self->{config}{suricata}{filestore_enable},
+				dhcp_in_alert_eve       => $self->{config}{suricata}{dhcp_in_alert_eve},
+				enable_pcap_log         => => $self->{config}{suricata}{enable_pcap_log},
+				logging_in_outputs      => $self->{config}{suricata}{logging_in_outputs},
+				logging_level           => $self->{config}{suricata}{logging_level},
+				logging_console         => $self->{config}{suricata}{logging_console},
+				logging_file            => $self->{config}{suricata}{logging_file},
+				logging_file_level      => $self->{config}{suricata}{logging_file_level},
+				logging_syslog          => $self->{config}{suricata}{logging_syslog},
+				logging_syslog_facility => $self->{config}{suricata}{logging_syslog_facility},
+				logging_syslog_format   => $self->{config}{suricata}{logging_syslog_format},
+				instance_part           => '-' . $instance,
+				instance_part2          => $instance . '.',
 			};
 
 			foreach my $to_migrate (@vars_to_migrate) {
@@ -205,12 +246,22 @@ sub action {
 		}
 
 		my $vars = {
-			enable_fastlog    => $self->{config}{suricata}{enable_fastlog},
-			enable_syslog     => $self->{config}{suricata}{enable_syslog},
-			filestore_enable  => $self->{config}{suricata}{filestore_enable},
-			dhcp_in_alert_eve => $self->{config}{suricata}{dhcp_in_alert_eve},
-			instance_part     => '',
-			instance_part2    => '',
+			enable_fastlog          => $self->{config}{suricata}{enable_fastlog},
+			enable_syslog           => $self->{config}{suricata}{enable_syslog},
+			filestore_enable        => $self->{config}{suricata}{filestore_enable},
+			dhcp_in_alert_eve       => $self->{config}{suricata}{dhcp_in_alert_eve},
+			dhcp_in_alert_eve       => $self->{config}{suricata}{dhcp_in_alert_eve},
+			enable_pcap_log         => => $self->{config}{suricata}{enable_pcap_log},
+			logging_in_outputs      => $self->{config}{suricata}{logging_in_outputs},
+			logging_level           => $self->{config}{suricata}{logging_level},
+			logging_console         => $self->{config}{suricata}{logging_console},
+			logging_file            => $self->{config}{suricata}{logging_file},
+			logging_file_level      => $self->{config}{suricata}{logging_file_level},
+			logging_syslog          => $self->{config}{suricata}{logging_syslog},
+			logging_syslog_facility => $self->{config}{suricata}{logging_syslog_facility},
+			logging_syslog_format   => $self->{config}{suricata}{logging_syslog_format},
+			instance_part           => '',
+			instance_part2          => '',
 		};
 
 		my $filled_in;
