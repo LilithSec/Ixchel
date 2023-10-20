@@ -508,7 +508,7 @@ logging:
     - file:
         enabled: [% vars.logging_file %]
 
-        level: [% vars.logging_syslog %]
+        level: [% vars.logging_file_level %]
 
         filename: /var/log/suricata/suricata[% vars.instance_part %].log
     - syslog:
