@@ -40,6 +40,7 @@ my %WriteMakefileArgs = (
 		'Template'             => '3.101',
 		'YAML::XS'             => 0,
 		'LWP::Protocol::https' => 0,
+		'YAML::yq::Helper'     => '0.1.2',
 	},
 	dist       => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean      => { FILES    => 'Ixchel-*' },
@@ -53,7 +54,6 @@ my %WriteMakefileArgs = (
 			},
 		},
 	}
-
 );
 
 # Compatibility with old versions of ExtUtils::MakeMaker
