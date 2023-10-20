@@ -236,7 +236,7 @@ sub action {
 			}
 
 			$base_config_raw = read_file($tmp_file);
-			write_file( $config_base . '/suricata.yaml', $$base_config_raw );
+			write_file( $config_base . '/suricata.yaml', $base_config_raw );
 		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored adding in include paths or writing file out... ' . $@ );
