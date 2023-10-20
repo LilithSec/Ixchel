@@ -122,7 +122,8 @@ sub action {
 	if ( !defined($base_config_url) ) {
 		$self->status_add(
 			error  => 1,
-			status => 'The config value .config.base_config is undef. It should be the value for URL to fetch it from'
+			status =>
+				'The config value .config.base_config is undef. It should be the value for URL to fetch it from'
 		);
 		return $self->{results};
 	}
@@ -235,9 +236,10 @@ sub action {
 			}
 
 			$base_config_raw = read_file($tmp_file);
+			write_file( $config_base . '/suricata.yaml', $$base_config_raw );
 		};
 		if ($@) {
-			$self->status_add( error => 1, status => 'Errored adding in include paths ' . $@ );
+			$self->status_add( error => 1, status => 'Errored adding in include paths or writing file out... ' . $@ );
 			return $self->{results};
 		} else {
 			$new_status = 'Adding .include finished';
