@@ -130,14 +130,10 @@ sub action {
 		}
 		eval{
 			my $raw_config = read_file($xeno_build_file) || die( 'Failed to read "' . $xeno_build_file . '"' );
-			my $err;
-			( $xeno_build, $err ) = from_toml($raw_config);
-			unless ($xeno_build) {
-				die($err);
-			}
+			$xeno_build = Load($raw_config);
 		};
 		if ($@) {
-			my $error = 'Neither --path or --xb specified';
+			my $error =  'xeno_build errored: '.$@;
 			warn($error);
 			push( @{ $self->{results}{errors} }, $error );
 			return $self->{results};

@@ -35,6 +35,15 @@ https://raw.githubusercontent.com/OISF/suricata/master/suricata.yaml.in .
 
 This will be fetched using proxies as defined under .proxy .
 
+The following keys are removed.
+
+   .logging
+   .outputs
+   .af-packet
+   .pcap
+   .include
+   .rule-files
+
 =head1 FLAGS
 
 =head2 --np
@@ -181,11 +190,17 @@ sub action {
 	}
 	$self->status_add( status => $new_status );
 
-	my @to_remove = ( '.logging', '.outputs', '.af-packet', '.pcap', '.include', '.rule-files' );
+	#
+	#
+	# remove unwanted paths
+	#
+	#
+	my @to_remove = ( '.logging.outputs', '.outputs', '.af-packet', '.pcap', '.include', '.rule-files' );
 	eval {
 		my ( $tnp_fh, $tmp_file ) = tempfile();
 		write_file( $tmp_file, $base_config_raw );
 
+		# use yq here to preserve comments
 		my $yq = YAML::yq::Helper->new( file => $tmp_file );
 		foreach my $rm_path (@to_remove) {
 			$self->status_add( status => 'Removing ' . $rm_path . ' via yq...' );
@@ -198,13 +213,17 @@ sub action {
 		$self->status_add( error => 1, status => 'Errored removing paths... ' . $@ );
 		return $self->{results};
 	}
-
 	$new_status = 'Path removal finished';
 	if ( $self->{opts}{pr} ) {
 		$new_status = $new_status . "...\n" . $base_config_raw;
 	}
 	$self->status_add( status => $new_status );
 
+	#
+	#
+	# handle writing the file out
+	#
+	#
 	if ( $self->{config}{suricata}{multi_instance} ) {
 		my @instances;
 
@@ -236,10 +255,12 @@ sub action {
 			}
 
 			$base_config_raw = read_file($tmp_file);
-			write_file( $config_base . '/suricata.yaml', $base_config_raw );
+			if ($self->{opts}{w}) {
+				write_file( $config_base . '/suricata.yaml', $base_config_raw );
+			}
 		};
 		if ($@) {
-			$self->status_add( error => 1, status => 'Errored adding in include paths or writing file out... ' . $@ );
+			$self->status_add( error => 1, status => 'Errored adding in include paths or writing file out(if asked)... ' . $@ );
 			return $self->{results};
 		} else {
 			$new_status = 'Adding .include finished';

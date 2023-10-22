@@ -496,25 +496,25 @@ outputs:
       conditional: alerts
 [% END %]
 
-[% IF vars.logging_in_outputs %]
+[% IF vars.logging.in_outputs %]
 logging:
-  default-log-level: [% vars.logging_level %]
+  default-log-level: [% vars.logging.level %]
 
   default-output-filter:
   outputs:
     - console:
-        enabled: [% vars.logging_console %]
+        enabled: [% vars.logging.console %]
 
     - file:
-        enabled: [% vars.logging_file %]
+        enabled: [% vars.logging.file %]
 
-        level: [% vars.logging_file_level %]
+        level: [% vars.logging.file_level %]
 
         filename: /var/log/suricata/suricata[% vars.instance_part %].log
     - syslog:
-        enabled: [% vars.logging_syslog %]
+        enabled: [% vars.logging.syslog %]
 
-        facility: [% vars.logging_syslog_facility %]
+        facility: [% vars.logging.syslog_facility %]
 
-        format: "[% vars.logging_syslog_format %]"
+        format: "[% vars.logging.syslog_format %]"
 [% END %]

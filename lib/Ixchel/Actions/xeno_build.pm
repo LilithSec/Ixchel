@@ -342,9 +342,9 @@ sub action {
 	my $self = $_[0];
 
 	$self->{results} = {
-		errors      => [],
-		status_text => '',
-		ok          => 0,
+		errors => [],
+		status => '',
+		ok     => 0,
 	};
 
 	# if this is not set, no reason to continue
@@ -836,10 +836,10 @@ sub action {
 			}
 
 			# if .exec.commands exists shove it onto the stack
-			if (   defined( $self->{opts}{xeno_build}{$type}{commands} )
+			if (   defined( $self->{opts}{xeno_build}{$type}{command} )
 				&& defined( $self->{opts}{xeno_build}{$type}{commands}[0] ) )
 			{
-				push( @commands, @{ $self->{opts}{xeno_build}{$type}{commands} } );
+				push( @commands, @{ $self->{opts}{xeno_build}{$type}{command} } );
 			}
 
 			# process each command
@@ -859,7 +859,7 @@ sub action {
 							# don't need command as that will have been copied by the if earlier if and the previous
 							# before that means either this one or othe other is present
 							if ( $to_copy eq 'dir' ) {
-								$command_hash->{$to_copy} = $self->{opts}{xeno_build}{options}{tmpdir};
+								$command_hash->{dir} = $self->{opts}{xeno_build}{options}{tmpdir};
 							} elsif ( $to_copy eq 'exits' ) {
 								$command_hash->{exits} = [0];
 							} elsif ( $to_copy eq 'template' ) {
@@ -868,70 +868,76 @@ sub action {
 								$command_hash->{for} = [];
 							}
 						} ## end elsif ( !defined( $command_hash->{$to_copy} )...)
+					} ## end foreach my $to_copy (@to_possibly_copy)
 
-						# if requested to template it, process the command and dir
-						if ( $command_hash->{template} ) {
-							eval {
-								my $output  = '';
-								my $command = $command_hash->{command};
-								$self->{t}->process( \$command, $self->{template_vars}, \$output )
-									|| die $self->{t}->error;
-								$command_hash->{command} = $output;
+					# if requested to template it, process the command and dir
+					if ( $command_hash->{template} ) {
+						eval {
+							my $output  = '';
+							my $command = $command_hash->{command};
+							$self->{t}->process( \$command, $self->{template_vars}, \$output )
+								|| die $self->{t}->error;
+							$command_hash->{command} = $output;
 
-								$output = '';
-								my $dir = $command_hash->{dir};
-								$self->{t}->process( \$dir, $self->{template_vars}, \$output )
-									|| die $self->{t}->error;
-								$command_hash->{dir} = $output;
-							};
-							if ($@) {
-								$self->status_add(
-									type   => $type,
-									status => 'Templating failed... ' . $@,
-									error  => 1,
-								);
-								return $self->{results};
-							}
-						} ## end if ( $command_hash->{template} )
-
-						eval { chdir( $command_hash->{dir} ); };
+							$output = '';
+							my $dir = $command_hash->{dir};
+							$self->{t}->process( \$dir, $self->{template_vars}, \$output )
+								|| die $self->{t}->error;
+							$command_hash->{dir} = $output;
+						};
 						if ($@) {
 							$self->status_add(
 								type   => $type,
-								status => 'Failed to chdir to "' . $command_hash->{dir} . '"',
+								status => 'Templating failed... ' . $@,
 								error  => 1,
 							);
 							return $self->{results};
 						}
+					} ## end if ( $command_hash->{template} )
 
-						system( $command_hash->{command} );
-						my $exit_code;
-						if ( $? == -1 ) {
-							$exit_code = -1;
-						} else {
-							$exit_code = $? >> 8;
+					eval { chdir( $command_hash->{dir} ); };
+					if ($@) {
+						$self->status_add(
+							type   => $type,
+							status => 'Failed to chdir to "' . $command_hash->{dir} . '"',
+							error  => 1,
+						);
+						return $self->{results};
+					}
+
+					system( $command_hash->{command} );
+					my $exit_code;
+					if ( $? == -1 ) {
+						$exit_code = -1;
+					} else {
+						$exit_code = $? >> 8;
+					}
+					my $exit_code_matched = 0;
+					foreach my $desired_exit_code ( @{ $command_hash->{exits} } ) {
+						if ( $exit_code == $desired_exit_code ) {
+							$exit_code_matched = 1;
 						}
-						my $exit_code_matched = 0;
-						foreach my $desired_exit_code ( @{ $command_hash->{exits} } ) {
-							if ( $exit_code == $desired_exit_code ) {
-								$exit_code_matched = 1;
-							}
-						}
-						if ( !$exit_code_matched ) {
-							$self->status_add(
-								type   => $type,
-								status => 'Exit code mismatch... desired=' . join( @{ $command_hash->{exits} } ),
-								' actual=' . $exit_code . ' command="' . $command_hash->{command} . '"',
-								error => 1,
-							);
-							return $self->{results};
-						}
-					} ## end foreach my $to_copy (@to_possibly_copy)
+					}
+					if ( !$exit_code_matched ) {
+						$self->status_add(
+							type   => $type,
+							status => 'Exit code mismatch... desired='
+								. join( ',', @{ $command_hash->{exits} } )
+								. ' actual='
+								. $exit_code
+								. ' command="'
+								. $command_hash->{command} . '"',
+							error => 1,
+						);
+						return $self->{results};
+					} ## end if ( !$exit_code_matched )
 				} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
 			} ## end foreach my $command_hash (@commands)
 
 		} ## end elsif ( $type =~ /^exec[0-9]*$/ )
 	} ## end foreach my $type (@types)
+
+	chdir($self->{opts}{xeno_build}{options}{tmpdir}.'/..');
 
 	return $self->{results};
 } ## end sub action
