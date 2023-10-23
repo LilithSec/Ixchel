@@ -124,14 +124,6 @@ Variables for template are as below.
             L<Rex::Commands::Gather> and values in the array will be ensured to be
             absent via L<Rex::Commands::Pkg>.
 
-    - .pkgs.update_package_db :: A Perl boolean for if the package DB should be updated
-            if .pkgs.latest is being used.
-        - Default :: 1
-
-    - .pkgs.update_package_db_force :: A Perl boolean for if the package DB should be
-            updated even there is nothing undef to be installed.
-        - Default :: 0
-
 So if you want to install apache24 and exa on FreeBSD and jq on Debian, it would be like below.
 
     {
@@ -239,14 +231,20 @@ Template is done via L<Template> with the base variables being available.
 
     - env :: Enviromental variables.
 
+    - os :: The OS or OS family.
+
     - vars :: Variables as set in .vars in the build hash.
 
     - templated_vars :: Templates used for crreating some vars under vars.
 
+The following functions are available.
+
+    - shell_quote :: shell_quote from String::ShellQuote
+
 =head1 RESULT HASH REF
 
     .errors :: A array of errors encountered.
-    .status :: A string description of what was done and teh results.
+    .status :: A string description of what was done and the results.
     .ok :: True if everyting okay.
 
 =head1 Determining OS
@@ -275,6 +273,8 @@ First the module get_operating_system is used. Then the following is ran.
         $self->{os}='Mageia';
     }elsif (is_void) {
         $self->{os}='Void';
+    }else{
+        $self->{os}=get_operating_system;
     }
 
 Which will set it to that if one of those matches.
@@ -289,7 +289,7 @@ sub new {
 		vars          => {},
 		arggv         => [],
 		opts          => {},
-		os            => get_operating_system,
+		os            => $^O,
 		template_vars => {
 			shell_quote    => \&shell_quote,
 			env            => \%ENV,
@@ -323,7 +323,11 @@ sub new {
 		$self->{os} = 'Mageia';
 	} elsif (is_void) {
 		$self->{os} = 'Void';
+	} else {
+		$self->{os} = get_operating_system;
 	}
+
+	$self->{template_vars}{os} = $self->{os};
 
 	# set is_systemd template var
 	if ( $^O eq 'linux' && ( -f '/usr/bin/systemctl' || -f '/bin/systemctl' ) ) {
@@ -572,58 +576,22 @@ sub action {
 			##
 			##
 
-			# set .pkgs.update_package_db to 1 if it is undef
-			if ( !defined( $self->{opts}{xeno_build}{$type}{update_package_db} ) ) {
-				$self->{opts}{xeno_build}{$type}{update_package_db} = 1;
-			}
-			$self->status_add(
-				type   => $type,
-				status => 'Pkgs Update DB: ' . $self->{opts}{xeno_build}{$type}{update_package_db}
-			);
-
-			# update the db if requested to always do it
-			# only
-			my $updated;
-			if ( defined( $self->{opts}{xeno_build}{$type}{update_package_db_force} )
-				&& $self->{opts}{xeno_build}{$type}{update_package_db_force} )
-			{
-				$self->status_add( type => $type, status => 'update_packages_db_force=1 ... updating DB' );
-				$updated = 1;
-				eval { update_package_db; };
-				if ($@) {
-					$self->status_add( type => $type, status => 'Pkgs DB update failed...' . $@, error => 1, );
-				}
-			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
-			# handle .pkgs.latest
-			if (   defined( $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} } )
-				&& defined( $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} }[0] ) )
-			{
-				if ( !$updated && $self->{opts}{xeno_build}{$type}{update_package_db} ) {
-					eval {
-						$self->status_add( type => $type, status => 'updating DB' );
-						update_package_db;
-					};
-					if ($@) {
-						$self->status_add( type => $type, status => 'Pkgs DB update failed...' . $@, error => 1, );
-					}
-				}
-				foreach my $pkg ( @{ $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} } } ) {
-					$self->status_add(
-						type   => $type,
-						status => 'Ensuring latest ' . $pkg . ' for ' . $self->{os} . ' is installed',
-					);
-					eval { pkg( $pkg, ensure => 'latest' ); };
+			# handle pkgs.absent
+			if ( defined( $self->{opts}{xeno_build}{$type}{absent}{ $self->{os} }[0] ) ) {
+				foreach my $pkg ( @{ $self->{opts}{xeno_build}{$type}{absent}{ $self->{os} } } ) {
+					eval { pkg( $pkg, ensure => 'absent' ); };
 					if ($@) {
 						$self->status_add(
 							type   => $type,
-							status => 'Failed installing latest ' . $pkg . ' for ' . $self->{os},
+							status => 'Failed uninstalling ' . $pkg . ' for ' . $self->{os},
 							error  => 1,
 						);
 						return $self->{results};
 					}
 				} ## end foreach my $pkg ( @{ $self->{opts}{xeno_build}{...}})
 			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
-			# handle present
+
+			# handle .pkgs.present
 			if (   defined( $self->{opts}{xeno_build}{$type}{present}{ $self->{os} } )
 				&& defined( $self->{opts}{xeno_build}{$type}{present}{ $self->{os} }[0] ) )
 			{
@@ -643,14 +611,28 @@ sub action {
 					}
 				} ## end foreach my $pkg ( @{ $self->{opts}{xeno_build}{...}})
 			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
-			# handle absent
-			if ( defined( $self->{opts}{xeno_build}{$type}{absent}{ $self->{os} }[0] ) ) {
-				foreach my $pkg ( @{ $self->{opts}{xeno_build}{$type}{absent}{ $self->{os} } } ) {
-					eval { pkg( $pkg, ensure => 'absent' ); };
+
+			# handle .pkgs.latest
+			if (   defined( $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} } )
+				&& defined( $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} }[0] ) )
+			{
+				eval {
+					$self->status_add( type => $type, status => 'updating DB' );
+					update_package_db;
+				};
+				if ($@) {
+					$self->status_add( type => $type, status => 'Pkgs DB update failed...' . $@, error => 1, );
+				}
+				foreach my $pkg ( @{ $self->{opts}{xeno_build}{$type}{latest}{ $self->{os} } } ) {
+					$self->status_add(
+						type   => $type,
+						status => 'Ensuring latest ' . $pkg . ' for ' . $self->{os} . ' is installed',
+					);
+					eval { pkg( $pkg, ensure => 'latest' ); };
 					if ($@) {
 						$self->status_add(
 							type   => $type,
-							status => 'Failed uninstalling ' . $pkg . ' for ' . $self->{os},
+							status => 'Failed installing latest ' . $pkg . ' for ' . $self->{os},
 							error  => 1,
 						);
 						return $self->{results};
