@@ -241,6 +241,13 @@ Template is done via L<Template> with the base variables being available.
 
     - templated_vars :: Templates used for crreating some vars under vars.
 
+    - is_systemd :: If the system looks like it is systemd or not. The value is a boolean
+        of 0 or 1.
+
+    - tmpdir :: The path of the tmpdir.
+
+    - options :: The contents of .options .
+
 The following functions are available.
 
     - shell_quote :: shell_quote from String::ShellQuote
@@ -438,11 +445,13 @@ sub action {
 			$self->{opts}{xeno_build}{options}{build_dir} = '/tmp/';
 		}
 	}
+
 	# create the tmpdir under the build dir
 	$self->{opts}{xeno_build}{options}{tmpdir}
 		= File::Temp->newdir( DIR => $self->{opts}{xeno_build}{options}{build_dir} );
 	# now that options are setup, save it as a usable template variable
 	$self->{template_vars}{options} = $self->{opts}{xeno_build}{options};
+	$self->{template_vars}{tmpdir}  = $self->{opts}{xeno_build}{options}{tmpdir};
 	$self->status_add( status => 'Build Dir, .options.build_dir: ' . $self->{opts}{xeno_build}{options}{build_dir} );
 	$self->status_add( status => 'Temp Dir, .options.tmpdir: ' . $self->{opts}{xeno_build}{options}{tmpdir} );
 
