@@ -88,6 +88,10 @@ the matching name to under vars.
 
 =head2  TYPES
 
+    - .$type.for :: 'for' may be specified for any of the types. It is a
+            array of OS families it is for.
+        - Default :: undef
+
 =head3 fetch
 
     - .fetch.items.$name.url :: URL to fetch.
@@ -154,7 +158,7 @@ So if you want to install apache24 and exa on FreeBSD and jq on Debian, it would
             set to true, it will be installed if anything is specificed in .perl.modules.
         - Default :: 1
 
-    - .perl.install_force :: Install cpanm even if .cpanm.modules does not contain any modules.
+    - .perl.cpanm_install :: Install cpanm even if .cpanm.modules does not contain any modules.
         - Default :: 0
 
     - .perl.pkgs :: A list of modules to install via packages if possible.
@@ -187,7 +191,6 @@ Install python stuff.
     - .python.pkgs_require :: A array items that must be install via pkgs.
         - Default :: []
 
-
     - python.pkgs_always_try :: If pkgs should always be tried first prior to pip.
         - Default :: 1
 
@@ -207,12 +210,6 @@ Install python stuff.
 
    - .exec.template :: If the command in question should be treated as a TT template.
        - Default :: [0]
-
-   - .exec.template_failure_ok :: A Perl boolean if it is okay for templating to fail.
-       - Default :: 0
-
-   - .exec.for :: A array of OS families that the the command is for.
-       - Default :: undef
 
 Either .exec.commands or .exec.command must be used. If .exec.commands is used, each value in
 the array is a hash using the same keys, minus .commands, as .exec. So if .exec.commands[0].exits
@@ -482,6 +479,18 @@ sub action {
 
 		my $for_this_system = 1;
 
+		if ( defined( $self->{opts}{xeno_build}{$type}{for} ) ) {
+			$for_this_system = 0;
+			my @for_oses = @{ $self->{opts}{xeno_build}{$type}{for} };
+			$self->status_add( type => $type, status => 'For OSes: ' . join( ',', @for_oses ) );
+			foreach my $for_os_check (@for_oses) {
+				if ( $for_os_check eq $self->{os} ) {
+					$self->status_add( type => $type, status => 'For matched' );
+					$for_this_system = 1;
+				}
+			}
+		} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
+
 		if ( $type =~ /^fetch[0-9]*$/ && $for_this_system ) {
 			##
 			##
@@ -746,11 +755,20 @@ sub action {
 
 			my $installed_cpanm;
 			# if we don't want to install cpanm, set it as already as being installed
-			if ( defined( $self->{opts}{xeno_build}{$type}{install} )
-				&& !$self->{opts}{xeno_build}{$type}{install} )
+			if ( defined( $self->{opts}{xeno_build}{$type}{cpanm_install} )
+				&& $self->{opts}{xeno_build}{$type}{cpanm_install} )
 			{
+				eval { install_cpanm; };
+				if ($@) {
+					$self->status_add(
+						type   => $type,
+						status => 'Failed installing cpanm for ' . $self->{os} . ' ... ' . $@,
+						error  => 1,
+					);
+					return $self->{results};
+				}
 				$installed_cpanm = 1;
-			}
+			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
 
 			# try to install each module
 			foreach my $module (@modules) {
@@ -1008,67 +1026,41 @@ sub action {
 						$self->status_add( type => $type, status => 'exec[' . $command_int . '] dir: ' . getcwd, );
 					}
 
-					# process the the fors
-					my $for = 1;    # default to true
-					if ( defined( $command_hash->{for} ) && defined( $command_hash->{for}[0] ) ) {
+					system( $command_hash->{command} );
+					my $exit_code;
+					if ( $? == -1 ) {
+						$exit_code = -1;
+					} else {
+						$exit_code = $? >> 8;
+					}
+					my $exit_code_matched = 0;
+					foreach my $desired_exit_code ( @{ $command_hash->{exits} } ) {
+						if ( $exit_code == $desired_exit_code ) {
+							$exit_code_matched = 1;
+						}
+					}
+					if ( !$exit_code_matched ) {
 						$self->status_add(
-							status => 'exec[' . $command_int . '] for: ' . join( ',', @{ $command_hash->{for} } ),
+							type   => $type,
+							status => 'Exit code mismatch... desired='
+								. join( ',', @{ $command_hash->{exits} } )
+								. ' actual='
+								. $exit_code
+								. ' command="'
+								. $command_hash->{command} . '"',
+							error => 1,
 						);
+						return $self->{results};
+					} ## end if ( !$exit_code_matched )
 
-						# for is specied, default it to false and set to true when we match
-						$for = 0;
-
-						# process everything in the array
-						foreach my $for_to_check ( @{ $command_hash->{for} } ) {
-							if ( $for_to_check =~ /^\!/ ) {
-								if ( $for_to_check ne $self->{os} ) {
-									$for = 1;
-								}
-							} else {
-								if ( $for_to_check eq $self->{os} ) {
-									$for = 1;
-								}
-							}
-						} ## end foreach my $for_to_check ( @{ $command_hash->{for...}})
-						$self->status_add( status => 'exec[' . $command_int . '] for result: ' . $for, );
-
-					} ## end if ( defined( $command_hash->{for} ) && defined...)
-
-					# if the for matches, run it
-					if ($for) {
-						system( $command_hash->{command} );
-						my $exit_code;
-						if ( $? == -1 ) {
-							$exit_code = -1;
-						} else {
-							$exit_code = $? >> 8;
-						}
-						my $exit_code_matched = 0;
-						foreach my $desired_exit_code ( @{ $command_hash->{exits} } ) {
-							if ( $exit_code == $desired_exit_code ) {
-								$exit_code_matched = 1;
-							}
-						}
-						if ( !$exit_code_matched ) {
-							$self->status_add(
-								type   => $type,
-								status => 'Exit code mismatch... desired='
-									. join( ',', @{ $command_hash->{exits} } )
-									. ' actual='
-									. $exit_code
-									. ' command="'
-									. $command_hash->{command} . '"',
-								error => 1,
-							);
-							return $self->{results};
-						} ## end if ( !$exit_code_matched )
-					} ## end if ($for)
 				} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
 
 				$command_int++;
 			} ## end foreach my $command_hash (@commands)
 
-		} ## end elsif ( $type =~ /^exec[0-9]*$/ && $for_this_system)
+		} elsif ( !$for_this_system ) {
+			$self->status_add( type => $type, status => 'Not for this system' );
+		}
 	} ## end foreach my $type (@types)
 
 	chdir( $self->{opts}{xeno_build}{options}{tmpdir} . '/..' );
