@@ -58,7 +58,7 @@ An array of the order it should process the steps in. The default is as below.
 
     fetch
     pkgs
-    cpanm
+    perl
     python
     exec
 
@@ -73,7 +73,7 @@ the desired stuff and set the order like below.
     exec
 
 First .exec0, then pkgs, and then .exec will be ran. The type is determined via removing
-the end from it via the regexp s/[0-9]*$//. So .cpanm123 would be ran as cpanm type.
+the end from it via the regexp s/[0-9]*$//. So .perl123 would be ran as perl type.
 
 Unknown types will result in an error.
 
@@ -135,40 +135,61 @@ So if you want to install apache24 and exa on FreeBSD and jq on Debian, it would
         },
     }
 
-=head3 cpanm
+=head3 perl
 
-    - .cpanm.modules :: A array of modules to to install via cpanm.
+    - .perl.modules :: A array of modules to to install via cpanm.
         - Default :: []
 
-    - .cpanm.reinstall :: A Perl boolean for if it should --reinstall should be passed.
+    - .perl.reinstall :: A Perl boolean for if it should --reinstall should be passed.
         - Default :: 0
 
-    - .cpanm.notest :: A Perl boolean for if it should --notest should be passed.
+    - .perl.notest :: A Perl boolean for if it should --notest should be passed.
         - Default :: 0
 
-    - .cpanm.force :: A Perl boolean for if it should --force should be passed.
+    - .perl.force :: A Perl boolean for if it should --force should be passed.
         - Default :: 0
 
-    - .cpanm.install :: Ensures that cpanm is installed, which will also ensure that Perl is installed.
+    - .perl.install :: Ensures that cpanm is installed, which will also ensure that Perl is installed.
             If undef or 0, then cpanm won't be installed and will be assumed to already be present. If
-            set to true, it will be installed if anything is specificed in .cpanm.modules.
+            set to true, it will be installed if anything is specificed in .perl.modules.
         - Default :: 1
 
-    - .cpanm.install_force :: Install cpanm even if .cpanm.modules does not contain any modules.
+    - .perl.install_force :: Install cpanm even if .cpanm.modules does not contain any modules.
         - Default :: 0
 
-    - cpanm.pkgs :: A list of modules to install via packages if possible.
+    - .perl.pkgs :: A list of modules to install via packages if possible.
         - Default :: []
 
-    - cpanm.pkgs_always_try :: A Perl boolean for if the array for .cpanm.modules should be appended to
+    - perl.pkgs_always_try :: A Perl boolean for if the array for .cpanm.modules should be appended to
             .cpanm.pkgs.
         - Default :: 1
 
-    - cpanm.pkgs_require :: A list of modules to install via packages. Will fail if any of these fail.
+    - perl.pkgs_require :: A list of modules to install via packages. Will fail if any of these fail.
         - Default :: []
 
 For the packages, if you want to make sure the package DB is up to date, you will want to set
 .pkgs.update_package_db_force to "1".
+
+=head3 python
+
+Install python stuff.
+
+    - .python.pip_install :: A Perl boolean for if it should install python. By default only installs
+            python and pip if .python.pip[0] or .python.pkgs[0] is defined.
+        - Default :: 1
+
+    - .python.modules :: A array items to install via pip.
+        - Default :: []
+
+    - .python.pkgs :: A array items to install via packages if possible.
+        - Default :: []
+
+    - .python.pkgs_require :: A array items that must be install via pkgs.
+        - Default :: []
+
+
+    - python.pkgs_always_try :: If pkgs should always be tried first prior to pip.
+        - Default :: 1
 
 =head3 exec
 
@@ -210,20 +231,6 @@ Variables for template are as below.
     - os :: OS as per L<Rex::Commands::Gather>.
 
     - .fetched :: .fetch.items if it exists.
-
-=head3 python
-
-Install python stuff.
-
-    - .python.pip_install :: A Perl boolean for if it should install python. By default only installs
-            python and pip if .python.pip[0] or .python.pkgs[0] is defined.
-        - Default :: 1
-
-    - .python.pip :: A array items to install via pip.
-        - Default :: []
-
-    - .python.pkgs :: A array items to install via packages.
-        - Default :: []
 
 =head2 TEMPLATES
 
@@ -416,7 +423,7 @@ sub action {
 
 	# define the order if not specified
 	if ( !defined( $self->{opts}{xeno_build}{order} ) ) {
-		$self->{opts}{xeno_build}{order} = [ 'fetch', 'pkgs', 'cpanm', 'python', 'exec', ];
+		$self->{opts}{xeno_build}{order} = [ 'fetch', 'pkgs', 'perl', 'python', 'exec', ];
 	}
 	$self->status_add( status => 'Order: ' . join( ', ', @{ $self->{opts}{xeno_build}{order} } ) );
 
@@ -457,7 +464,7 @@ sub action {
 		# make sure it is known
 		if (   $type !~ /^fetch[0-9]*$/
 			&& $type !~ /^pkgs[0-9]*$/
-			&& $type !~ /^cpanm[0-9]*$/
+			&& $type !~ /^perl[0-9]*$/
 			&& $type !~ /^python[0-9]*$/
 			&& $type !~ /^exec[0-9]*$/ )
 		{
@@ -472,7 +479,10 @@ sub action {
 
 	foreach my $type (@types) {
 		$self->status_add( status => 'Starting type "' . $type . '"...' );
-		if ( $type =~ /^fetch[0-9]*$/ ) {
+
+		my $for_this_system = 1;
+
+		if ( $type =~ /^fetch[0-9]*$/ && $for_this_system ) {
 			##
 			##
 			##
@@ -567,7 +577,7 @@ sub action {
 					status => 'Fetch "' . $fetch_name . '" Return Code: ' . $return_code
 				);
 			} ## end foreach my $fetch_name (@fetch_names)
-		} elsif ( $type =~ /^pkgs[0-9]*$/ ) {
+		} elsif ( $type =~ /^pkgs[0-9]*$/ && $for_this_system ) {
 			##
 			##
 			##
@@ -639,11 +649,11 @@ sub action {
 					}
 				} ## end foreach my $pkg ( @{ $self->{opts}{xeno_build}{...}})
 			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
-		} elsif ( $type =~ /^cpanm[0-9]*$/ ) {
+		} elsif ( $type =~ /^perl[0-9]*$/ && $for_this_system ) {
 			##
 			##
 			##
-			## start of cpanm
+			## start of perl
 			##
 			##
 			##
@@ -790,7 +800,7 @@ sub action {
 					}
 				} ## end if ( !defined( $modules_installed{$module}...))
 			} ## end foreach my $module (@modules)
-		} elsif ( $type =~ /^python[0-9]*$/ ) {
+		} elsif ( $type =~ /^python[0-9]*$/ && $for_this_system ) {
 			##
 			##
 			##
@@ -798,7 +808,6 @@ sub action {
 			##
 			##
 			##
-			$self->status_add( status => 'Starting type "' . $type . '"...' );
 
 			# keeps track of what was installed
 			my %installed;
@@ -819,60 +828,81 @@ sub action {
 				push( @modules, @{ $self->{opts}{xeno_build}{$type}{pip} } );
 			}
 
+			# handle stuff that is required to be installed via packages
+			if (   defined( $self->{opts}{xeno_build}{$type}{pkgs_require} )
+				&& defined( $self->{opts}{xeno_build}{$type}{pkgs_require}[0] ) )
+			{
+				my @pkgs_require;
+				push( @pkgs_require, @{ $self->{opts}{xeno_build}{$type}{pkgs_require} } );
+				foreach my $module (@pkgs_require) {
+					eval { python_module_via_pkg( module => $module ) };
+					if ($@) {
+						$self->status_add(
+							type   => $type,
+							error  => 1,
+							status => 'Failed to install required python module "' . $module . '" pkgs... ' . $@,
+						);
+						return $self->{results};
+					}
+				} ## end foreach my $module (@pkgs_require)
+			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
+
 			# try to add packages for various modules
+			my @pkgs;
 			if (   defined( $self->{opts}{xeno_build}{$type}{pkgs} )
 				&& defined( $self->{opts}{xeno_build}{$type}{pkgs}[0] ) )
 			{
-				my @pkgs;
 				push( @pkgs, @{ $self->{opts}{xeno_build}{$type}{pkgs} } );
+			}
+			if ( defined( $pkgs[0] ) ) {
 				foreach my $module (@pkgs) {
 					eval { python_module_via_pkg( module => $module ) };
-					if ( !$@ ) {
+					if ($@) {
 						push( @modules, $pkg );
 					} else {
 						$installed{$module} = 1;
 					}
 				}
+			} ## end if ( defined( $pkgs[0] ) )
 
-				# install all modules for python via pip, including ones that could not be installed via packages
-				foreach my $module (@modules) {
-					if ( !$installed{$module} ) {
-						if ( !$pip_installed ) {
-							eval { install_pip; };
-							if ($@) {
-								$self->status_add(
-									type   => $type,
-									status => 'Installing pip failed... ' . $@,
-									error  => 1,
-								);
-								return $self->{results};
-							}
-							my @pip_cmd;
-							my $pip3 = `which pip3 2> /dev/null`;
-							if ( $? == 0 ) {
-								push( @pip_cmd, 'pip3', 'install', $module );
-							} else {
-								push( @pip_cmd, 'pip', 'install', $module );
-							}
+			# install all modules for python via pip, including ones that could not be installed via packages
+			foreach my $module (@modules) {
+				if ( !$installed{$module} ) {
+					if ( !$pip_installed ) {
+						eval { install_pip; };
+						if ($@) {
 							$self->status_add(
 								type   => $type,
-								status => 'invoking pip: ' . join( ' ', @pip_cmd ),
+								status => 'Installing pip failed... ' . $@,
+								error  => 1,
 							);
-							system(@pip_cmd);
-							if ( $? != 0 ) {
-								$self->status_add(
-									type   => $type,
-									status => 'pip failed: ' . join( ' ', @pip_cmd ),
-									error  => 1,
-								);
-								return $self->{results};
-							}
-						} ## end if ( !$pip_installed )
-					} ## end if ( !$installed{$module} )
-				} ## end foreach my $module (@modules)
-			} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
+							return $self->{results};
+						}
+						my @pip_cmd;
+						my $pip3 = `which pip3 2> /dev/null`;
+						if ( $? == 0 ) {
+							push( @pip_cmd, 'pip3', 'install', $module );
+						} else {
+							push( @pip_cmd, 'pip', 'install', $module );
+						}
+						$self->status_add(
+							type   => $type,
+							status => 'invoking pip: ' . join( ' ', @pip_cmd ),
+						);
+						system(@pip_cmd);
+						if ( $? != 0 ) {
+							$self->status_add(
+								type   => $type,
+								status => 'pip failed: ' . join( ' ', @pip_cmd ),
+								error  => 1,
+							);
+							return $self->{results};
+						}
+					} ## end if ( !$pip_installed )
+				} ## end if ( !$installed{$module} )
+			} ## end foreach my $module (@modules)
 
-		} elsif ( $type =~ /^exec[0-9]*$/ ) {
+		} elsif ( $type =~ /^exec[0-9]*$/ && $for_this_system ) {
 			##
 			##
 			##
@@ -1038,7 +1068,7 @@ sub action {
 				$command_int++;
 			} ## end foreach my $command_hash (@commands)
 
-		} ## end elsif ( $type =~ /^exec[0-9]*$/ )
+		} ## end elsif ( $type =~ /^exec[0-9]*$/ && $for_this_system)
 	} ## end foreach my $type (@types)
 
 	chdir( $self->{opts}{xeno_build}{options}{tmpdir} . '/..' );
