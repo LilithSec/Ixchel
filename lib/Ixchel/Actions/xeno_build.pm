@@ -13,6 +13,7 @@ use Ixchel::functions::perl_module_via_pkg;
 use Ixchel::functions::install_cpanm;
 use Ixchel::functions::python_module_via_pkg;
 use Ixchel::functions::install_pip;
+use Cwd;
 
 =head1 NAME
 
@@ -36,7 +37,9 @@ A build hash containing the options to use for installing and building.
 
 =head1 BUILD HASH
 
-=head2 options
+=head2  BUILD OPTIONS AND VALUES
+
+=head3 options
 
     - .options.build_dir :: Build dir to use. If not defined, .config.xeno_options.build_dir
             is used. If that is undef, '/tmp/' is used.
@@ -49,7 +52,43 @@ A build hash containing the options to use for installing and building.
 
     - .options.$var :: Additional variable to define.
 
-=head2 fetch
+=head3 order
+
+An array of the order it should process the steps in. The default is as below.
+
+    fetch
+    pkgs
+    cpanm
+    python
+    exec
+
+So lets say you have a .exec in the hash, but .order does not contain 'exec' any place in
+the array, then whatever is in .exec will not be processed.
+
+If you want to run exec twice with different values, you can create .exec0 and .exec with
+the desired stuff and set the order like below.
+
+    exec0
+    pkgs
+    exec
+
+First .exec0, then pkgs, and then .exec will be ran. The type is determined via removing
+the end from it via the regexp s/[0-9]*$//. So .cpanm123 would be ran as cpanm type.
+
+Unknown types will result in an error.
+
+=head3 vars
+
+This is a hash of variables to pass to the template as var.
+
+=head3 templated_vars
+
+These are vars that are to be templated. The output is copied to
+the matching name to under vars.
+
+=head2  TYPES
+
+=head3 fetch
 
     - .fetch.items.$name.url :: URL to fetch.
 
@@ -69,17 +108,17 @@ Variables for template are as below.
 
     - os :: OS as per L<Rex::Commands::Gather>.
 
-=head2 pkgs
+=head3 pkgs
 
     - .pkgs.present :: A hash of arrays. The keys are the OS seen by
             L<Rex::Commands::Gather> and values in the array will be ensured to be
             present via L<Rex::Commands::Pkg>.
-        - Default :: []
+        - Default :: undef
 
     - .pkgs.latest :: A hash of arrays. The keys are the OS seen by
             L<Rex::Commands::Gather> and values in the array will be ensured to be
             latest via L<Rex::Commands::Pkg>.
-        - Default :: []
+        - Default :: undef
 
     - .pkgs.absent :: A hash of arrays. The keys are the OS seen by
             L<Rex::Commands::Gather> and values in the array will be ensured to be
@@ -104,7 +143,7 @@ So if you want to install apache24 and exa on FreeBSD and jq on Debian, it would
         },
     }
 
-=head2 cpanm
+=head3 cpanm
 
     - .cpanm.modules :: A array of modules to to install via cpanm.
         - Default :: []
@@ -131,7 +170,7 @@ So if you want to install apache24 and exa on FreeBSD and jq on Debian, it would
 
     - cpanm.pkgs_always_try :: A Perl boolean for if the array for .cpanm.modules should be appended to
             .cpanm.pkgs.
-        - Default :: 0
+        - Default :: 1
 
     - cpanm.pkgs_require :: A list of modules to install via packages. Will fail if any of these fail.
         - Default :: []
@@ -139,7 +178,7 @@ So if you want to install apache24 and exa on FreeBSD and jq on Debian, it would
 For the packages, if you want to make sure the package DB is up to date, you will want to set
 .pkgs.update_package_db_force to "1".
 
-=head2 exec
+=head3 exec
 
     - .exec.commands :: A array of hash to use for running commands.
         - Default :: []
@@ -180,7 +219,7 @@ Variables for template are as below.
 
     - .fetched :: .fetch.items if it exists.
 
-=head2 python
+=head3 python
 
 Install python stuff.
 
@@ -194,36 +233,21 @@ Install python stuff.
     - .python.pkgs :: A array items to install via packages.
         - Default :: []
 
-=head2 order
+=head2 TEMPLATES
 
-An array of the order it should process the steps in. The default is as below.
+Template is done via L<Template> with the base variables being available.
 
-    fetch
-    pkgs
-    cpanm
-    python
-    exec
+    - env :: Enviromental variables.
 
-So lets say you have a .exec in the hash, but .order does not contain 'exec' any place in
-the array, then whatever is in .exec will not be processed.
+    - vars :: Variables as set in .vars in the build hash.
 
-If you want to run exec twice with different values, you can create .exec0 and .exec with
-the desired stuff and set the order like below.
-
-    exec0
-    pkgs
-    exec
-
-First .exec0, then pkgs, and then .exec will be ran. The type is determined via removing
-the end from it via the regexp s/[0-9]*$//. So .cpanm123 would be ran as cpanm type.
-
-Unknown types will result in an error.
+    - templated_vars :: Templates used for crreating some vars under vars.
 
 =head1 RESULT HASH REF
 
     .errors :: A array of errors encountered.
-    .status_text :: A string description of what was done and teh results.
-    .ok :: 
+    .status :: A string description of what was done and teh results.
+    .ok :: True if everyting okay.
 
 =head1 Determining OS
 
@@ -267,7 +291,10 @@ sub new {
 		opts          => {},
 		os            => get_operating_system,
 		template_vars => {
-			shell_quote => \&shell_quote,
+			shell_quote    => \&shell_quote,
+			env            => \%ENV,
+			vars           => {},
+			templated_vars => {},
 		},
 	};
 	bless $self;
@@ -353,6 +380,36 @@ sub action {
 		return $self->{results};
 	}
 
+	# copy vars under xeno_build if it exists
+	if ( defined( $self->{opts}{xeno_build}{vars} ) ) {
+		$self->{template_vars}{vars} = $self->{opts}{xeno_build}{vars};
+	}
+
+	# process templated_vars
+	if ( defined( $self->{opts}{xeno_build}{templated_vars} ) ) {
+		my @templated_vars = sort( keys( %{ $self->{opts}{xeno_build}{templated_vars} } ) );
+		$self->status_add( type => 'templated_vars', status => 'Vars to tempplate: ' . join( ',', @templated_vars ) );
+		eval {
+			foreach my $var (@templated_vars) {
+				my $output       = '';
+				my $var_template = $self->{opts}{xeno_build}{templated_vars}{$var};
+				$self->status_add(
+					type   => 'templated_vars',
+					status => 'Templated Var "' . $var . '": ' . $var_template
+				);
+				$self->{t}->process( \$var_template, $self->{template_vars}, \$output )
+					|| die $self->{t}->error;
+				$self->{opts}{xeno_build}{vars}{$var} = $output;
+				$self->status_add( type => 'templated_vars', status => 'Updated Var "' . $var . '": ' . $output );
+			} ## end foreach my $var (@templated_vars)
+		};
+		if ($@) {
+			$self->status_add( type => 'templated_vars', error => 1, status => 'Vars templating failed... ' . $@ );
+			return $self->{results};
+		}
+		$self->{template_vars}{vars} = $self->{opts}{xeno_build}{vars};
+	} ## end if ( defined( $self->{opts}{xeno_build}{templated_vars...}))
+
 	# define the order if not specified
 	if ( !defined( $self->{opts}{xeno_build}{order} ) ) {
 		$self->{opts}{xeno_build}{order} = [ 'fetch', 'pkgs', 'cpanm', 'python', 'exec', ];
@@ -380,6 +437,15 @@ sub action {
 	$self->{template_vars}{options} = $self->{opts}{xeno_build}{options};
 	$self->status_add( status => 'Build Dir, .options.build_dir: ' . $self->{opts}{xeno_build}{options}{build_dir} );
 	$self->status_add( status => 'Temp Dir, .options.tmpdir: ' . $self->{opts}{xeno_build}{options}{tmpdir} );
+
+	eval { chdir( $self->{opts}{xeno_build}{options}{tmpdir} ); };
+	if ($@) {
+		$self->status_add(
+			status => 'Failed to chdir to "' . $self->{opts}{xeno_build}{options}{tmpdir} . '"',
+			error  => 1,
+		);
+		return $self->{results};
+	}
 
 	# figure out the types we are going to use
 	my @types;
@@ -413,11 +479,11 @@ sub action {
 
 			# get the names of the items to fetch
 			my @fetch_names;
-			if ( !defined( $self->{opts}{xeno_build}{$type}{items} ) ) {
+			if ( defined( $self->{opts}{xeno_build}{$type}{items} ) ) {
 				@fetch_names = keys( %{ $self->{opts}{xeno_build}{$type}{items} } );
 			}
-			if ( !defined( $fetch_names[0] ) ) {
-				$self->status_add( type => $type, status => 'Itmes to fetch: ' . join( ', ', @fetch_names ) );
+			if ( defined( $fetch_names[0] ) ) {
+				$self->status_add( type => $type, status => 'Items to fetch: ' . join( ', ', @fetch_names ) );
 			} else {
 				$self->status_add( type => $type, status => 'Nothing to fetch.' );
 			}
@@ -428,71 +494,74 @@ sub action {
 			}
 			foreach my $fetch_name (@fetch_names) {
 				$self->status_add( type => $type, status => 'Fetching ' . $fetch_name );
-				if (   defined( $self->{opts}{xeno_build}{$type}{items}{url} )
-					&& defined( $self->{opts}{xeno_build}{$type}{items}{dst} ) )
-				{
-					$self->status_add( type => $type, status => 'Fetching ' . $fetch_name );
-					my $url = $self->{opts}{xeno_build}{$type}{items}{url};
-					my $dst = $self->{opts}{xeno_build}{$type}{items}{dst};
-					$self->status_add( type => $type, status => 'Fetch "' . $fetch_name . '" URL: ' . $url );
-					$self->status_add( type => $type, status => 'Fetch "' . $fetch_name . '" DST: ' . $dst );
-					$self->status_add(
-						type   => $type,
-						status => 'Fetch "' . $fetch_name . '" Template: ' . $template_it
-					);
-					if ($template_it) {
-						# template the url
-						my $output = '';
-						eval {
-							$self->{t}->process( \$url, $self->{template_vars}, \$output ) || die $self->{t}->error;
-							$url = $output;
-						};
-						if ($@) {
-							$self->status_add(
-								type   => $type,
-								status => 'Templating failed for "' . $fetch_name . ' for the URL"... ' . $@,
-								error  => 1,
-							);
-							return $self->{results};
-						}
-						$self->{opts}{xeno_build}{$type}{items}{url} = $url;
 
-						# template the dst
-						$output = '';
-						eval {
-							$self->{t}->process( \$dst, $self->{template_vars}, \$output ) || die $self->{t}->error;
-							$dst = $output;
-						};
-						if ($@) {
-							$self->status_add(
-								type   => $type,
-								status => 'Templating failed for "' . $fetch_name . ' for the URL"... ' . $@,
-								error  => 1,
-							);
-							return $self->{results};
-						}
-						$self->{opts}{xeno_build}{$type}{items}{dst} = $dst;
+				# make sure we have both url and dst for the fetch item
+				foreach my $fetch_value ( 'url', 'dst' ) {
+					if ( !defined( $self->{opts}{xeno_build}{$type}{items}{$fetch_name}{$fetch_value} ) ) {
 						$self->status_add(
 							type   => $type,
-							status => 'Fetch "' . $fetch_name . '" URL Template Results: ' . $url
-						);
-						$self->status_add(
-							type   => $type,
-							status => 'Fetch "' . $fetch_name . '" DST Template Results: ' . $dst
-						);
-					} else {
-						$self->status_add(
-							type   => $type,
-							status => 'Fetch "' . $fetch_name . '" missing url or dst',
+							status => 'Fetch "' . $fetch_name . '" missing ' . $fetch_value,
 							error  => 1
 						);
+						return $self;
 					}
-					my $return_code = getstore( $url, $dst );
+				} ## end foreach my $fetch_value ( 'url', 'dst' )
+
+				$self->status_add( type => $type, status => 'Fetching ' . $fetch_name );
+				my $url = $self->{opts}{xeno_build}{$type}{items}{$fetch_name}{url};
+				my $dst = $self->{opts}{xeno_build}{$type}{items}{$fetch_name}{dst};
+				$self->status_add( type => $type, status => 'Fetch "' . $fetch_name . '" URL: ' . $url );
+				$self->status_add( type => $type, status => 'Fetch "' . $fetch_name . '" DST: ' . $dst );
+				$self->status_add(
+					type   => $type,
+					status => 'Fetch "' . $fetch_name . '" Template: ' . $template_it
+				);
+				if ($template_it) {
+					# template the url
+					my $output = '';
+					eval {
+						$self->{t}->process( \$url, $self->{template_vars}, \$output ) || die $self->{t}->error;
+						$url = $output;
+					};
+					if ($@) {
+						$self->status_add(
+							type   => $type,
+							status => 'Templating failed for "' . $fetch_name . ' for the URL"... ' . $@,
+							error  => 1,
+						);
+						return $self->{results};
+					}
+					$self->{opts}{xeno_build}{$type}{items}{url} = $url;
+
+					# template the dst
+					$output = '';
+					eval {
+						$self->{t}->process( \$dst, $self->{template_vars}, \$output ) || die $self->{t}->error;
+						$dst = $output;
+					};
+					if ($@) {
+						$self->status_add(
+							type   => $type,
+							status => 'Templating failed for "' . $fetch_name . ' for the URL"... ' . $@,
+							error  => 1,
+						);
+						return $self->{results};
+					}
+					$self->{opts}{xeno_build}{$type}{items}{dst} = $dst;
 					$self->status_add(
 						type   => $type,
-						status => 'Fetch "' . $fetch_name . '" Return Code: ' . $return_code
+						status => 'Fetch "' . $fetch_name . '" URL Template Results: ' . $url
 					);
-				} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
+					$self->status_add(
+						type   => $type,
+						status => 'Fetch "' . $fetch_name . '" DST Template Results: ' . $dst
+					);
+				} ## end if ($template_it)
+				my $return_code = getstore( $url, $dst );
+				$self->status_add(
+					type   => $type,
+					status => 'Fetch "' . $fetch_name . '" Return Code: ' . $return_code
+				);
 			} ## end foreach my $fetch_name (@fetch_names)
 		} elsif ( $type =~ /^pkgs[0-9]*$/ ) {
 			##
@@ -503,7 +572,6 @@ sub action {
 			##
 			##
 
-			$self->status_add( status => 'Starting type "' . $type . '"...' );
 			# set .pkgs.update_package_db to 1 if it is undef
 			if ( !defined( $self->{opts}{xeno_build}{$type}{update_package_db} ) ) {
 				$self->{opts}{xeno_build}{$type}{update_package_db} = 1;
@@ -598,11 +666,9 @@ sub action {
 			##
 			##
 
-			$self->status_add( status => 'Starting type "' . $type . '"...' );
-
 			my @modules;
 			if ( defined( $self->{opts}{xeno_build}{$type}{modules} ) ) {
-				@modules = push( @modules, @{ $self->{opts}{xeno_build}{$type}{modules} } );
+				push( @modules, @{ $self->{opts}{xeno_build}{$type}{modules} } );
 			}
 			$self->status_add(
 				type   => $type,
@@ -620,15 +686,20 @@ sub action {
 			}
 
 			# pkgs_always_try is true, push the modules to onto the heap
-			if ( defined( $self->{opts}{xeno_build}{$type}{pkgs_always_try} )
-				&& $self->{opts}{xeno_build}{$type}{pkgs_always_try} )
+			if (
+				(
+					defined( $self->{opts}{xeno_build}{$type}{pkgs_always_try} )
+					&& $self->{opts}{xeno_build}{$type}{pkgs_always_try}
+				)
+				|| ( !defined( $self->{opts}{xeno_build}{$type}{pkgs_always_try} ) )
+				)
 			{
 				push( @pkgs, @modules );
 				$self->status_add(
 					type   => $type,
 					status => 'pkgs_always_try=1 set',
 				);
-			}
+			} ## end if ( ( defined( $self->{opts}{xeno_build}{...})))
 
 			# used for checking if the module was installed or not via pkg
 			my %modules_installed;
@@ -827,8 +898,6 @@ sub action {
 			##
 			##
 			##
-			$self->status_add( status => 'Starting type "' . $type . '"...' );
-
 			my @commands;
 			# if we have the default command, add it to the stack
 			if ( defined( $self->{opts}{xeno_build}{$type}{command} ) ) {
@@ -836,14 +905,15 @@ sub action {
 			}
 
 			# if .exec.commands exists shove it onto the stack
-			if (   defined( $self->{opts}{xeno_build}{$type}{command} )
+			if (   defined( $self->{opts}{xeno_build}{$type}{commands} )
 				&& defined( $self->{opts}{xeno_build}{$type}{commands}[0] ) )
 			{
-				push( @commands, @{ $self->{opts}{xeno_build}{$type}{command} } );
+				push( @commands, @{ $self->{opts}{xeno_build}{$type}{commands} } );
 			}
 
 			# process each command
 			my @to_possibly_copy = ( 'command', 'exits', 'template', 'for', 'dir' );
+			my $command_int      = 0;
 			foreach my $command_hash (@commands) {
 				if (   defined( $self->{opts}{xeno_build}{$type}{command} )
 					|| defined( $command_hash->{command} ) )
@@ -856,11 +926,7 @@ sub action {
 						} elsif ( !defined( $command_hash->{$to_copy} )
 							&& !defined( $self->{opts}{xeno_build}{$type}{$to_copy} ) )
 						{
-							# don't need command as that will have been copied by the if earlier if and the previous
-							# before that means either this one or othe other is present
-							if ( $to_copy eq 'dir' ) {
-								$command_hash->{dir} = $self->{opts}{xeno_build}{options}{tmpdir};
-							} elsif ( $to_copy eq 'exits' ) {
+							if ( $to_copy eq 'exits' ) {
 								$command_hash->{exits} = [0];
 							} elsif ( $to_copy eq 'template' ) {
 								$command_hash->{template} = 0;
@@ -869,6 +935,19 @@ sub action {
 							}
 						} ## end elsif ( !defined( $command_hash->{$to_copy} )...)
 					} ## end foreach my $to_copy (@to_possibly_copy)
+
+					$self->status_add(
+						type   => $type,
+						status => 'exec[' . $command_int . '] command: ' . $command_hash->{command},
+					);
+
+					$self->status_add(
+						type   => $type,
+						status => 'exec['
+							. $command_int
+							. '] ok exits: '
+							. join( ',', @{ $command_hash->{exits} } ),
+					);
 
 					# if requested to template it, process the command and dir
 					if ( $command_hash->{template} ) {
@@ -893,51 +972,94 @@ sub action {
 							);
 							return $self->{results};
 						}
+						$self->status_add(
+							type   => $type,
+							status => 'Templated: ' . $command_hash->{command},
+						);
 					} ## end if ( $command_hash->{template} )
 
-					eval { chdir( $command_hash->{dir} ); };
-					if ($@) {
-						$self->status_add(
-							type   => $type,
-							status => 'Failed to chdir to "' . $command_hash->{dir} . '"',
-							error  => 1,
-						);
-						return $self->{results};
+					# chdir to the dir specified if needed
+					if ( $command_hash->{dir} ) {
+						eval { chdir( $command_hash->{dir} ); };
+						if ($@) {
+							$self->status_add(
+								type   => $type,
+								status => 'Failed to chdir to "' . $command_hash->{dir} . '"',
+								error  => 1,
+							);
+							return $self->{results};
+						}
+					} ## end if ( $command_hash->{dir} )
+
+					# if the current dir
+					if ( getcwd ne $self->{opts}{xeno_build}{options}{tmpdir} ) {
+						$self->status_add( type => $type, status => 'exec[' . $command_int . '] dir: ' . getcwd, );
 					}
 
-					system( $command_hash->{command} );
-					my $exit_code;
-					if ( $? == -1 ) {
-						$exit_code = -1;
-					} else {
-						$exit_code = $? >> 8;
-					}
-					my $exit_code_matched = 0;
-					foreach my $desired_exit_code ( @{ $command_hash->{exits} } ) {
-						if ( $exit_code == $desired_exit_code ) {
-							$exit_code_matched = 1;
-						}
-					}
-					if ( !$exit_code_matched ) {
+					# process the the fors
+					my $for = 1;    # default to true
+					if ( defined( $command_hash->{for} ) && defined( $command_hash->{for}[0] ) ) {
 						$self->status_add(
-							type   => $type,
-							status => 'Exit code mismatch... desired='
-								. join( ',', @{ $command_hash->{exits} } )
-								. ' actual='
-								. $exit_code
-								. ' command="'
-								. $command_hash->{command} . '"',
-							error => 1,
+							status => 'exec[' . $command_int . '] for: ' . join( ',', @{ $command_hash->{for} } ),
 						);
-						return $self->{results};
-					} ## end if ( !$exit_code_matched )
+
+						# for is specied, default it to false and set to true when we match
+						$for = 0;
+
+						# process everything in the array
+						foreach my $for_to_check ( @{ $command_hash->{for} } ) {
+							if ( $for_to_check =~ /^\!/ ) {
+								if ( $for_to_check ne $self->{os} ) {
+									$for = 1;
+								}
+							} else {
+								if ( $for_to_check eq $self->{os} ) {
+									$for = 1;
+								}
+							}
+						} ## end foreach my $for_to_check ( @{ $command_hash->{for...}})
+						$self->status_add( status => 'exec[' . $command_int . '] for result: ' . $for, );
+
+					} ## end if ( defined( $command_hash->{for} ) && defined...)
+
+					# if the for matches, run it
+					if ($for) {
+						system( $command_hash->{command} );
+						my $exit_code;
+						if ( $? == -1 ) {
+							$exit_code = -1;
+						} else {
+							$exit_code = $? >> 8;
+						}
+						my $exit_code_matched = 0;
+						foreach my $desired_exit_code ( @{ $command_hash->{exits} } ) {
+							if ( $exit_code == $desired_exit_code ) {
+								$exit_code_matched = 1;
+							}
+						}
+						if ( !$exit_code_matched ) {
+							$self->status_add(
+								type   => $type,
+								status => 'Exit code mismatch... desired='
+									. join( ',', @{ $command_hash->{exits} } )
+									. ' actual='
+									. $exit_code
+									. ' command="'
+									. $command_hash->{command} . '"',
+								error => 1,
+							);
+							return $self->{results};
+						} ## end if ( !$exit_code_matched )
+					} ## end if ($for)
 				} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
+
+				$command_int++;
 			} ## end foreach my $command_hash (@commands)
 
 		} ## end elsif ( $type =~ /^exec[0-9]*$/ )
 	} ## end foreach my $type (@types)
 
-	chdir($self->{opts}{xeno_build}{options}{tmpdir}.'/..');
+	chdir( $self->{opts}{xeno_build}{options}{tmpdir} . '/..' );
 
 	return $self->{results};
 } ## end sub action
@@ -986,6 +1108,7 @@ sub status_add {
 
 	if ( $opts{error} ) {
 		push( @{ $self->{results}{errors} }, $opts{status} );
+		chdir( $self->{opts}{xeno_build}{options}{tmpdir} . '/..' );
 	}
 } ## end sub status_add
 
