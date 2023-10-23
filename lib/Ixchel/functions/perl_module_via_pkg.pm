@@ -74,7 +74,7 @@ sub perl_module_via_pkg {
 	my $status = status(
 		type   => $type,
 		error  => 0,
-		status => 'Trying to install Python module ' . $opts{module}
+		status => 'Trying to install Perl module ' . $opts{module}
 	);
 
 	if (is_freebsd) {
