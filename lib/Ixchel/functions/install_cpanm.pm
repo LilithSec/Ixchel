@@ -63,26 +63,12 @@ Installs cpanm for the OS.
 sub install_cpanm {
 	my (%opts) = @_;
 
-	if ( is_freebsd ) {
+	if ( is_freebsd || is_netbsd || is_freebsd ) {
 		pkg( "p5-App-cpanminus", ensure => "present" );
-	} elsif ( is_debian ) {
+	} elsif ( is_debian || is_arch || is_mageia || is_void ) {
 		pkg( "cpanminus", ensure => "present" );
-	} elsif (is_redhat) {
+	} elsif (is_redhat || is_suse || is_alt ) {
 		pkg( "perl-App-cpanminus", ensure => "present" );
-	} elsif (is_arch) {
-		pkg( "cpanminus", ensure => "present" );
-	}elsif (is_suse) {
-		pkg( "perl-App-cpanminus", ensure => "present" );
-	}elsif (is_alt) {
-		pkg( "perl-App-cpanminus", ensure => "present" );
-	}elsif (is_netbsd) {
-		pkg( "p5-App-cpanminus", ensure => "present" );
-	}elsif (is_openbsd) {
-		pkg( "p5-App-cpanminus", ensure => "present" );
-	}elsif (is_mageia) {
-		pkg( "cpanminus", ensure => "present" );
-	}elsif (is_void) {
-		pkg( "cpanminus", ensure => "present" );
 	}
 
 } ## end sub perl_module_via_pkg

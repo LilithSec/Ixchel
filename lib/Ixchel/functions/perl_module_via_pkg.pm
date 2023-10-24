@@ -77,40 +77,16 @@ sub perl_module_via_pkg {
 		status => 'Trying to install Perl module ' . $opts{module}
 	);
 
-	if (is_freebsd) {
-		$status = $status . status( type => $type, error => 0, status => 'OS Family FreeBSD detectected' );
+	if (is_freebsd || is_netbsd || is_freebsd) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family FreeBSD, NetBSD, or OpenBSD detectected' );
 		$pkg =~ s/^/p5\-/;
 		$pkg =~ s/\:\:/\-/g;
 	} elsif (is_debian) {
 		$status = $status . status( type => $type, error => 0, status => 'OS Family Debian detectected' );
 		$pkg =~ s/\:\:/\-/g;
 		$pkg = 'lib' . lc($pkg) . '-perl';
-	} elsif (is_redhat) {
-		$status = $status . status( type => $type, error => 0, status => 'OS Family Redhat detectected' );
-		$pkg =~ s/\:\:/\-/g;
-		$pkg = 'perl-' . $pkg;
-	} elsif (is_arch) {
-		$status = $status . status( type => $type, error => 0, status => 'OS Family Arch detectected' );
-		$pkg =~ s/\:\:/\-/g;
-		$pkg = 'perl-' . $pkg;
-	} elsif (is_suse) {
-		$status = $status . status( type => $type, error => 0, status => 'OS Family Suse detectected' );
-		$pkg =~ s/\:\:/\-/g;
-		$pkg = 'perl-' . $pkg;
-	} elsif (is_alt) {
-		$status = $status . status( type => $type, error => 0, status => 'OS Family Alt detectected' );
-		$pkg =~ s/\:\:/\-/g;
-		$pkg = 'perl-' . $pkg;
-	} elsif (is_netbsd) {
-		$status = $status . status( type => $type, error => 0, status => 'OS Family NetBSD detectected' );
-		$pkg =~ s/^/p5\-/;
-		$pkg =~ s/\:\:/\-/g;
-	} elsif (is_openbsd) {
-		$status = $status . status( type => $type, error => 0, status => 'OS Family OpenBSD detectected' );
-		$pkg =~ s/^/p5\-/;
-		$pkg =~ s/\:\:/\-/g;
-	} elsif (is_mageia) {
-		$status = $status . status( type => $type, error => 0, status => 'OS Family Mageia detectected' );
+	} elsif (is_redhat || is_arch || is_suse || is_alt || is_mageia) {
+		$status = $status . status( type => $type, error => 0, status => 'OS Family Redhat, Arch, Suse, Alt, or Mageia detectected' );
 		$pkg =~ s/\:\:/\-/g;
 		$pkg = 'perl-' . $pkg;
 	}

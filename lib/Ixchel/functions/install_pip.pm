@@ -66,6 +66,7 @@ sub install_pip {
 	if (is_freebsd) {
 		pkg( "python3", ensure => "present" );
 		my $which_python3 = `which python3 2> /dev/null`;
+		chomp($which_python3);
 		if ( $which_python3 !~ /python3$/ ) {
 			die( 'Unable to locate python3 with PATH=' . $ENV{PATH} );
 		}
@@ -73,10 +74,7 @@ sub install_pip {
 		$python_link =~ s/.*python3\.//;
 		my $pkg = 'py3' . $python_link . '-pip';
 		pkg( $pkg, ensure => "present" );
-	} elsif (is_debian) {
-		pkg( "python3",     ensure => "present" );
-		pkg( "python3-pip", ensure => "present" );
-	} elsif (is_redhat) {
+	} elsif (is_debian|| is_redhat || is_mageia || is_void) {
 		pkg( "python3",     ensure => "present" );
 		pkg( "python3-pip", ensure => "present" );
 	} elsif (is_arch) {
@@ -94,12 +92,6 @@ sub install_pip {
 	} elsif (is_openbsd) {
 		pkg( "python311", ensure => "present" );
 		pkg( "py311-pip", ensure => "present" );
-	} elsif (is_mageia) {
-		pkg( "python3",     ensure => "present" );
-		pkg( "python3-pip", ensure => "present" );
-	} elsif (is_void) {
-		pkg( "python3",     ensure => "present" );
-		pkg( "python3-pip", ensure => "present" );
 	}
 
 } ## end sub install_pip

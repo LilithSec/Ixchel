@@ -136,17 +136,9 @@ sub python_module_via_pkg {
 				die( $status . 'Neither ' . $pkg . ' or ' . lc($pkg) . ' could be installed' );
 			}
 		} ## end if ($@)
-	} elsif (is_debian) {
+	} elsif (is_debian || is_redhat || is_arch || is_mageia || is_void) {
 		$status
-			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Debian detectected' );
-		$pkg = 'python3-' . lc( $opts{module} );
-	} elsif (is_redhat) {
-		$status
-			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Redhat detectected' );
-		$pkg = 'python3-' . lc( $opts{module} );
-	} elsif (is_arch) {
-		$status
-			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Arch detectected' );
+			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Debian, Redhat, Arch, Mageia, or Void detectected' );
 		$pkg = 'python3-' . lc( $opts{module} );
 	} elsif (is_suse) {
 		$status
@@ -156,22 +148,10 @@ sub python_module_via_pkg {
 		$status
 			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Alt detectected' );
 		$pkg = 'python3-module-' . lc( $opts{module} );
-	} elsif (is_netbsd) {
+	} elsif (is_netbsd || is_openbsd) {
 		$status
-			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family NetBSD detectected' );
+			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family NetBSD or OpenBSD detectected' );
 		$pkg = 'py311-' . lc( $opts{module} );
-	} elsif (is_openbsd) {
-		$status = $status
-			. status( type => 'python_module_via_pkg', error => 0, status => 'OS Family OpenBSD detectected' );
-		$pkg = 'py311-' . lc( $opts{module} );
-	} elsif (is_mageia) {
-		$status
-			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Mageia detectected' );
-		$pkg = 'python3-' . lc( $opts{module} );
-	} elsif (is_void) {
-		$status
-			= $status . status( type => 'python_module_via_pkg', error => 0, status => 'OS Family Void detectected' );
-		$pkg = 'python3-' . lc( $opts{module} );
 	}
 
 	if ($not_tried) {
