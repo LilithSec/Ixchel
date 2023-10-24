@@ -17,7 +17,7 @@ use Cwd;
 
 =head1 NAME
 
-Ixchel::Actions::xeno_build :: 
+Ixchel::Actions::xeno_build :: Builds and installs stuff based on the supplied hash.
 
 =head1 VERSION
 
@@ -219,19 +219,11 @@ If .exec.commands[0] or .exec.command is undef, then nothing will be ran and eve
 Similarly if .command for a hash under .exec.commands, then nothing will be ran for that hash,
 it will be skipped.
 
-Variables for template are as below.
-
-    - config :: Ixchel config.
-
-    - options :: Stuff defined via .options.
-
-    - os :: OS as per L<Rex::Commands::Gather>.
-
-    - .fetched :: .fetch.items if it exists.
-
 =head2 TEMPLATES
 
 Template is done via L<Template> with the base variables being available.
+
+    - config :: The Ixchel config.
 
     - env :: Enviromental variables.
 
@@ -247,6 +239,10 @@ Template is done via L<Template> with the base variables being available.
     - tmpdir :: The path of the tmpdir.
 
     - options :: The contents of .options .
+
+    - $type_items :: .fetch.items if it exists. $type will be the name of the fetch type entry.
+        so 'fetch' will result in 'fetch_items' and 'fetch1' will result in 'fetch1_items'. If
+        any of the items were templated, the value here will be the results of the templating.
 
 The following functions are available.
 
@@ -289,6 +285,51 @@ First the module get_operating_system is used. Then the following is ran.
     }
 
 Which will set it to that if one of those matches.
+
+=head1 EXAMPLE
+
+Below is a example for installing Sagan on Debian and FreeBSD.
+
+    ---
+    templated_vars:
+      github_ref: '[% IF env.sagan_github_ref %][% env.sagan_github_ref %][% ELSE %]main[% END %]'
+    fetch:
+      items:
+        sagan:
+          url: '[% IF env.sagan_url  %][% env.sagan_url %][% ELSE %]https://api.github.com/repos/quadrantsec/sagan/tarball/[% vars.github_ref %][% END %]'
+          dst: 'sagan.tgz'
+      template: 1
+    exec:
+      commands:
+        - command: 'tar -zxvf sagan.tgz'
+        - command: 'mv `ls -d *sagan-*` sagan'
+        - command: autoreconf -vfi -I m4
+          dir: sagan
+        - command: ./configure --enable-bluedot --enable-geoip --enable-redis --enable-esmtp --enable-gzip
+        - command: make -j5
+        - command: make install
+        - command: make -j5
+          dir: cd tools
+        - command: make install
+        - command: '[% IF env.sagan_restart %]killall SaganMain[% ELSE %]echo not restarting[% END %]'
+      template: 1
+    pkgs:
+      present:
+        FreeBSD:
+          - liblognorm
+          - pcre
+          - libesmtp
+          - hiredis
+          - json-c
+          - libmaxminddb
+        Debian:
+          - liblognrom-dev
+          - libpcre3-dev
+          - build-eesential
+          - libesmtp-dev
+          - libhiredis-dev
+          - libjson-c-dev
+          - libmaxminddb-dev
 
 =cut
 
@@ -350,6 +391,7 @@ sub new {
 	if ( defined( $opts{config} ) ) {
 		$self->{config} = $opts{config};
 	}
+	$self->{template_vars} = $self->{config};
 
 	if ( defined( $opts{t} ) ) {
 		$self->{t} = $opts{t};
@@ -595,6 +637,9 @@ sub action {
 					status => 'Fetch "' . $fetch_name . '" Return Code: ' . $return_code
 				);
 			} ## end foreach my $fetch_name (@fetch_names)
+
+			# save the fetched items as a template var for possible later usage
+			$self->{template_vars}{ $type . '_items' } = $self->{opts}{xeno_build}{$type}{items};
 		} elsif ( $type =~ /^pkgs[0-9]*$/ && $for_this_system ) {
 			##
 			##
