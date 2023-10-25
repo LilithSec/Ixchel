@@ -7,7 +7,101 @@ integration pipe line for server configuration as well as setup.
 
 ## Setup
 
+### CMDB Setup
 
+First you will want to get a CMDB setup using like
+[Shell:Var::Reader](https://github.com/VVelox/Shell-Var-Reader)
+([CPAN](https://metacpan.org/dist/Shell-Var-Reader)).
+
+This will make it easy to create easy to create the config
+used by Ixchel as well as config files that can easily be shared
+with other things.
+
+Once you have everything setup and `cmdb_shell_var_reader`
+working, you are ready to move on to the next step.
+
+### Integration With Tooling
+
+#### Rex
+
+```
+use Rex -feature => ['1.4'];
+use File::Slurp;
+
+group all => 'a.foo.bar', 'b.foo.bar;
+
+set cmdb => {
+              type           => 'TOML',
+              path           => ./cmdb/,
+              merge_behavior => 'LEFT_PRECEDENT',
+              use_roles      => 1,
+            };
+
+desc 'Upload Server Confs';
+task 'upload_server_confs',
+        group => all',
+        sub {
+                my $remote_hostname = connection->server;
+
+                mkdir('/usr/local/etc/ixchel');
+
+                my @types = ( 'toml', 'yaml', 'json', 'shell' );
+                foreach my $type (@types) {
+                        my $type_dir = $type;
+                        if ( $type eq 'shell' ) {
+                                $type = 'sh';
+                        }
+                        my $upload_from = $type_dir . '_confs/' . $remote_hostname . '.' . $type;
+                        if ( -f $upload_from ) {
+                                my $content=read_file($upload_from);
+                                file '/usr/local/etc/ixchel/server.' . $type, content => $content;
+                        }
+                } ## end foreach my $type (@types)
+        };
+```
+
+#### Ansible
+
+```
+- hosts: "{{ host }}"
+  order: sorted
+  gather_facts: false
+  ignore_errors: true
+  ignore_unreachable: true
+  become: true
+  become_method: sudo
+  serial: 1
+
+  tasks:
+  - name: Copy System JSON Conf Into Place
+    ansible.builtin.copy:
+      src: ./json_confs/{{ inventory_hostname }}.json
+      dest: /usr/local/etc/ixchel/server.json
+
+  - name: Copy System Shell Conf Into Place
+    ansible.builtin.copy:
+      src: ./shell_confs/{{ inventory_hostname }}.conf
+      dest: /usr/local/etc/ixchel/server.conf
+
+  - name: Copy System YAML Conf Into Place
+    ansible.builtin.copy:
+      src: ./yaml_confs/{{ inventory_hostname }}.yaml
+      dest: /usr/local/etc/ixchel/server.yaml
+
+  - name: Copy System TOML Conf Into Place
+    ansible.builtin.copy:
+      src: ./toml_confs/{{ inventory_hostname }}.toml
+      dest: /usr/local/etc/ixchel/server.toml
+```
+
+And if you wish to use the generated JSON config file with a system in
+a Ansible task, it can be done like below.
+
+```
+- hosts: "{{ host }}"
+  var_files:
+    - ./json_confs/{{ inventory_hostname }}.json
+```
 
 ## Install
 
@@ -53,7 +147,6 @@ p5-Template-Toolkit p5-YAML-LibYAML p5-App-cpanminus`
 ## TODO
 
 - sub path selection for xeno when passing hashes
-- easy init method for CMDB build stuff
 - Suricata/Sagan config comparison
 - Sagan rules file ingestion to TOML
 - Apache config management(genearlized manner)
