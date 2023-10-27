@@ -103,6 +103,19 @@ a Ansible task, it can be done like below.
     - ./json_confs/{{ inventory_hostname }}.json
 ```
 
+#### Shell Scripts
+
+If generating the configs via Shell::Var::Reader, the generated shell
+conf file can easily be included in sh, zsh, and bash scripts like below.
+
+```
+. /usr/local/etc/ixchel/server.sh
+```
+
+That said it is worth nothing these do not include any of the default
+variables for Ixchel. Only those that have been explicitely set via
+the CMDB.
+
 ## Install
 
 Perl modules needed.
