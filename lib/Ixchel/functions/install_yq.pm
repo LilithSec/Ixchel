@@ -82,7 +82,7 @@ sub install_yq {
 
 	my %hw = Rex::Hardware->get(qw/ Kernel /);
 
-	my $asset = 'yq_' . $OSNAME . '_' . $hw{architecture};
+	my $asset = 'yq_' . $OSNAME . '_' . $hw{Kernel}{architecture};
 
 	eval {
 		github_fetch_release_asset(
@@ -101,10 +101,10 @@ sub install_yq {
 		die( 'Fetch the latest release of yq failed... ' . $@ );
 	}
 
-	eval {
-		chmod( S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH, $opts{path});
-	};
-	die( 'Failed to chmod 0755 ' . $opts{path} . ' ... ' . $@ );
+	system( 'chmod', '0755', $opts{path} );
+	if ( $? != 0 ) {
+		die( 'Failed to chmod 0755 ' . $opts{path} . ' ... ' . $@ );
+	}
 
 } ## end sub install_yq
 
