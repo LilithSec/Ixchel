@@ -85,6 +85,6 @@ sub github_releases {
 	}
 
 	return $json;
-} ## end sub file_get
+} ## end sub github_releases
 
 1;

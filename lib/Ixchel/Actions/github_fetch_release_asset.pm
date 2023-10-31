@@ -156,17 +156,23 @@ sub action {
 		return $self->{results};
 	}
 
-	my $content = github_fetch_release_asset(
-		owner  => $self->{opts}{o},
-		repo   => $self->{opts}{r},
-		asset  => $self->{opts}{f},
-		output => $self->{opts}{w},
-		pre    => $self->{opts}{p},
-		draft  => $self->{opts}{d},
-		atomic => $self->{opts}{B},
-		append => $self->{opts}{A},
-		return => $self->{opts}{P},
-	);
+	my $content;
+	eval {
+		$content = github_fetch_release_asset(
+			owner  => $self->{opts}{o},
+			repo   => $self->{opts}{r},
+			asset  => $self->{opts}{f},
+			output => $self->{opts}{w},
+			pre    => $self->{opts}{p},
+			draft  => $self->{opts}{d},
+			atomic => $self->{opts}{B},
+			append => $self->{opts}{A},
+			return => $self->{opts}{P},
+		);
+	};
+	if ($@) {
+		die( 'Fetching ' . $self->{opts}{o} . '/' . $self->{opts}{r} . ' failed... ' . $@ );
+	}
 
 	if ( $self->{opts}{P} ) {
 		print $content;

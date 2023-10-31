@@ -95,7 +95,7 @@ sub github_fetch_release_asset {
 	my $releases;
 	eval { $releases = github_releases( owner => $opts{owner}, repo => $opts{repo} ); };
 	if ($@) {
-		die( 'Failed to fetch the release info for ' . $opts{owner} . '/' . $opts{repo} . '... ' );
+		die( 'Failed to fetch the release info for ' . $opts{owner} . '/' . $opts{repo} . '... ' . $@ );
 	}
 
 	foreach my $release ( @{$releases} ) {
@@ -165,7 +165,7 @@ sub github_fetch_release_asset {
 								. $@ );
 					}
 
-					exit;
+					return;
 				} ## end if ($fetch_it)
 			} ## end foreach my $asset ( @{ $release->{assets} } )
 		} ## end if ($use_release)
