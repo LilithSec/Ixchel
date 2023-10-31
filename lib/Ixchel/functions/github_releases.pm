@@ -33,7 +33,7 @@ our $VERSION = '0.0.1';
 
 =head1 Functions
 
-=head2 file_get
+=head2 git_releases
 
 The following args are required.
 
@@ -57,7 +57,7 @@ Upon errors, this will die.
 
 =cut
 
-sub file_get {
+sub git_releases {
 	my (%opts) = @_;
 
 	if ( !defined( $opts{owner} ) ) {
