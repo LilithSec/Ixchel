@@ -10,6 +10,7 @@ use Rex::Hardware;
 use Rex::Commands::Pkg;
 use English;
 use Ixchel::functions::github_fetch_release_asset;
+use Fcntl qw( :mode );
 
 # prevents Rex from printing out rex is exiting after the script ends
 $::QUIET = 2;
@@ -100,7 +101,9 @@ sub install_yq {
 		die( 'Fetch the latest release of yq failed... ' . $@ );
 	}
 
-	eval { chmod( 0755, $opts{path} ); };
+	eval {
+		chmod( S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH, $opts{path});
+	};
 	die( 'Failed to chmod 0755 ' . $opts{path} . ' ... ' . $@ );
 
 } ## end sub install_yq
