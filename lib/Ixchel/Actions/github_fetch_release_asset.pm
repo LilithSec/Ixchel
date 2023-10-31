@@ -1,4 +1,4 @@
-package Ixchel::Actions::github_fetch;
+package Ixchel::Actions::github_fetch_release_asset;
 
 use 5.006;
 use strict;
@@ -9,7 +9,7 @@ use JSON;
 
 =head1 NAME
 
-Ixchel::Actions::github_fetch :: Fetch an release asset from a github repo.
+Ixchel::Actions::github_fetch_release_asset :: Fetch an release asset from a github repo.
 
 =head1 VERSION
 
@@ -23,7 +23,8 @@ our $VERSION = '0.0.1';
 
     use Data::Dumper;
 
-    my $results=$ixchel->action(action=>'github_fetch', opts=>{o=>'mikefarah', r=>'yq', f=>'checksums' w=>'/tmp/yq-checksums' });
+    my $results=$ixchel->action(action=>'github_fetch_release_asset',
+                                opts=>{o=>'mikefarah', r=>'yq', f=>'checksums' w=>'/tmp/yq-checksums' });
 
     print Dumper($results);
 
