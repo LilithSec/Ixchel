@@ -23,7 +23,7 @@ our $VERSION = '0.0.1';
 
 =head1 SYNOPSIS
 
-    use Ixchel::functions::git_releases;
+    use Ixchel::functions::github_releases;
 
     my $releases;
     eval{ $releases=github_releases(owner=>'mikefarah', repo=>'yq'); };
@@ -33,7 +33,7 @@ our $VERSION = '0.0.1';
 
 =head1 Functions
 
-=head2 git_releases
+=head2 github_releases
 
 The following args are required.
 
@@ -57,7 +57,7 @@ Upon errors, this will die.
 
 =cut
 
-sub git_releases {
+sub github_releases {
 	my (%opts) = @_;
 
 	if ( !defined( $opts{owner} ) ) {

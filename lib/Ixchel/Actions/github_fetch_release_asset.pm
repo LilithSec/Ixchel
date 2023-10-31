@@ -6,6 +6,7 @@ use warnings;
 use File::Slurp;
 use LWP::Simple;
 use JSON;
+use Ixchel::functions::github_fetch_release_asset;
 
 =head1 NAME
 
@@ -155,112 +156,21 @@ sub action {
 		return $self->{results};
 	}
 
-	# set the proxy proxy info if we have any in the config
-	if ( defined( $self->{config}{proxy} ) ) {
-		if ( defined( $self->{config}{proxy}{ftp} ) && $self->{config}{proxy}{ftp} ne '' ) {
-			$ENV{FTP_PROXY} = $self->{config}{proxy}{ftp};
-			$ENV{ftp_proxy} = $self->{config}{proxy}{ftp};
-		}
-		if ( defined( $self->{config}{proxy}{http} ) && $self->{config}{proxy}{http} ne '' ) {
-			$ENV{HTTP_PROXY} = $self->{config}{proxy}{http};
-			$ENV{http_proxy} = $self->{config}{proxy}{http};
-		}
-		if ( defined( $self->{config}{proxy}{https} ) && $self->{config}{proxy}{https} ne '' ) {
-			$ENV{HTTPS_PROXY} = $self->{config}{proxy}{https};
-			$ENV{https_proxy} = $self->{config}{proxy}{https};
-		}
-	} ## end if ( defined( $self->{config}{proxy} ) )
+	my $content = github_fetch_release_asset(
+		owner  => $self->{opts}{o},
+		repo   => $self->{opts}{r},
+		asset  => $self->{opts}{f},
+		output => $self->{opts}{w},
+		pre    => $self->{opts}{p},
+		draft  => $self->{opts}{d},
+		atomic => $self->{opts}{B},
+		append => $self->{opts}{A},
+		return => $self->{opts}{P},
+	);
 
-	my $url     = 'https://api.github.com/repos/' . $self->{opts}{o} . '/' . $self->{opts}{r} . '/releases';
-	my $content = get($url);
-	if ( !defined($content) ) {
-		die( 'Fetching "' . $url . '" failed' );
+	if ( $self->{opts}{P} ) {
+		print $content;
 	}
-
-	my $json;
-	eval { $json = decode_json($content); };
-	if ($@) {
-		die( 'Decoding JSON from "' . $url . '" failed... ' . $@ );
-	}
-
-	if ( ref($json) ne 'ARRAY' ) {
-		die 'The path . in the fetched JSON from "' . $url . '"is not of ref type ARRAY';
-	}
-
-	foreach my $release ( @{$json} ) {
-		my $use_release = 1;
-
-		if ( ref($release) ne 'HASH' ) {
-			$use_release = 0;
-		}
-
-		# if it is a draft, check if fetching of drafts is allowed
-		if (   $use_release
-			&& defined( $release->{draft} )
-			&& $release->{draft} =~ /$[Tt][Rr][Uu][Ee]^/
-			&& !$self->{opts}{d} )
-		{
-			$use_release = 0;
-		}
-
-		# if it is a prerelease, check if fetching of prerelease is allowed
-		if (   $use_release
-			&& defined( $release->{prerelease} )
-			&& $release->{prerelease} =~ /$[Tt][Rr][Uu][Ee]^/
-			&& !$self->{opts}{p} )
-		{
-			$use_release = 0;
-		}
-
-		if ($use_release) {
-			foreach my $asset ( @{ $release->{assets} } ) {
-				my $fetch_it = 0;
-				if ( defined( $asset->{name} ) && $asset->{name} eq $self->{opts}{f} ) {
-					$fetch_it = 1;
-				}
-
-				if ($fetch_it) {
-					my $content = get( $asset->{browser_download_url} );
-					if ( !defined($content) ) {
-						die( 'Fetching "' . $asset->{browser_download_url} . '" failed' );
-					}
-
-					if ( $self->{opts}{P} ) {
-						print $content;
-						exit;
-					}
-
-					my $write_to = $asset->{name};
-					$write_to =~ s/\//_/g;
-					if ( defined( $self->{opts}{w} ) ) {
-						$write_to = $self->{opts}{w};
-					}
-
-					eval {
-						write_file(
-							$write_to,
-							{
-								append => $self->{opts}{A},
-								atomic => $self->{opts}{B},
-								perms  => $self->{opts}{U}
-							},
-							$content
-						);
-					};
-					if ($@) {
-						die(      'Failed to write "'
-								. $asset->{browser_download_url}
-								. '" out to "'
-								. $write_to . '"... '
-								. $@ );
-					}
-
-					exit;
-				} ## end if ($fetch_it)
-			} ## end foreach my $asset ( @{ $release->{assets} } )
-		} ## end if ($use_release)
-	} ## end foreach my $release ( @{$json} )
-
 } ## end sub action
 
 sub help {
@@ -279,8 +189,6 @@ sub help {
 -P           Print it out instead of writing it out.
 
 -w <output>  Where to write the output to.
-
--N           Do not overwrite if the file already exists.
 
 -A           Write the file out in append mode.
 

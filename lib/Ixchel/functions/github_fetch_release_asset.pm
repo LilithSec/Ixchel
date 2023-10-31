@@ -5,8 +5,8 @@ use strict;
 use warnings;
 use File::Slurp;
 use Exporter 'import';
-our @EXPORT = qw(github_releases);
-use Ixchel::functions::git_releases;
+our @EXPORT = qw(github_fetch_release_asset);
+use Ixchel::functions::github_releases;
 use LWP::Simple;
 use JSON;
 
