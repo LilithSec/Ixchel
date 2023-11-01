@@ -1,7 +1,7 @@
 Changes
 lib/Ixchel.pm
 lib/Ixchel/functions/cpu_count.pm
-lib/Ixchel/functions/manufactuer.pm
+lib/Ixchel/functions/manufacturer.pm
 lib/Ixchel/functions/serial.pm
 lib/Ixchel/functions/product.pm
 lib/Ixchel/functions/sys_info.pm
