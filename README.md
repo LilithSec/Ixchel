@@ -169,7 +169,7 @@ p5-Template-Toolkit p5-YAML-LibYAML p5-App-cpanminus`
 	- db server setup
   - Suricata::Extract
   - CAPEv2
-  - autcron template
+  - autocron template
   - extend_logsize template
   - snmp_v2 template
   - snmp setup
