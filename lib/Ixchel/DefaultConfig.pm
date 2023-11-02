@@ -92,6 +92,7 @@ sub get {
 			instances_rules => {},
 			enable          => 0,
 			base_config     => 'https://raw.githubusercontent.com/quadrantsec/sagan/main/etc/sagan.yaml',
+			rules           => 'https://raw.githubusercontent.com/quadrantsec/sagan-rules/main/rules.yaml'
 		},
 		meer => {
 			multi_intance => 0,
