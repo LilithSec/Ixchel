@@ -173,12 +173,12 @@ sub action {
 						},
 					},
 					'Ixchel',
-										   );
-				my %tmp_config=%{ $config };
-				my %tmp_base_config=%{ $base_config };
-				my $merged = $merger->merge( \%tmp_base_config, \%tmp_config );
+				);
+				my %tmp_config      = %{$config};
+				my %tmp_base_config = %{$base_config};
+				my $merged          = $merger->merge( \%tmp_base_config, \%tmp_config );
 
-				$filled_in = '%YAML 1.1'."\n".Dump($merged);
+				$filled_in = '%YAML 1.1' . "\n" . Dump($merged);
 
 				if ( $self->{opts}{w} ) {
 					write_file( $config_base . '/include-' . $instance . '.yaml', $filled_in );
@@ -204,13 +204,13 @@ sub action {
 		} ## end foreach my $instance (@instances)
 	} else {
 		if ( defined( $self->{opts}{i} ) ) {
-			die('-i may not be used in single instance mode, .suricata.multi_intance=1, ,');
+			die('-i may not be used in single instance mode, .suricata.multi_instance=1, ,');
 		}
 
 		my $filled_in;
 		eval {
 			my $config = $self->{config}{suricata}{config};
-			$filled_in = '%YAML 1.1'."\n".Dump($config);
+			$filled_in = '%YAML 1.1' . "\n" . Dump($config);
 
 			if ( $self->{opts}{w} ) {
 				write_file( $config_base . '/include.yaml', $filled_in );
@@ -222,14 +222,14 @@ sub action {
 		} else {
 			$results->{status_text} = $filled_in;
 		}
-	} ## end else [ if ( $self->{config}{suricata}{multi_intance...})]
+	} ## end else [ if ( $self->{config}{suricata}{multi_instance...})]
 
 	if ( !$self->{opts}{np} ) {
 		print $results->{status_text};
 	}
 
-	if (!defined($results->{errors}[0])) {
-		$results->{ok}=1;
+	if ( !defined( $results->{errors}[0] ) ) {
+		$results->{ok} = 1;
 	}
 
 	return $results;

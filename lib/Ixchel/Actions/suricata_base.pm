@@ -238,7 +238,7 @@ sub action {
 	} elsif ( defined( $self->{opts}{i} ) && !$self->{config}{suricata}{multi_instance} ) {
 		$self->status_add(
 			error  => 1,
-			status => '-i may not be used in single instance mode, .suricata.multi_intance=1, ,'
+			status => '-i may not be used in single instance mode, .suricata.multi_instance=1, ,'
 		);
 	} else {
 		eval {

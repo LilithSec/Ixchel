@@ -84,7 +84,7 @@ sub get {
 			interval    => '*/2 * * * *',
 		},
 		sagan => {
-			multi_intance   => 0,
+			multi_instance  => 0,
 			config_base     => '/usr/local/etc/',
 			instances       => {},
 			config          => {},
@@ -95,10 +95,10 @@ sub get {
 			rules           => 'https://raw.githubusercontent.com/quadrantsec/sagan-rules/main/rules.yaml'
 		},
 		meer => {
-			multi_intance => 0,
-			config_base   => '/usr/local/etc/meer/',
-			instances     => '',
-			enable        => 0,
+			multi_instance => 0,
+			config_base    => '/usr/local/etc/meer/',
+			instances      => '',
+			enable         => 0,
 		},
 		cape => {
 			enable => 0,

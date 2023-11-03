@@ -211,7 +211,7 @@ sub action {
 		} ## end foreach my $instance (@instances)
 	} else {
 		if ( defined( $self->{opts}{i} ) ) {
-			die('-i may not be used in single instance mode, .sagan.multi_intance=1, ,');
+			die('-i may not be used in single instance mode, .sagan.multi_instance=1, ,');
 		}
 
 		my $filled_in;

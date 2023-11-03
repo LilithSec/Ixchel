@@ -4,8 +4,10 @@ use 5.006;
 use strict;
 use warnings;
 use File::Slurp;
-use YAML::XS   qw(Dump);
+use YAML::XS   qw(Dump Load);
 use List::Util qw(uniq);
+use Ixchel::functions::file_get;
+use File::Spec;
 
 =head1 NAME
 
@@ -107,13 +109,65 @@ sub new {
 sub action {
 	my $self = $_[0];
 
-	my $results = {
+	$self->{results} = {
 		errors      => [],
 		status_text => '',
 		ok          => 0,
 	};
 
+	my $url
+		= 'https://raw.githubusercontent.com/quadrantsec/sagan-rules/f2a8fbb29e93db555c2d12266e5af1a1f7d75cce/rules.yaml';
+
+	my $base_config_raw;
+	eval {
+		if ( defined( $self->{config}{proxy}{ftp} ) && $self->{config}{proxy}{ftp} ne '' ) {
+			$ENV{FTP_PROXY} = $self->{config}{proxy}{ftp};
+			$self->status_add( status => 'FTP_PROXY=' . $self->{config}{proxy}{ftp} );
+		}
+		if ( defined( $self->{config}{proxy}{http} ) && $self->{config}{proxy}{http} ne '' ) {
+			$ENV{HTTP_PROXY} = $self->{config}{proxy}{http};
+			$self->status_add( status => 'HTTP_PROXY=' . $self->{config}{proxy}{http} );
+		}
+		if ( defined( $self->{config}{proxy}{https} ) && $self->{config}{proxy}{https} ne '' ) {
+			$ENV{HTTPS_PROXY} = $self->{config}{proxy}{https};
+			$self->status_add( status => 'HTTPS_PROXY=' . $self->{config}{proxy}{https} );
+		}
+		$self->status_add( status => 'Fetching ' . $url );
+		$base_config_raw = file_get( url => $url );
+	};
+	if ($@) {
+		$self->status_add( error => 1, status => 'Fetch Error... ' . $@ );
+		return $self->{results};
+	}
+
+	my $base_config;
+	eval { $base_config = Load($base_config_raw); };
+	if ($@) {
+		$self->status_add( error => 1, status => 'Decoding YAML from "' . $url . '" failed... ' . $@ );
+		return $self->{results};
+	}
+	my @base_config_split = split( /\n/, $base_config_raw );
+
+	# make sure the base config looks sane
+	if ( !defined( $base_config->{'rules-files'} ) ) {
+		$self->status_add( error => 1, status => '.rules-files array is not present in the YAML from "' . $url . '"' );
+		return $self->{results};
+	} elsif ( ref( $base_config->{'rules-files'} ) ne 'ARRAY' ) {
+		$self->status_add( error => 1, status => '.rules-files is not a array in the YAML from "' . $url . '"' );
+		return $self->{results};
+	} elsif ( !defined( $base_config->{'rules-files'}[0] ) ) {
+		$self->status_add( error => 1, status => '.rules-files[0] is undef in the YAML from "' . $url . '"' );
+		return $self->{results};
+	}
+
+	my $rules = {};
+	foreach my $rule ( @{ $base_config->{'rules-files'} } ) {
+		$rules->{$rule} = 1;
+	}
+
 	my $config_base = $self->{config}{sagan}{config_base};
+
+	$self->status_add( status => 'multi_instance = ' . $self->{config}{sagan}{multi_instance} );
 
 	if ( $self->{config}{sagan}{multi_instance} ) {
 		my @instances;
@@ -126,87 +180,122 @@ sub action {
 		foreach my $instance (@instances) {
 			my $filled_in;
 			eval {
-				my @rules = @{ $self->{config}{sagan}{rules} };
-				if ( defined( $self->{config}{sagan}{instances_rules}{$instance} ) ) {
-					push( @rules, @{ $self->{config}{sagan}{instances_rules}{$instance} } );
-				}
-				@rules = uniq( sort(@rules) );
-
-				my $int = 0;
-				while ( defined( $rules[$int] ) ) {
-					if ( $rules[$int] !~ /\// || $rules[$int] !~ /\$/ ) {
-						$rules[$int] = '$RULE_PATH/' . $rules[$int];
-					}
-					$int++;
-				}
+				my @rules;
 
 				$filled_in = '%YAML 1.1' . "\n" . Dump( { 'rules-files' => \@rules } );
+
+				$self->status_add( status => '-----[ '
+						. $instance
+						. ' ]-------------------------------------' . "\n"
+						. $filled_in );
 
 				if ( $self->{opts}{w} ) {
 					write_file( $config_base . '/sagan-rules-' . $instance . '.yaml', $filled_in );
 				}
 			};
 			if ($@) {
-				$results->{status_text}
-					= $results->{status_text}
-					. '-----[ Errored: '
-					. $instance
-					. ' ]-------------------------------------' . "\n" . '# '
-					. $@ . "\n";
-				push( @{ $results->{errors} }, $@ );
-				$self->{ixchel}{errors_count}++;
-			} else {
-				$results->{status_text}
-					= $results->{status_text}
-					. '-----[ '
-					. $instance
-					. ' ]-------------------------------------' . "\n"
-					. $filled_in . "\n";
+				$self->status_add( status => $@, error => 1 );
 			}
 
 		} ## end foreach my $instance (@instances)
 	} else {
 		if ( defined( $self->{opts}{i} ) ) {
-			die('-i may not be used in single instance mode, .sagan.multi_intance=1, ,');
+			die('-i may not be used in single instance mode, .sagan.multi_instance=1, ,');
 		}
 
-		my $filled_in;
-		eval {
-			my @rules = @{ $self->{config}{sagan}{rules} };
-			@rules = uniq( sort(@rules) );
+		my $file = File::Spec->canonpath( $config_base . '/sagan-rules.yaml' );
 
-			my $int = 0;
-			while ( defined( $rules[$int] ) ) {
-				if ( $rules[$int] !~ /\// || $rules[$int] !~ /\$/ ) {
-					$rules[$int] = '$RULE_PATH/' . $rules[$int];
-				}
-				$int++;
+		my $filled_in;
+
+		if ( !-f $file ) {
+			$filled_in = $base_config_raw;
+			$self->status_add(
+				status => '-----[ ' . $file . ' ]-------------------------------------' . "\n" . $filled_in );
+		} else {
+			# figure out what rules we have
+			my $current_config;
+			eval {
+				my $current_config_raw = read_file($file);
+				$current_config = Load($current_config_raw);
+			};
+			if ($@) {
+				$self->status_add( status => $@, error => 1 );
+				return $self->{results};
 			}
 
-			$filled_in = '%YAML 1.1' . "\n" . Dump( { 'rules-files' => \@rules } );
+			# get what rules are currently in use
+			my $current_rules = {};
+			foreach my $rule ( @{ $current_config->{'rules-files'} } ) {
+				$current_rules->{$rule} = 1;
+			}
 
+			# get a list of custom rules
+			my $custom_rules = {};
+			foreach my $rule ( keys( %{$current_rules} ) ) {
+				if ( !defined( $rules->{$rule} ) ) {
+					$custom_rules->{$rule} = 1;
+				}
+			}
+			my $custom_rules_array = keys( %{$custom_rules} );
+
+			# begin putting it back together
+			$filled_in = '';
+			my $start = 1;
+			foreach my $line (@base_config_split) {
+				my $ignore_line = 0;
+
+				if ( $line =~ /^ *\#/ ) {
+					$ignore_line = 1;
+				} elsif ( !$start && $line =~ /^rules\-files\:/ ) {
+					$start       = 1;
+					$ignore_line = 1;
+				}    # post start ignore anything that is not a rule line
+				elsif ( $start && $line !~ /^\ \ \-\ \$RULE\_PATH/ ) {
+					$ignore_line = 1;
+				}
+
+				if ($ignore_line) {
+					$filled_in = $filled_in . $line . "\n";
+				} else {
+					# get the rule name
+					my $rule = $line;
+					$rule =~ s/^\ \ \-\ //;
+
+					# should never be there, but just in case perform some basic cleanup
+					$rule =~ s/ *\#.*//;
+					$rule =~ s/ *$//;
+
+					# if it is not in the current rule set, comment it out
+					if ( !defined( $current_rules->{$rule} ) ) {
+						$filled_in = $filled_in . '  #- ' . $rule . "\n";
+					} else {
+						$filled_in = $filled_in . $line . "\n";
+					}
+				} ## end else [ if ($ignore_line) ]
+			} ## end foreach my $line (@base_config_split)
+
+			$self->status_add(
+				status => '-----[ ' . $file . ' ]-------------------------------------' . "\n" . $filled_in );
+
+		} ## end else [ if ( !-f $file ) ]
+
+		eval {
 			if ( $self->{opts}{w} ) {
-				write_file( $config_base . '/sagan-rules.yaml', $filled_in );
+				$self->status_add( status => 'Writing out to "' . $file . '" ...' );
+				write_file( $file, $filled_in );
 			}
 		};
 		if ($@) {
-			$results->{status_text} = '# ' . $@;
-			$self->{ixchel}{errors_count}++;
-			push( @{ $results->{errors} }, $@ );
-		} else {
-			$results->{status_text} = $filled_in;
+			$self->status_add( status => $@, error => 1 );
+			return $self->{results};
 		}
 	} ## end else [ if ( $self->{config}{sagan}{multi_instance...})]
 
-	if ( !$self->{opts}{np} ) {
-		print $results->{status_text};
+	if ( !defined( $self->{results}{errors}[0] ) ) {
+		$self->{results}{ok} = 1;
 	}
 
-	if ( !defined( $results->{errors}[0] ) ) {
-		$results->{ok} = 1;
-	}
-
-	return $results;
+	return $self->{results};
 } ## end sub action
 
 sub help {
@@ -231,5 +320,34 @@ np
 w
 ';
 }
+
+sub status_add {
+	my ( $self, %opts ) = @_;
+
+	if ( !defined( $opts{status} ) ) {
+		return;
+	}
+
+	if ( !defined( $opts{error} ) ) {
+		$opts{error} = 0;
+	}
+
+	if ( !defined( $opts{type} ) ) {
+		$opts{type} = 'sagan_rules';
+	}
+
+	my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);
+	my $timestamp = sprintf( "%04d-%02d-%02dT%02d:%02d:%02d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
+
+	my $status = '[' . $timestamp . '] [' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
+
+	print $status. "\n";
+
+	$self->{results}{status_text} = $self->{results}{status_text} . $status;
+
+	if ( $opts{error} ) {
+		push( @{ $self->{results}{errors} }, $opts{status} );
+	}
+} ## end sub status_add
 
 1;
