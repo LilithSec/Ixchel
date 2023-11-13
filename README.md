@@ -161,7 +161,7 @@ p5-Template-Toolkit p5-YAML-LibYAML p5-App-cpanminus`
 
 - sub path selection for xeno when passing hashes
 - Suricata/Sagan config comparison
-- Sagan rules file ingestion to TOML
+- add in file_cleaner_by_du support
 - Apache config management(genearlized manner)
 - actions for...
   - Lilith
@@ -174,3 +174,5 @@ p5-Template-Toolkit p5-YAML-LibYAML p5-App-cpanminus`
   - snmp_v2 template
   - snmp setup
 - better documentation for Suricata outputs
+- use File::Spec->canonpath every where relevant
+- lots more documentation
