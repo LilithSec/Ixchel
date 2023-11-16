@@ -1,5 +1,7 @@
 # Ixchel
 
+!!!WARNING!!! Very much a work in progress and testing at this stage. !!!WARNING!!!
+
 Configuration and templating system meant to be used Ansible or
 Rex. Config generated centeral and pushed out and templating/actions
 done based on that on the remote systems for purpose of continual
