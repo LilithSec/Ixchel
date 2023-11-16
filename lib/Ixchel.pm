@@ -11,7 +11,7 @@ use Hash::Merge;
 
 =head1 NAME
 
-Ixchel - 
+Ixchel - Automate various sys admin stuff.
 
 =head1 VERSION
 

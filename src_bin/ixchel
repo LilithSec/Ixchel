@@ -2,15 +2,42 @@
 
 =head1 NAME
 
-ixchel -
+ixchel - Automate various sys admin stuff.
 
 =head1 SYNOPSIS
 
+ixchel -a <action> [B<--config> <config>] [B<--noConfig>]
 
+ixchel --help [B<-a> <action>]
 
 =head1 DESCRIPTION
 
+=head1 FLAGS
 
+The following are just the base flags. Actions can have additional configs.
+
+=head2 -a <action>
+
+The action to perform.
+
+To get a list of available actions use 'list_actions'.
+
+If this is undef, it will be set to 'list_actions'.
+
+=head2 --config <file>
+
+The config file to load. May be JSON, YAML, or TOML.
+If not specified the first one found below is used.
+
+    Default: /usr/local/etc/ixchel/server.ymal
+             /usr/local/etc/ixchel/server.toml
+             /usr/local/etc/ixchel/server.json
+
+=head2 --noConfig
+
+Do not attempt to load the config even if it exists.
+
+This is automatic for the action 'list_actions' and 'sys_info'
 
 =cut
 
@@ -57,11 +84,12 @@ if ($help) {
 	print '
 
 -a <action>       The action to perform.
+
 --config <file>   The config file to load. May be JSON, YAML, or TOML.
                   If not specified the first one found below is used.
-                  Default: /usr/local/etc/ixchel/server.toml
+                  Default: /usr/local/etc/ixchel/server.ymal
+                           /usr/local/etc/ixchel/server.toml
                            /usr/local/etc/ixchel/server.json
-                           /usr/local/etc/ixchel/server.yaml
 
 --noConfig        Do not attempt to load the config even if it exists.
 
@@ -83,12 +111,12 @@ For a list of actions use the action list_actions
 
 # try figure out what config file to try if non is specified
 if ( !defined($config_file) ) {
-	if ( -e '/usr/local/etc/ixchel/server.toml' ) {
-		$config_file = '/usr/local/etc/ixchel/server.toml';
-	} elsif ( -e '/usr/local/etc/ixchel/server.json' ) {
-		$config_file = '/usr/local/etc/ixchel/server.json';
-	} elsif ('/usr/local/etc/ixchel/server.yaml') {
+	if ( -e '/usr/local/etc/ixchel/server.yaml' ) {
 		$config_file = '/usr/local/etc/ixchel/server.yaml';
+	} elsif ( -e '/usr/local/etc/ixchel/server.toml' ) {
+		$config_file = '/usr/local/etc/ixchel/server.toml';
+	} elsif ('/usr/local/etc/ixchel/server.json') {
+		$config_file = '/usr/local/etc/ixchel/server.json';
 	}
 }
 
