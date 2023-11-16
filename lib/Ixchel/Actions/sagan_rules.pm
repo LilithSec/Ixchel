@@ -54,6 +54,10 @@ Write the generated services to service files.
 
 A instance to operate on.
 
+=head2 --no_die_at_end
+
+Don't die if there are errors encounted at the end.
+
 =head1 RESULT HASH REF
 
     .errors :: A array of errors encountered.
@@ -115,8 +119,7 @@ sub action {
 		ok          => 0,
 	};
 
-	my $url
-		= 'https://raw.githubusercontent.com/quadrantsec/sagan-rules/f2a8fbb29e93db555c2d12266e5af1a1f7d75cce/rules.yaml';
+	my $url = 'https://raw.githubusercontent.com/quadrantsec/sagan-rules/main/rules.yaml';
 
 	my $base_config_raw;
 	eval {
@@ -139,6 +142,7 @@ sub action {
 		$self->status_add( error => 1, status => 'Fetch Error... ' . $@ );
 		return $self->{results};
 	}
+	$self->{base_config_raw} = $base_config_raw;
 
 	my $base_config;
 	eval { $base_config = Load($base_config_raw); };
@@ -147,6 +151,7 @@ sub action {
 		return $self->{results};
 	}
 	my @base_config_split = split( /\n/, $base_config_raw );
+	$self->{base_config_split} = \@base_config_split;
 
 	# make sure the base config looks sane
 	if ( !defined( $base_config->{'rules-files'} ) ) {
@@ -164,12 +169,20 @@ sub action {
 	foreach my $rule ( @{ $base_config->{'rules-files'} } ) {
 		$rules->{$rule} = 1;
 	}
+	$self->{rules} = $rules;
 
 	my $config_base = $self->{config}{sagan}{config_base};
 
 	$self->status_add( status => 'multi_instance = ' . $self->{config}{sagan}{multi_instance} );
 
 	if ( $self->{config}{sagan}{multi_instance} ) {
+		#
+		#
+		#
+		# multi instance
+		#
+		#
+		#
 		my @instances;
 
 		if ( defined( $self->{opts}{i} ) ) {
@@ -180,18 +193,8 @@ sub action {
 		foreach my $instance (@instances) {
 			my $filled_in;
 			eval {
-				my @rules;
-
-				$filled_in = '%YAML 1.1' . "\n" . Dump( { 'rules-files' => \@rules } );
-
-				$self->status_add( status => '-----[ '
-						. $instance
-						. ' ]-------------------------------------' . "\n"
-						. $filled_in );
-
-				if ( $self->{opts}{w} ) {
-					write_file( $config_base . '/sagan-rules-' . $instance . '.yaml', $filled_in );
-				}
+				my $file = File::Spec->canonpath( $config_base . '/sagan-' . $instance . '-rules.yaml' );
+				$self->process_file( file => $file );
 			};
 			if ($@) {
 				$self->status_add( status => $@, error => 1 );
@@ -199,6 +202,13 @@ sub action {
 
 		} ## end foreach my $instance (@instances)
 	} else {
+		#
+		#
+		#
+		# single
+		#
+		#
+		#
 		if ( defined( $self->{opts}{i} ) ) {
 			die('-i may not be used in single instance mode, .sagan.multi_instance=1, ,');
 		}
@@ -207,87 +217,9 @@ sub action {
 
 		my $filled_in;
 
-		if ( !-f $file ) {
-			$filled_in = $base_config_raw;
-			$self->status_add(
-				status => '-----[ ' . $file . ' ]-------------------------------------' . "\n" . $filled_in );
-		} else {
-			# figure out what rules we have
-			my $current_config;
-			eval {
-				my $current_config_raw = read_file($file);
-				$current_config = Load($current_config_raw);
-			};
-			if ($@) {
-				$self->status_add( status => $@, error => 1 );
-				return $self->{results};
-			}
-
-			# get what rules are currently in use
-			my $current_rules = {};
-			foreach my $rule ( @{ $current_config->{'rules-files'} } ) {
-				$current_rules->{$rule} = 1;
-			}
-
-			# get a list of custom rules
-			my $custom_rules = {};
-			foreach my $rule ( keys( %{$current_rules} ) ) {
-				if ( !defined( $rules->{$rule} ) ) {
-					$custom_rules->{$rule} = 1;
-				}
-			}
-			my $custom_rules_array = keys( %{$custom_rules} );
-
-			# begin putting it back together
-			$filled_in = '';
-			my $start = 1;
-			foreach my $line (@base_config_split) {
-				my $ignore_line = 0;
-
-				if ( $line =~ /^ *\#/ ) {
-					$ignore_line = 1;
-				} elsif ( !$start && $line =~ /^rules\-files\:/ ) {
-					$start       = 1;
-					$ignore_line = 1;
-				}    # post start ignore anything that is not a rule line
-				elsif ( $start && $line !~ /^\ \ \-\ \$RULE\_PATH/ ) {
-					$ignore_line = 1;
-				}
-
-				if ($ignore_line) {
-					$filled_in = $filled_in . $line . "\n";
-				} else {
-					# get the rule name
-					my $rule = $line;
-					$rule =~ s/^\ \ \-\ //;
-
-					# should never be there, but just in case perform some basic cleanup
-					$rule =~ s/ *\#.*//;
-					$rule =~ s/ *$//;
-
-					# if it is not in the current rule set, comment it out
-					if ( !defined( $current_rules->{$rule} ) ) {
-						$filled_in = $filled_in . '  #- ' . $rule . "\n";
-					} else {
-						$filled_in = $filled_in . $line . "\n";
-					}
-				} ## end else [ if ($ignore_line) ]
-			} ## end foreach my $line (@base_config_split)
-
-			$self->status_add(
-				status => '-----[ ' . $file . ' ]-------------------------------------' . "\n" . $filled_in );
-
-		} ## end else [ if ( !-f $file ) ]
-
-		eval {
-			if ( $self->{opts}{w} ) {
-				$self->status_add( status => 'Writing out to "' . $file . '" ...' );
-				write_file( $file, $filled_in );
-			}
-		};
+		eval { $self->process_file( file => $file ); };
 		if ($@) {
 			$self->status_add( status => $@, error => 1 );
-			return $self->{results};
 		}
 	} ## end else [ if ( $self->{config}{sagan}{multi_instance...})]
 
@@ -318,6 +250,7 @@ sub opts_data {
 	return 'i=s
 np
 w
+no_die_at_end
 ';
 }
 
@@ -349,5 +282,91 @@ sub status_add {
 		push( @{ $self->{results}{errors} }, $opts{status} );
 	}
 } ## end sub status_add
+
+sub process_file {
+	my ( $self, %opts ) = @_;
+
+	my $file = $opts{file};
+	my $filled_in;
+
+	if ( !-f $file ) {
+		$filled_in = $self->{base_config_raw};
+		$self->status_add(
+			status => '-----[ ' . $file . ' ]-------------------------------------' . "\n" . $filled_in );
+	} else {
+		# figure out what rules we have
+		my $current_config;
+		eval {
+			my $current_config_raw = read_file($file);
+			$current_config = Load($current_config_raw);
+		};
+		if ($@) {
+			$self->status_add( status => $@, error => 1 );
+			return $self->{results};
+		}
+
+		# get what rules are currently in use
+		my $current_rules = {};
+		foreach my $rule ( @{ $current_config->{'rules-files'} } ) {
+			$current_rules->{$rule} = 1;
+		}
+
+		# get a list of custom rules
+		my $custom_rules = {};
+		foreach my $rule ( keys( %{$current_rules} ) ) {
+			if ( !defined( $self->{rules}->{$rule} ) ) {
+				$custom_rules->{$rule} = 1;
+			}
+		}
+		my $custom_rules_array = keys( %{$custom_rules} );
+
+		# begin putting it back together
+		$filled_in = '';
+		my $start = 1;
+		foreach my $line ( @{ $self->{base_config_split} } ) {
+			my $ignore_line = 0;
+
+			if ( $line =~ /^ *\#/ ) {
+				$ignore_line = 1;
+			} elsif ( !$start && $line =~ /^rules\-files\:/ ) {
+				$start       = 1;
+				$ignore_line = 1;
+			}    # post start ignore anything that is not a rule line
+			elsif ( $start && $line !~ /^\ \ \-\ \$RULE\_PATH/ ) {
+				$ignore_line = 1;
+			}
+
+			if ($ignore_line) {
+				$filled_in = $filled_in . $line . "\n";
+			} else {
+				# get the rule name
+				my $rule = $line;
+				$rule =~ s/^\ \ \-\ //;
+
+				# should never be there, but just in case perform some basic cleanup
+				$rule =~ s/ *\#.*//;
+				$rule =~ s/ *$//;
+
+				# if it is not in the current rule set, comment it out
+				if ( !defined( $current_rules->{$rule} ) ) {
+					$filled_in = $filled_in . '  #- ' . $rule . "\n";
+				} else {
+					$filled_in = $filled_in . $line . "\n";
+				}
+			} ## end else [ if ($ignore_line) ]
+		} ## end foreach my $line ( @{ $self->{base_config_split...}})
+
+		$self->status_add(
+			status => '-----[ ' . $file . ' ]-------------------------------------' . "\n" . $filled_in );
+
+	} ## end else [ if ( !-f $file ) ]
+
+	if ( $self->{opts}{w} ) {
+		$self->status_add( status => 'Writing out to "' . $file . '" ...' );
+		write_file( $file, $filled_in );
+	}
+
+	return $filled_in;
+} ## end sub process_file
 
 1;

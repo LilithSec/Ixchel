@@ -74,8 +74,8 @@ sub new {
 			}
 		),
 		share_dir     => dist_dir("Ixchel"),
-				options_array => undef,
-				errors_count=>0,
+		options_array => undef,
+		errors_count  => 0,
 	};
 	bless $self;
 
@@ -129,6 +129,10 @@ The action to perform.
     - argv :: What to use for ARGV instead of @ARGV.
       Default :: undef
 
+    - no_die_on_error :: If the return from the action is a hash ref, check if $returned->{errors} is a array
+          if it is then it will die with those be used in the die message.
+      Default :: 1
+
 So if you want to render the template akin to '-a template -t extend_logsize' you can do it like below.
 
     my $rendered_template=$ixchel->action( action=>'template', opts=>{ t=>'extend_logsize' });
@@ -146,6 +150,10 @@ sub action {
 		die('No action defined');
 	}
 	my $action = $opts{action};
+
+	if ( !defined( $opts{no_die_on_error} ) ) {
+		$opts{no_die_on_error} = 1;
+	}
 
 	# if custom opts are not defined, read the commandline args and fetch what we should use
 	my $opts_to_use;
@@ -176,8 +184,8 @@ sub action {
 
 	# pass various vars if specified
 	my $vars;
-	if (defined($opts{vars})) {
-		$vars=$opts{vars};
+	if ( defined( $opts{vars} ) ) {
+		$vars = $opts{vars};
 	}
 
 	my $action_return;
@@ -192,6 +200,16 @@ sub action {
 	eval($to_eval);
 	if ($@) {
 		die( 'Action eval failed... ' . $@ );
+	}
+
+	if ( $opts{no_die_on_error} ) {
+		if (   ref($action_return) eq 'HASH'
+			&& defined( $action_return->{errors} )
+			&& ref( $action_return->{errors} ) eq 'ARRAY'
+			&& defined( $action_return->{errors}[0] ) )
+		{
+			die( 'Action returned one or more errors... ' . join( "\n", @{ $action_return->{errors} } ) );
+		}
 	}
 
 	return $action_return;
