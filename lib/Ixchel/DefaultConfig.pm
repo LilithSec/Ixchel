@@ -135,9 +135,12 @@ sub get {
 			proxy_ftp   => '',
 			global      => 0,
 		},
-		pkgs => {
-			install => {},
-			cpanm   => {},
+		perl => {
+			modules         => [],
+			cpanm           => 0,
+			pkgs_optional   => [],
+			pkgs_always_try => 1,
+			pkgs_require    => [],
 		},
 		systemd => {
 			auto     => {},
