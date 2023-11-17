@@ -16,8 +16,8 @@ my %WriteMakefileArgs = (
 	EXE_FILES          => ['src_bin/ixchel'],
 	INST_SCRIPT        => 'bin',
 	CONFIGURE_REQUIRES => {
-		'ExtUtils::MakeMaker'     => '0',
-		'File::ShareDir::Install' => 1,
+		'ExtUtils::MakeMaker'     => 0,
+		'File::ShareDir::Install' => 0,
 	},
 	TEST_REQUIRES => {
 		'Test::More' => '0',
