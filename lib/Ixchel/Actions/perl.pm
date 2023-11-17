@@ -9,15 +9,15 @@ use Ixchel::functions::install_cpanm;
 
 =head1 NAME
 
-Ixchel::Actions::perl :: Handles making sure desired Perl modules are installed.
+Ixchel::Actions::perl :: Handles making sure desired Perl modules are installed as specified by the config.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.0.2
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.0.2';
 
 =head1 SYNOPSIS
 
@@ -146,8 +146,11 @@ sub action {
 	my %installed;
 	my %tried_via_packages;
 
+	$self->status_add( status => 'pkgs_require: ' . join( ',', @{ $self->{config}{perl}{pkgs_require} } ), );
+
 	# handle ones that must be installed via pkgs
 	if ( ref( $self->{config}{perl}{pkgs_require} ) eq 'ARRAY' ) {
+		$self->status_add( status => 'pkgs_require: ' . join( ',', @{ $self->{config}{perl}{pkgs_require} } ), );
 		foreach my $module ( @{ $self->{config}{perl}{pkgs_require} } ) {
 			my $status;
 			eval { $status = perl_module_via_pkg( module => $module ); };
@@ -170,6 +173,7 @@ sub action {
 
 	# handle ones that must be installed via pkgs
 	if ( ref( $self->{config}{perl}{pkgs_optional} ) eq 'ARRAY' ) {
+		$self->status_add( status => 'pkgs_optional: ' . join( ',', @{ $self->{config}{perl}{pkgs_require} } ), );
 		foreach my $module ( @{ $self->{config}{perl}{pkgs_optional} } ) {
 			my $status;
 			eval { $status = perl_module_via_pkg( module => $module ); };
@@ -192,6 +196,8 @@ sub action {
 	if ( ref( $self->{config}{perl}{modules} ) eq 'ARRAY' ) {
 		push( @modules, @{ $self->{config}{perl}{modules} } );
 	}
+
+	$self->status_add( status => 'modules: ' . join( ',', @modules ) );
 
 	foreach my $module (@modules) {
 		if (   $self->{config}{perl}{pkgs_always_try}
@@ -260,14 +266,19 @@ sub action {
 } ## end sub action
 
 sub help {
-	return 'Install a Perl module via packages
+	return 'Install Perl modules specified by the config.
 
---module <module>    A Perl module to install via Packages.
+
+--notest      When calling cpanm, add --notest to it.
+
+--reinstall   When calling cpanm, add --reinstall to it.
+
+--force       When calling cpanm, add --force to it.
 ';
-}
+} ## end sub help
 
 sub short {
-	return 'Install a Perl module via packages';
+	return 'Install Perl modules specified by the config.';
 }
 
 sub opts_data {
