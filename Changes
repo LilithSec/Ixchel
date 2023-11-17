@@ -1,5 +1,8 @@
 Revision history for Ixchel
 
+0.1.1   2023-11-17/12:00
+        - Makefile.PL update
+
 0.1.0   2023-11-17/00:30
         - add actions: perl, pkgs
 
