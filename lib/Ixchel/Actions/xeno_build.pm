@@ -21,11 +21,11 @@ Ixchel::Actions::xeno_build :: Builds and installs stuff based on the supplied h
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -1051,14 +1051,14 @@ sub action {
 						if ($@) {
 							$self->status_add(
 								type   => $type,
-								status => 'Templating failed... ' . $@,
+								status => 'exec[' . $command_int . '] Templating failed... ' . $@,
 								error  => 1,
 							);
 							return $self->{results};
 						}
 						$self->status_add(
 							type   => $type,
-							status => 'Templated: ' . $command_hash->{command},
+							status => 'exec[' . $command_int . '] Templated: ' . $command_hash->{command},
 						);
 					} ## end if ( $command_hash->{template} )
 
