@@ -39,6 +39,10 @@ Read this YAML file to use for with xeno_build.
 Uses the specified value to fetch
 'https://raw.githubusercontent.com/LilithSec/xeno_build/main/$repo_item.yaml'.
 
+=head2 -u <url>
+
+Install use the file from URL.
+
 =head1 RESULT HASH REF
 
     .errors :: A array of errors encountered.
@@ -101,16 +105,26 @@ sub action {
 	};
 
 	# if neither are defined error and return
-	if ( !defined( $self->{opts}{xb} ) && !defined( $self->{opts}{r} ) ) {
-		my $error = 'Neither --xb or -r specified';
+	if ( !defined( $self->{opts}{xb} ) && !defined( $self->{opts}{r} ) && !defined( $self->{opts}{u} ) ) {
+		my $error = 'Neither --xb, -r, or -u specified';
 		warn($error);
 		push( @{ $self->{results}{errors} }, $error );
 		return $self->{results};
 	}
 
 	# if neither are defined error and return
-	if ( defined( $self->{opts}{xb} ) && defined( $self->{opts}{r} ) ) {
-		my $error = 'Neither --xb and -r both defined... can only use one';
+	my $args_test = 0;
+	if ( defined( $self->{opts}{xb} ) ) {
+		$args_test++;
+	}
+	if ( defined( $self->{opts}{r} ) ) {
+		$args_test++;
+	}
+	if ( defined( $self->{opts}{u} ) ) {
+		$args_test++;
+	}
+	if ( $args_test >= 2 ) {
+		my $error = 'Neither --xb, -r, and/or  -u specified together... can only use one';
 		warn($error);
 		push( @{ $self->{results}{errors} }, $error );
 		return $self->{results};
@@ -151,8 +165,17 @@ sub action {
 			return $self->{results};
 		}
 	} elsif ( defined( $self->{opts}{r} ) ) {
+		$self->{opts}{r} =~ s/\.yaml$//;
 		my $url = 'https://raw.githubusercontent.com/LilithSec/xeno_build/main/' . $self->{opts}{r} . '.yaml';
 		eval { $xeno_build_raw = file_get( url => $url ); };
+		if ($@) {
+			my $error = 'xeno_build errored: ' . $@;
+			warn($error);
+			push( @{ $self->{results}{errors} }, $error );
+			return $self->{results};
+		}
+	}elsif (defined($self->{opts}{u})) {
+		eval { $xeno_build_raw = file_get( url => $self->{opts}{u} ); };
 		if ($@) {
 			my $error = 'xeno_build errored: ' . $@;
 			warn($error);
@@ -176,11 +199,13 @@ sub action {
 sub help {
 	return 'Invoke xeno_build on the specified hash.
 
---xb <file>           Read this YAML file in and use it as the hash for xeno_build.
+--xb <file>       Read this YAML file in and use it as the hash for xeno_build.
 
-=head2 -r <repo item> Xeno Build Repo item to fetch and build.
+-r <repo item>    Xeno Build Repo item to fetch and build.
+
+-u <url>          Fetch the specified URL and use the YAML as the Xeno Build hash.
 ';
-}
+} ## end sub help
 
 sub short {
 	return 'Invoke xeno_build on the specified hash.';
@@ -190,6 +215,7 @@ sub opts_data {
 	return '
 xb=s
 r=s
+u=s
 ';
 }
 
