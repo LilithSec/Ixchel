@@ -391,7 +391,7 @@ sub new {
 	if ( defined( $opts{config} ) ) {
 		$self->{config} = $opts{config};
 	}
-	$self->{template_vars} = $self->{config};
+	$self->{template_vars}{config} = $self->{config};
 
 	if ( defined( $opts{t} ) ) {
 		$self->{t} = $opts{t};
