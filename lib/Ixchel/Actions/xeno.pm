@@ -6,6 +6,7 @@ use warnings;
 use File::Slurp;
 use JSON::Path;
 use YAML::XS qw(Load);
+use Ixchel::functions::file_get;
 
 =head1 NAME
 
@@ -13,11 +14,11 @@ Ixchel::Actions::xeno :: Invokes xeno_build with the specified hash.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -32,6 +33,11 @@ our $VERSION = '0.0.1';
 =head2 --xb <file>
 
 Read this YAML file to use for with xeno_build.
+
+=head2 -r <repo item>
+
+Uses the specified value to fetch
+'https://raw.githubusercontent.com/LilithSec/xeno_build/main/$repo_item.yaml'.
 
 =head1 RESULT HASH REF
 
@@ -95,8 +101,16 @@ sub action {
 	};
 
 	# if neither are defined error and return
-	if ( !defined( $self->{opts}{xb} ) ) {
-		my $error = 'Neither --xb specified';
+	if ( !defined( $self->{opts}{xb} ) && !defined( $self->{opts}{r} ) ) {
+		my $error = 'Neither --xb or -r specified';
+		warn($error);
+		push( @{ $self->{results}{errors} }, $error );
+		return $self->{results};
+	}
+
+	# if neither are defined error and return
+	if ( defined( $self->{opts}{xb} ) && defined( $self->{opts}{r} ) ) {
+		my $error = 'Neither --xb and -r both defined... can only use one';
 		warn($error);
 		push( @{ $self->{results}{errors} }, $error );
 		return $self->{results};
@@ -119,6 +133,7 @@ sub action {
 	} ## end if ( defined( $self->{config}{proxy} ) )
 
 	my $xeno_build;
+	my $xeno_build_raw;
 	if ( defined( $self->{opts}{xb} ) ) {
 		my $xeno_build_file;
 		if ( -f $self->{opts}{xb} ) {
@@ -128,25 +143,42 @@ sub action {
 		} elsif ( -f $self->{share_dir} . '/' . $self->{opts}{xb} . '.yaml' ) {
 			$xeno_build_file = $self->{share_dir} . '/' . $self->{opts}{xb} . '.yaml';
 		}
-		eval{
-			my $raw_config = read_file($xeno_build_file) || die( 'Failed to read "' . $xeno_build_file . '"' );
-			$xeno_build = Load($raw_config);
-		};
+		eval { $xeno_build_raw = read_file($xeno_build_file) || die( 'Failed to read "' . $xeno_build_file . '"' ); };
 		if ($@) {
-			my $error =  'xeno_build errored: '.$@;
+			my $error = 'xeno_build errored: ' . $@;
 			warn($error);
 			push( @{ $self->{results}{errors} }, $error );
 			return $self->{results};
 		}
-	} ## end if ( defined( $self->{opts}{xb} ) )
+	} elsif ( defined( $self->{opts}{r} ) ) {
+		my $url = 'https://raw.githubusercontent.com/LilithSec/xeno_build/main/' . $self->{opts}{r} . '.yaml';
+		eval { $xeno_build_raw = file_get( url => $url ); };
+		if ($@) {
+			my $error = 'xeno_build errored: ' . $@;
+			warn($error);
+			push( @{ $self->{results}{errors} }, $error );
+			return $self->{results};
+		}
+	} ## end elsif ( defined( $self->{opts}{r} ) )
 
-    return $self->{ixchel}->action(action=>'xeno_build', opts=>{xeno_build=>$xeno_build});
+	# parse the xeno_build yaml
+	eval { $xeno_build = Load($xeno_build_raw); };
+	if ($@) {
+		my $error = 'xeno_build errored: ' . $@;
+		warn($error);
+		push( @{ $self->{results}{errors} }, $error );
+		return $self->{results};
+	}
+
+	return $self->{ixchel}->action( action => 'xeno_build', opts => { xeno_build => $xeno_build } );
 } ## end sub action
 
 sub help {
 	return 'Invoke xeno_build on the specified hash.
 
---xb <file>    Read this YAML file in and use it as the hash for xeno_build.
+--xb <file>           Read this YAML file in and use it as the hash for xeno_build.
+
+=head2 -r <repo item> Xeno Build Repo item to fetch and build.
 ';
 }
 
@@ -157,6 +189,7 @@ sub short {
 sub opts_data {
 	return '
 xb=s
+r=s
 ';
 }
 
