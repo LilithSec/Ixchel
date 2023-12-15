@@ -1025,14 +1025,6 @@ sub action {
 						status => 'exec[' . $command_int . '] command: ' . $command_hash->{command},
 					);
 
-					$self->status_add(
-						type   => $type,
-						status => 'exec['
-							. $command_int
-							. '] ok exits: '
-							. join( ',', @{ $command_hash->{exits} } ),
-					);
-
 					# if requested to template it, process the command and dir
 					if ( $command_hash->{template} ) {
 						eval {
@@ -1047,6 +1039,11 @@ sub action {
 							$self->{t}->process( \$dir, $self->{template_vars}, \$output )
 								|| die $self->{t}->error;
 							$command_hash->{dir} = $output;
+
+							$self->status_add(
+								type   => $type,
+								status => 'exec[' . $command_int . '] Templated: ' . $command_hash->{command},
+							);
 						};
 						if ($@) {
 							$self->status_add(
@@ -1056,11 +1053,15 @@ sub action {
 							);
 							return $self->{results};
 						}
-						$self->status_add(
-							type   => $type,
-							status => 'exec[' . $command_int . '] Templated: ' . $command_hash->{command},
-						);
 					} ## end if ( $command_hash->{template} )
+
+					$self->status_add(
+						type   => $type,
+						status => 'exec['
+							. $command_int
+							. '] ok exits: '
+							. join( ',', @{ $command_hash->{exits} } ),
+					);
 
 					# chdir to the dir specified if needed
 					if ( $command_hash->{dir} ) {
@@ -1105,7 +1106,12 @@ sub action {
 							error => 1,
 						);
 						return $self->{results};
-					} ## end if ( !$exit_code_matched )
+					} else {
+						$self->status_add(
+							type   => $type,
+							status => 'exec[' . $command_int . ']  Exit Code: ' . $exit_code,
+						);
+					}
 
 				} ## end if ( defined( $self->{opts}{xeno_build}{$type...}))
 
