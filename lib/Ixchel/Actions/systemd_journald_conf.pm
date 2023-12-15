@@ -8,20 +8,22 @@ use Config::Tiny;
 =head1 NAME
 
 Ixchel::Actions::systemd_journald_conf :: Generate a systemd journald config include.
-s
+
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
     use Data::Dumper;
 
     my $results=$ixchel->action(action=>'systemd_journald_conf', opts=>{np=>1, w=>1, });
+
+=head1 DESCRIPTION
 
 This takes .config.systemd.journald and generates a config that can be used with journald.
 

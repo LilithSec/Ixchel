@@ -12,11 +12,11 @@ Ixchel::Actions::sagan_conf_update :: Update the all Sagan confs.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -25,6 +25,8 @@ our $VERSION = '0.0.1';
     my $results=$ixchel->action(action=>'sagan_conf_update', opts=>{np=>1, w=>1, });
 
     print Dumper($results);
+
+=head1 DESCRIPTION
 
 This calls runs the following actions.
 

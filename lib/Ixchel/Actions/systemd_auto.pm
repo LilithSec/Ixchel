@@ -12,11 +12,11 @@ Ixchel::Actions::systemd_auto :: Generate systemd service files using the system
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -25,6 +25,8 @@ our $VERSION = '0.0.1';
     my $results=$ixchel->action(action=>'systemd_auto', opts=>{np=>1, w=>1, reload=>1, enable=>1, start=>1, });
 
     print Dumper($results);
+
+=head1 DESCRIPTION
 
 The template used is systemd_service.
 

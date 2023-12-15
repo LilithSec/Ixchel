@@ -12,17 +12,19 @@ Ixchel::Actions::pkgs :: Handles making sure desired packages are installed as s
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
     use Data::Dumper;
 
     my $results=$ixchel->action(action=>'pkgs', opts=>{}'});
+
+=head1 DESCRIPTION
 
 The modules to be installed are determined by the config.
 

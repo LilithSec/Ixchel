@@ -10,15 +10,17 @@ Ixchel::Actions::systemd_auto_list :: List systemd auto generated services.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
     my @systemd_auto_units=$ixchel->action(action=>'systemd_auto_list', opts=>{np=>1}, );
+
+=head1 DESCRIPTION
 
 Returns configured automatically generated systemd units.
 

@@ -13,17 +13,19 @@ Ixchel::Actions::perl :: Handles making sure desired Perl modules are installed 
 
 =head1 VERSION
 
-Version 0.0.2
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.2';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
     use Data::Dumper;
 
     my $results=$ixchel->action(action=>'perl', opts=>{}'});
+
+=head1 DESCRIPTION
 
 The modules to be installed are determined by the config.
 

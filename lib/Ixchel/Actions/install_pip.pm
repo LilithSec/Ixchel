@@ -12,11 +12,11 @@ Ixchel::Actions::install_pip :: Install pip via packages.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -24,8 +24,6 @@ our $VERSION = '0.0.1';
 
     my $results=$ixchel->action(action=>'instal_cpanm', opts=>{});
 
-
-=head1 FLAGS
 
 =head1 RESULT HASH REF
 

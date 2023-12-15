@@ -15,11 +15,11 @@ Ixchel::Actions::suricata_base :: Reels in the base Suricata config and uses it 
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -28,6 +28,8 @@ our $VERSION = '0.0.1';
     my $results=$ixchel->action(action=>'suricata_base', opts=>{np=>1, w=>1, });
 
     print Dumper($results);
+
+=head1 DESCRIPTION
 
 This will fetch the file specied via .suricata.base_config in the config. This is
 a URL to the config file to use, by default it is

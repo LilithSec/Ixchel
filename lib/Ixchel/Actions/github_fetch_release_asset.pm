@@ -14,11 +14,11 @@ Ixchel::Actions::github_fetch_release_asset :: Fetch an release asset from a git
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 

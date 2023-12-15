@@ -12,11 +12,11 @@ Ixchel::Actions::sagan_include :: Generates the instance specific include for a 
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -25,6 +25,8 @@ our $VERSION = '0.0.1';
     my $results=$ixchel->action(action=>'sagan_include', opts=>{np=>1, w=>1, });
 
     print Dumper($results);
+
+=head1 DESCRIPTION
 
 Generates the Sagan include config.
 

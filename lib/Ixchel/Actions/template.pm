@@ -14,11 +14,11 @@ Ixchel::Actions::template :: Fill in a template.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -28,7 +28,59 @@ our $VERSION = '0.0.1';
 
     print Dumper($results);
 
+=head1 DESCRIPTION
+
 Fills in the specified template.
+
+The templates in question are L<Template::Toolkit> templates.
+
+The following are available for use in the template.
+
+
+    - opts :: A hash with the various options specified. In the case of
+            calling this from this CLI, see info on FLAGS.
+
+    - config :: The Ixchel config hash.
+
+    - argv :: @ARGV
+
+	- vars :: Any additional variables passed. Only usable when calling
+            via $ixchel->action and not the CLI.
+
+The following functions are available.
+
+    - shell_quote :: shell_quote from String::ShellQuote.
+        - args :: String to quote.
+        - return :: A quoted string.
+
+    - file_exists :: Check if the specified path exists and is a file.
+        - args :: A FS path, relattive or absolute.
+        - return :: 0/1
+
+    - dir_exists :: Check if the specified path exists and is a dir.
+        - args :: A FS path, relattive or absolute.
+        - return :: 0/1
+
+    - get_sub_dirs :: Gets a array of directories using...
+            File::Find::Rule->directory->maxdepth(1)->in( $_[0] );
+        - args :: A FS path, relattive or absolute.
+        - return :: An array of directories.
+
+    - is_freebsd :: If the OS is FreeBSD or not.
+        - args :: A FS path, relattive or absolute.
+        - return :: 0/1
+
+    - is_linux :: If the OS is Linux or not.
+        - args :: A FS path, relattive or absolute.
+        - return :: 0/1
+
+    - is_systemd :: If the OS is Linux and if the init system is systemd.
+        - args :: A FS path, relattive or absolute.
+        - return :: 0/1
+
+    - read_file :: Reads the specified file.
+        - args :: A FS path, relattive or absolute.
+        - return :: Contents of the specified file.
 
 =head1 FLAGS
 
@@ -39,6 +91,14 @@ Do not print the the filled in template.
 =head2 -t
 
 The name of the template to use.
+
+This is resolved in order...
+
+    ./$template
+    /usr/local/etc/ixchel/templates/$template
+    /usr/local/etc/ixchel/templates/$template.tt
+    $share_dir/templates/$template
+    $share_dir/templates/$template.tt
 
 =cut
 
@@ -99,6 +159,10 @@ sub action {
 	my $template_file;
 	if ( -f $template ) {
 		$template_file = $template;
+	} elsif ( -f '/usr/local/etc/ixchel/templates/' . $template ) {
+		$template_file =  '/usr/local/etc/ixchel/templates/' . $template;
+	} elsif ( -f '/usr/local/etc/ixchel/templates/' . $template . '.tt' ) {
+		$template_file =  '/usr/local/etc/ixchel/templates/' . $template . '.tt';
 	} elsif ( -f $self->{share_dir} . '/templates/' . $template ) {
 		$template_file = $self->{share_dir} . '/templates/' . $template;
 	} elsif ( -f $self->{share_dir} . '/templates/' . $template . '.tt' ) {

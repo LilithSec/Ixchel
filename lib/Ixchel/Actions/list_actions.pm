@@ -7,15 +7,15 @@ use Module::List qw(list_modules);
 
 =head1 NAME
 
-Ixchel::Actions::list_actions :: Lists the various actions.
+Ixchel::Actions::list_actions :: Lists the various actions with a short description.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 

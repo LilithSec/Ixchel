@@ -12,11 +12,11 @@ Ixchel::Actions::python_module_via_pkg :: Install cpanm via packages.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -25,6 +25,12 @@ our $VERSION = '0.0.1';
     my $results=$ixchel->action(action=>'python_module_via_pkg', opts=>{module=>'Dumper'});
 
 =head1 FLAGS
+
+=head2 --module <module>
+
+The module to install.
+
+This is required.
 
 =head1 RESULT HASH REF
 

@@ -12,20 +12,17 @@ Ixchel::Actions::install_cpanm :: Install cpanm via packages.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
     use Data::Dumper;
 
     my $results=$ixchel->action(action=>'instal_cpanm', opts=>{});
-
-
-=head1 FLAGS
 
 =head1 RESULT HASH REF
 

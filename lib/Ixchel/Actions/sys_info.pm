@@ -15,11 +15,11 @@ Ixchel::Actions::sys_info :: Fetches system info via Rex::Hardware and prints it
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -31,7 +31,7 @@ Fetches system info via Rex::Hardware and prints it in various formats.
 
 Format to print it in.
 
-Available: json, yaml, toml
+Available: json, yaml, toml, dumper
 
 Default: toml
 

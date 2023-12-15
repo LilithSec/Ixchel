@@ -12,11 +12,11 @@ Ixchel::Actions::install_yq :: Install installs yq
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -24,6 +24,7 @@ our $VERSION = '0.0.1';
 
     my $results=$ixchel->action(action=>'instal_yq', opts=>{});
 
+=head1 DESCRIPTION
 
 This installs mikefarah/yq. Will use packages if possible, otherwise will
 grab the binary from github.

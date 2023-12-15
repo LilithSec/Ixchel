@@ -16,11 +16,11 @@ Ixchel::Actions::sys_info :: Prints out the config.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -34,7 +34,7 @@ Prints out the config.
 
 Format to print it in.
 
-Available: json, yaml, toml
+Available: json, yaml, toml, dumper
 
 Default: toml
 

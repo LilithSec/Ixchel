@@ -11,17 +11,19 @@ Ixchel::Actions::apt_proxy :: Generates the proxy config file for apt.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
     my $filled_in=$ixchel->action(action=>'apt_proxy', opts=>{w=>1});
 
     print $filled_in;
+
+=head1 DESCRIPTION
 
 The template used is 'apt_proxy'.
 

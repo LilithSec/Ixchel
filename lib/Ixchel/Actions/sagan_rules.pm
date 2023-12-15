@@ -15,11 +15,11 @@ Ixchel::Actions::sagan_rules :: Generate the rules include for Sagan.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -28,6 +28,8 @@ our $VERSION = '0.0.1';
     my $results=$ixchel->action(action=>'sagan_rules', opts=>{np=>1, w=>1, });
 
     print Dumper($results);
+
+=head1 DESCRIPTION
 
 Generates the rules include for sagan using the array .sagan.rules and
 if .sagan.instances_rules.$instance exists, that will be merged into it.
@@ -48,9 +50,9 @@ Do not print the status of it.
 
 =head2 -w
 
-Write the generated services to service files.
+Write out the generated rule files.
 
-=head2 -i instance
+=head2 -i <instance>
 
 A instance to operate on.
 
@@ -214,8 +216,6 @@ sub action {
 		}
 
 		my $file = File::Spec->canonpath( $config_base . '/sagan-rules.yaml' );
-
-		my $filled_in;
 
 		eval { $self->process_file( file => $file ); };
 		if ($@) {

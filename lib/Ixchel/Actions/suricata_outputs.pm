@@ -12,11 +12,11 @@ Ixchel::Actions::suricata_ouputs :: Generate a outputs include for suricata.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -25,6 +25,8 @@ our $VERSION = '0.0.1';
     my $results=$ixchel->action(action=>'suricata_outputs', opts=>{np=>1, w=>1, });
 
     print Dumper($results);
+
+=head1 DESCRIPTION
 
 The template used is 'suricata_outputs'.
 

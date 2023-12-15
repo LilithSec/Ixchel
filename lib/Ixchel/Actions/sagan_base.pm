@@ -14,11 +14,11 @@ Ixchel::Actions::sagan_base :: Generates the base config for a sagan instance.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -27,6 +27,8 @@ our $VERSION = '0.0.1';
     my $results=$ixchel->action(action=>'sagan_base', opts=>{np=>1, w=>1, });
 
     print Dumper($results);
+
+=head1 DESCRIPTION
 
 The following keys are removed from the file.
 

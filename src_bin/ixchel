@@ -54,7 +54,7 @@ use Pod::Usage;
 use Pod::Find qw(pod_where);
 
 sub version {
-	print "ixchel v. 0.0.1\n";
+	print "ixchel v. 0.1.0\n";
 }
 
 # disable color if asked
