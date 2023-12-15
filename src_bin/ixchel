@@ -41,16 +41,17 @@ This is automatic for the action 'list_actions' and 'sys_info'
 
 =cut
 
-
 use strict;
 use warnings;
 use Getopt::Long qw(:config pass_through);
 use File::Slurp;
-use TOML qw(from_toml);
-use JSON qw(decode_json);
+use TOML     qw(from_toml);
+use JSON     qw(decode_json);
 use YAML::XS qw(Load);
 use Ixchel;
 use utf8;
+use Pod::Usage;
+use Pod::Find qw(pod_where);
 
 sub version {
 	print "ixchel v. 0.0.1\n";
@@ -68,7 +69,7 @@ my $version;
 my $noConfig;
 GetOptions(
 	'a=s'      => \$action,
-	'config=s'   => \$config_file,
+	'config=s' => \$config_file,
 	'noConfig' => \$noConfig,
 	'help'     => \$help,
 	'version'  => \$version,
@@ -76,6 +77,7 @@ GetOptions(
 
 if ($version) {
 	&version;
+	exit 0;
 }
 
 if ($help) {
@@ -103,8 +105,16 @@ For a list of actions use the action list_actions
 		exit 0;
 	}
 
-	my $i = Ixchel->new;
-	print "Action specific help... \n\n" . $i->help($action) . "\n";
+	print "Action specific help... \n\n";
+	pod2usage(
+			-input    => pod_where( { -inc => 1 }, 'Ixchel::Actions::' . $action, ),
+			-sections => [
+				'CLI SYNOPSIS', 'DESCRIPTION', 'DESCRIPTION/Introduction', 'FLAGS',
+				'VERSION',      'NAME',        'OPTIONS',                  'BUILD HASH'
+			],
+			-verbose => 99,
+			-output  => \*STDOUT
+		);
 
 	exit 0;
 } ## end if ($help)
@@ -121,8 +131,8 @@ if ( !defined($config_file) ) {
 }
 
 # set noConfig for items that won't need it
-if ($action eq 'list_actions' || $action eq 'sys_info' ) {
-	$noConfig=1;
+if ( $action eq 'list_actions' || $action eq 'sys_info' ) {
+	$noConfig = 1;
 }
 
 my $parsed_config;
@@ -157,8 +167,8 @@ if ( defined($config_file) && -e $config_file ) {
 	die( '"' . $config_file . '" does not exist and --noConfig is not specified' );
 }
 
-my $i = Ixchel->new(config=>$parsed_config);
+my $i = Ixchel->new( config => $parsed_config );
 
-$i->action(action=>$action);
+$i->action( action => $action );
 
 exit $i->{errors_count};
