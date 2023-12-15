@@ -218,18 +218,6 @@ sub action {
 	return $results;
 } ## end sub action
 
-sub help {
-	return 'Generates the base config for a sagan instance.
-
---np          Do not print the status of it.
-
--w            Write the generated includes out.
-
--i <instance> A instance to operate on.
-
-';
-} ## end sub help
-
 sub short {
 	return 'Generates the base config for a sagan instance.';
 }

@@ -286,18 +286,6 @@ sub action {
 	return $results;
 } ## end sub action
 
-sub help {
-	return 'Generate a outputs include for suricata.
-
---np          Do not print the status of it.
-
--w            Write the generated services to service files.
-
--i <instance> A instance to operate on.
-
-';
-} ## end sub help
-
 sub short {
 	return 'Generate a outputs include for suricata.';
 }

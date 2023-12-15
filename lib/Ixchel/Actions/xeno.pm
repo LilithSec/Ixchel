@@ -196,17 +196,6 @@ sub action {
 	return $self->{ixchel}->action( action => 'xeno_build', opts => { xeno_build => $xeno_build } );
 } ## end sub action
 
-sub help {
-	return 'Invoke xeno_build on the specified hash.
-
---xb <file>       Read this YAML file in and use it as the hash for xeno_build.
-
--r <repo item>    Xeno Build Repo item to fetch and build.
-
--u <url>          Fetch the specified URL and use the YAML as the Xeno Build hash.
-';
-} ## end sub help
-
 sub short {
 	return 'Invoke xeno_build on the specified hash.';
 }

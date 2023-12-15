@@ -58,10 +58,6 @@ sub action {
 	} ## end foreach my $action ( sort( keys( %{$actions} ) ...))
 } ## end sub action
 
-sub help {
-	return 'Lists the available actions.';
-}
-
 sub short {
 	return 'Lists the available actions.';
 }

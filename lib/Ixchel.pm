@@ -215,39 +215,6 @@ sub action {
 	return $action_return;
 } ## end sub action
 
-=head2 help
-
-Fetches help.
-
-One argument is required and that is the action to fetch info on.
-
-    my $help=Ixchel->help($action);
-
-=cut
-
-sub help {
-	my $self   = $_[0];
-	my $action = $_[1];
-
-	if ( !defined($action) ) {
-		die('No action to run defined');
-	}
-
-	# make sure the action only contains sane characters for when we eval
-	if ( $action =~ /[^a-zA-Z0-9\_]/ ) {
-		die( '"' . $action . '" matched /[^a-zA-Z0-9\_]/, which is not a valid action name' );
-	}
-
-	my $help;
-	my $to_eval = 'use Ixchel::Actions::' . $action . '; $help=Ixchel::Actions::' . $action . '->help;';
-	eval($to_eval);
-	if ($@) {
-		die( 'Help eval failed... ' . $@ );
-	}
-
-	return $help;
-} ## end sub help
-
 =head1 AUTHOR
 
 Zane C. Bowers-Hadley, C<< <vvelox at vvelox.net> >>

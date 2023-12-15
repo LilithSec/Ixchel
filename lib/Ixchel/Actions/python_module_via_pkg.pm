@@ -109,13 +109,6 @@ sub action {
 	return $self->{results};
 } ## end sub action
 
-sub help {
-	return 'Install a Python module via packages
-
---module <module>    A Python module to install via Packages.
-';
-}
-
 sub short {
 	return 'Install a Python module via packages';
 }

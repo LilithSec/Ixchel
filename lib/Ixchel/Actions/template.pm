@@ -178,16 +178,6 @@ sub action {
 	return $output;
 } ## end sub action
 
-sub help {
-	return 'Fills in a template.
-
--t <template>     Template to fill in.
-
---np              Do not print it, just return after filling it in.
-                  Only used if you want to call this module directly.
-';
-}
-
 sub short {
 	return 'Fills in a template.';
 }

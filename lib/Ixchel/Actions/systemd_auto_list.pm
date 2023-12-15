@@ -86,13 +86,6 @@ sub action {
 	return @services;
 } ## end sub action
 
-sub help {
-	return 'List systemd auto generated services.
-
---np    Do not print anything.
-';
-}
-
 sub short {
 	return 'List systemd auto generated services.';
 }

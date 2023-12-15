@@ -36,7 +36,7 @@ Where to install it to if not using packages.
 
 Default: /usr/bin/yq
 
-=head -n
+=head2 -n
 
 Don't install via packages.
 
@@ -114,11 +114,6 @@ sub action {
 
 	return $self->{results};
 } ## end sub action
-
-sub help {
-	return 'Install yq.
-';
-} ## end sub help
 
 sub short {
 	return 'Install yq.';

@@ -108,18 +108,6 @@ sub action {
 	return $string;
 } ## end sub action
 
-sub help {
-	return 'Prints data from the sys_info function.
-
--o <format>     Format to print it in.
-                Available: json, yaml, toml
-                Default: toml
-
--s <section>    A JSON Path style variable used for selecting a sub
-                section of the config to return.
-';
-}
-
 sub short {
 	return 'Dumps the config to to JSON, YAML, or TOML(default)';
 }

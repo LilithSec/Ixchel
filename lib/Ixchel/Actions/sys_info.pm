@@ -96,15 +96,6 @@ sub action {
 	return $string;
 } ## end sub action
 
-sub help {
-	return 'Prints data from the sys_info function.
-
--o <format>     Format to print it in.
-                Available: json, yaml, toml
-                Default: toml
-';
-}
-
 sub short {
 	return 'Prints data from the sys_info function.';
 }

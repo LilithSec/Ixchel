@@ -352,25 +352,6 @@ sub action {
 	return $results;
 } ## end sub action
 
-sub help {
-	return 'Handles generation of service file as specified under .systemd.auto .
-
---np          Do not print the status of it.
-
--w            Write the generated services to service files.
-
--s <service>  A auto service to operate on.
-
---reload      Run systemctl daemon-reload.
-
---enable      Enable the generated services.
-
---start       Start the generated services.
-
---restart     Restart the generated services.
-';
-} ## end sub help
-
 sub short {
 	return 'Handles generation of service file as specified under .systemd.auto .';
 }

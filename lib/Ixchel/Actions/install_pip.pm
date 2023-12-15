@@ -102,11 +102,6 @@ sub action {
 	return $self->{results};
 } ## end sub action
 
-sub help {
-	return 'Install pip via packages.
-';
-} ## end sub help
-
 sub short {
 	return 'Install pip via packages.';
 }

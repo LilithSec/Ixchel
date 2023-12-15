@@ -124,16 +124,6 @@ sub action {
 	return $filled_in;
 } ## end sub action
 
-sub help {
-	return 'Generates the proxy config file for apt.
-
--w            Write out the file instead of stdout.
-
--o <file>     File to write the out to if -w is specified.
-              Default :: /etc/apt/apt.conf.d/00aptproxy
-';
-}
-
 sub short {
 	return 'Generates the proxy config file for apt.';
 }

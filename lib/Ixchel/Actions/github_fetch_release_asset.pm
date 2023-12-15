@@ -179,31 +179,6 @@ sub action {
 	}
 } ## end sub action
 
-sub help {
-	return 'Fetch an release asset from a github repo for the latest release.
-
--o <owner>   The repo owner.
-
--r <repo>    The repo to fetch it from in org/repo format.
-
--f <asset>   The name of the asset to fetch for a release.
-
--p           Pre-releases are okay.
-
--d           Draft-releases are okay.
-
--P           Print it out instead of writing it out.
-
--w <output>  Where to write the output to.
-
--A           Write the file out in append mode.
-
--B           Write the file in a atomicly if possible.
-
--U           umask to use. If undef will default to what ever sysopen is.
-';
-} ## end sub help
-
 sub short {
 	return 'Fetch an release asset from a github repo.';
 }

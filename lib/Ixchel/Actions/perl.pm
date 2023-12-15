@@ -265,18 +265,6 @@ sub action {
 	return $self->{results};
 } ## end sub action
 
-sub help {
-	return 'Install Perl modules specified by the config.
-
-
---notest      When calling cpanm, add --notest to it.
-
---reinstall   When calling cpanm, add --reinstall to it.
-
---force       When calling cpanm, add --force to it.
-';
-} ## end sub help
-
 sub short {
 	return 'Install Perl modules specified by the config.';
 }

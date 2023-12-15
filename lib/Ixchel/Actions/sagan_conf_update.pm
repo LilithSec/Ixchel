@@ -169,24 +169,6 @@ sub action {
 	return $results;
 } ## end sub action
 
-sub help {
-	return 'Generates the instance specific include for a sagan instance.
-
---np          Do not print the status of it.
-
--w            Write the generated includes out.
-
--i <instance> A instance to operate on.
-
---no_base     Do not rebuild the base files.
-
---no_include  Do not rebuild the include files.
-
---no_rules    Do not rebuild the rules files.
-
-';
-} ## end sub help
-
 sub short {
 	return 'Generates the instance specific include for a sagan instance.';
 }

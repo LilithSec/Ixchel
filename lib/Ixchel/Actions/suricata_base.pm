@@ -278,23 +278,6 @@ sub action {
 	return $self->{results};
 } ## end sub action
 
-sub help {
-	return 'Generates the instance specific include for a suricata instance.
-
---np          Do not print the status of it.
-
--w            Write the generated includes out.
-
--i <instance> A instance to operate on.
-
--pp           Include the config in the status post initial processing.
-
--pr           Include the config in the status post paths removal.
-
--pi           Include the config in the status post adding includes.
-';
-} ## end sub help
-
 sub short {
 	return 'Reels in the base Suricata config and uses it for generating the base config for each instance.';
 }

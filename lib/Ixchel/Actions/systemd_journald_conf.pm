@@ -128,17 +128,6 @@ sub action {
 	return $string;
 } ## end sub action
 
-sub help {
-	return 'Generate a systemd journald config include
-
--w        Write it out to /etc/systemd/journald.conf.d/99-ixchel.conf
-
---np      Do not print out the results.
-
---die     Die on write failure.
-';
-} ## end sub help
-
 sub short {
 	return 'Generate a systemd journald config include';
 }

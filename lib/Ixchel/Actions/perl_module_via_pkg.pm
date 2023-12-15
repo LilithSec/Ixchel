@@ -110,13 +110,6 @@ sub action {
 	return $self->{results};
 } ## end sub action
 
-sub help {
-	return 'Install a Perl module via packages
-
---module <module>    A Perl module to install via Packages.
-';
-}
-
 sub short {
 	return 'Install a Perl module via packages';
 }

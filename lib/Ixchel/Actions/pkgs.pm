@@ -143,11 +143,6 @@ sub action {
 	return $self->{results};
 } ## end sub action
 
-sub help {
-	return 'Install packages specified by the config.
-';
-}
-
 sub short {
 	return 'Install packages specified by the config.';
 }

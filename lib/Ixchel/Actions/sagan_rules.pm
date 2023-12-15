@@ -230,18 +230,6 @@ sub action {
 	return $self->{results};
 } ## end sub action
 
-sub help {
-	return 'Generate the rules include for Sagan.
-
---np          Do not print the status of it.
-
--w            Write the generated includes out.
-
--i <instance> A instance to operate on.
-
-';
-} ## end sub help
-
 sub short {
 	return 'Generate the rules include for Sagan.';
 }

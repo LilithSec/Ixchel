@@ -1122,15 +1122,6 @@ sub action {
 	return $self->{results};
 } ## end sub action
 
-sub help {
-	return 'Builds/installs stuff based on a passed hash ref.
-
-Not usable directly. Use xeno action.
-
-See perldoc Ixchel::Actions::xeno_build for more details.
-';
-}
-
 sub short {
 	return 'Builds/installs stuff based on a passed hash ref. Not usable directly. Use xeno action.';
 }
