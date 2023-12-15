@@ -4,6 +4,7 @@ Revision history for Ixchel
 		- Fix the Ixchel config not being available as config for xeno_build.
 		- add -r for the xeno action
 		- convert to Pod::Usage and no longer use the method help
+		- sagan_rules massive re-work... now updates the file from a specified base file
 
 0.1.1   2023-11-17/12:00
         - Makefile.PL update
