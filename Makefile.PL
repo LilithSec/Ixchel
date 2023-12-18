@@ -34,6 +34,7 @@ my %WriteMakefileArgs = (
 		'LWP::Simple'          => 0,
 		'LWP::Protocol::https' => 0,
 		'Module::List'         => 0,
+		'Pod::Parser'          => 0,
 		'Rex'                  => '1.14.3',
 		'String::ShellQuote'   => 0,
 		'TOML'                 => 0,
