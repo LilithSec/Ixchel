@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use File::Slurp;
 use YAML::XS qw(Dump);
+use File::Spec;
 
 =head1 NAME
 
@@ -184,7 +185,7 @@ sub action {
 				my %tmp_base_config = %{$base_config};
 				my $merged          = $merger->merge( \%tmp_base_config, \%tmp_config );
 
-				$merged->{include} = $config_base . '/sagan-rules-' . $instance . '.yaml';
+				$merged->{include} = File::Spec->canonpath( $config_base . '/sagan-rules-' . $instance . '.yaml' );
 
 				$filled_in = '%YAML 1.1' . "\n" . Dump($merged);
 
@@ -220,7 +221,7 @@ sub action {
 		eval {
 			my $config = $self->{config}{sagan}{config};
 
-			$config->{include} = $config_base . '/sagan-rules.yaml';
+			$config->{include} = File::Spec->canonpath( $config_base . '/sagan-rules.yaml' );
 
 			$filled_in = '%YAML 1.1' . "\n" . Dump($config);
 
