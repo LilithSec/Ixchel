@@ -7,6 +7,7 @@ use File::Slurp;
 use YAML::XS qw(Dump Load);
 use Ixchel::functions::file_get;
 use utf8;
+use File::Temp qw/ tempfile tempdir /;
 
 =head1 NAME
 
@@ -35,6 +36,9 @@ The following keys are removed from the file.
     .rules-files
     .processors
     .outputs
+
+These are removed as they are array based, making it very awkward to deal with with having
+them previously defined.
 
 .sagan.base_config is used as the URL for the config to use and needs to be something
 understood by L<Ixchel::functions::file_get>. By default
@@ -121,23 +125,36 @@ sub action {
 
 	my $config_base = $self->{config}{sagan}{config_base};
 
-	my $fetched_raw_yaml;
-	my $yaml;
 	my $have_config = 0;
+	my ( $tmp_fh, $tmp_file ) = tempfile();
 	eval {
+		my $fetched_raw_yaml;
+		my $parsed_yaml;
 		$fetched_raw_yaml = file_get( url => $self->{config}{sagan}{base_config} );
 		if ( !defined($fetched_raw_yaml) ) {
 			die('file_get returned undef');
 		}
 		utf8::encode($fetched_raw_yaml);
-		$yaml = Load($fetched_raw_yaml);
-		if ( !defined($yaml) ) {
+		$parsed_yaml = Load($fetched_raw_yaml);
+		if ( !defined($parsed_yaml) ) {
 			die('Attempting to parse the returned data as YAML failed');
 		}
 
-		delete( $yaml->{'rules-files'} );
-		delete( $yaml->{'processors'} );
-		delete( $yaml->{'outputs'} );
+		write_file( $tmp_file, $fetched_raw_yaml );
+
+		# removes array based items that are problematic to deal with
+		system( 'yq', '-i', 'del(.rules-files)', $tmp_file );
+		if ( $? ne 0 ) {
+			die( 'Fetched YAML saved to "' . $tmp_file . '" and could not be parsed by yq to delete .rules-files' );
+		}
+		system( 'yq', '-i', 'del(.outputs)', $tmp_file );
+		if ( $? ne 0 ) {
+			die( 'Fetched YAML saved to "' . $tmp_file . '" and could not be parsed by yq to delete .outputs' );
+		}
+		system( 'yq', '-i', 'del(.processors)', $tmp_file );
+		if ( $? ne 0 ) {
+			die( 'Fetched YAML saved to "' . $tmp_file . '" and could not be parsed by yq to delete .processors' );
+		}
 
 		$have_config = 1;
 	};
@@ -157,11 +174,18 @@ sub action {
 				@instances = keys( %{ $self->{config}{sagan}{instances} } );
 			}
 			foreach my $instance (@instances) {
-				$yaml->{include} = $self->{config}{sagan}{config_base} . '/sagan-include-' . $instance . '.yaml';
+				system(
+					'yq',
+					'-i',
+					'.include="' . $self->{config}{sagan}{config_base} . '/sagan-include-' . $instance . '.yaml' . '"',
+					$tmp_file
+				);
+
 				my $config_file = $self->{config}{sagan}{config_base} . '/sagan-' . $instance . '.yaml';
 				my $raw_yaml;
 				eval {
-					$raw_yaml = '%YAML 1.1' . "\n" . Dump($yaml);
+
+					$raw_yaml = read_file($tmp_file);
 
 					if ( $self->{opts}{w} ) {
 						write_file( $config_file, $raw_yaml );
@@ -188,11 +212,14 @@ sub action {
 				} ## end if ($@)
 			} ## end foreach my $instance (@instances)
 		} else {
+			system( 'yq', '-i', '.include="' . $self->{config}{sagan}{config_base} . '/sagan-include.yaml' . '"',
+				$tmp_file );
+
 			my $config_file = $self->{config}{sagan}{config_base} . '/sagan.yaml';
-			$yaml->{include} = $self->{config}{sagan}{config_base} . '/sagan-include.yaml';
+
 			my $raw_yaml;
 			eval {
-				$raw_yaml = '%YAML 1.1' . "\n" . Dump($yaml);
+				$raw_yaml = read_file($tmp_file);
 
 				if ( $self->{opts}{w} ) {
 					write_file( $config_file, $raw_yaml );
@@ -216,6 +243,8 @@ sub action {
 	if ( !defined( $results->{errors}[0] ) ) {
 		$results->{ok} = 1;
 	}
+
+	unlink($tmp_file);
 
 	return $results;
 } ## end sub action
