@@ -8,6 +8,7 @@ use YAML::XS qw(Dump Load);
 use Ixchel::functions::file_get;
 use utf8;
 use File::Temp qw/ tempfile tempdir /;
+use File::Spec;
 
 =head1 NAME
 
@@ -42,7 +43,7 @@ them previously defined.
 
 .sagan.base_config is used as the URL for the config to use and needs to be something
 understood by L<Ixchel::functions::file_get>. By default
-'https://raw.githubusercontent.com/quadrantsec/sagan/main/etc/sagan.yaml' is used.
+https://raw.githubusercontent.com/quadrantsec/sagan/main/etc/sagan.yaml is used.
 
 .include is set to .sagan.config_base.'/sagan-include.yaml' in the case of single
 instance setups if .sagan.multi_instance is set to 1 then
@@ -174,12 +175,11 @@ sub action {
 				@instances = keys( %{ $self->{config}{sagan}{instances} } );
 			}
 			foreach my $instance (@instances) {
-				system(
-					'yq',
-					'-i',
-					'.include="' . $self->{config}{sagan}{config_base} . '/sagan-include-' . $instance . '.yaml' . '"',
-					$tmp_file
-				);
+		  # clean it up so there is less likely of a chance of some one deciding to do that by hand and borking the file
+				my $include_path = File::Spec->canonpath(
+					$self->{config}{sagan}{config_base} . '/sagan-include-' . $instance . '.yaml' );
+
+				system( 'yq', '-i', '.include="' . $include_path . '"', $tmp_file );
 
 				my $config_file = $self->{config}{sagan}{config_base} . '/sagan-' . $instance . '.yaml';
 				my $raw_yaml;
@@ -212,8 +212,10 @@ sub action {
 				} ## end if ($@)
 			} ## end foreach my $instance (@instances)
 		} else {
-			system( 'yq', '-i', '.include="' . $self->{config}{sagan}{config_base} . '/sagan-include.yaml' . '"',
-				$tmp_file );
+		  # clean it up so there is less likely of a chance of some one deciding to do that by hand and borking the file
+			my $include_path = File::Spec->canonpath( $self->{config}{sagan}{config_base} . '/sagan-include.yaml' );
+
+			system( 'yq', '-i', '.include="' . $include_path . '"', $tmp_file );
 
 			my $config_file = $self->{config}{sagan}{config_base} . '/sagan.yaml';
 
