@@ -45,7 +45,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config pass_through);
 use File::Slurp;
-use TOML     qw(from_toml);
+use TOML::Tiny     qw(from_toml);
 use JSON     qw(decode_json);
 use YAML::XS qw(Load);
 use Ixchel;
