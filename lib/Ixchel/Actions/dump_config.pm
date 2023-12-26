@@ -4,9 +4,9 @@ use 5.006;
 use strict;
 use warnings;
 use Ixchel::functions::sys_info;
-use TOML qw(to_toml);
-use JSON qw(to_json);
-use YAML::XS qw(Dump);
+use TOML::Tiny qw(to_toml);
+use JSON       qw(to_json);
+use YAML::XS   qw(Dump);
 use Data::Dumper;
 use JSON::Path;
 
@@ -50,13 +50,11 @@ Default: undef
 sub new {
 	my ( $empty, %opts ) = @_;
 
-
-
-	if (!defined($opts{config})) {
+	if ( !defined( $opts{config} ) ) {
 		die('$opts{config} is undef');
 	}
 
-	my $self = { config => $opts{config}, opts => {}, ixchel=>$opts{ixchel} };
+	my $self = { config => $opts{config}, opts => {}, ixchel => $opts{ixchel} };
 	bless $self;
 
 	if ( defined( $opts{opts} ) ) {
@@ -83,16 +81,16 @@ sub action {
 	}
 
 	my $config;
-	if (defined($self->{opts}{s})) {
-		my $jpath   = JSON::Path->new($self->{opts}{s});
-		$config=$jpath->get($self->{config});
-	}else {
-		$config=$self->{config};
+	if ( defined( $self->{opts}{s} ) ) {
+		my $jpath = JSON::Path->new( $self->{opts}{s} );
+		$config = $jpath->get( $self->{config} );
+	} else {
+		$config = $self->{config};
 	}
 
 	my $string;
 	if ( $self->{opts}->{o} eq 'toml' ) {
-		$string = to_toml( $config ) . "\n";
+		$string = to_toml($config) . "\n";
 		print $string;
 	} elsif ( $self->{opts}->{o} eq 'json' ) {
 		my $json = JSON->new;

@@ -45,9 +45,9 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config pass_through);
 use File::Slurp;
-use TOML::Tiny     qw(from_toml);
-use JSON     qw(decode_json);
-use YAML::XS qw(Load);
+use TOML::Tiny qw(from_toml);
+use JSON       qw(decode_json);
+use YAML::XS   qw(Load);
 use Ixchel;
 use utf8;
 use Pod::Usage;
@@ -107,14 +107,14 @@ For a list of actions use the action list_actions
 
 	print "Action specific help... \n\n";
 	pod2usage(
-			-input    => pod_where( { -inc => 1 }, 'Ixchel::Actions::' . $action, ),
-			-sections => [
-				'CLI SYNOPSIS', 'DESCRIPTION', 'DESCRIPTION/Introduction', 'FLAGS',
-				'VERSION',      'NAME',        'OPTIONS',                  'BUILD HASH'
-			],
-			-verbose => 99,
-			-output  => \*STDOUT
-		);
+		-input    => pod_where( { -inc => 1 }, 'Ixchel::Actions::' . $action, ),
+		-sections => [
+			'CLI SYNOPSIS', 'DESCRIPTION', 'DESCRIPTION/Introduction', 'FLAGS',
+			'VERSION',      'NAME',        'OPTIONS',                  'BUILD HASH'
+		],
+		-verbose => 99,
+		-output  => \*STDOUT
+	);
 
 	exit 0;
 } ## end if ($help)

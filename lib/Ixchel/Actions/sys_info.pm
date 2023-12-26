@@ -4,9 +4,9 @@ use 5.006;
 use strict;
 use warnings;
 use Ixchel::functions::sys_info;
-use TOML qw(to_toml);
-use JSON qw(to_json);
-use YAML::XS qw(Dump);
+use TOML::Tiny qw(to_toml);
+use JSON       qw(to_json);
+use YAML::XS   qw(Dump);
 use Data::Dumper;
 
 =head1 NAME
@@ -40,7 +40,7 @@ Default: toml
 sub new {
 	my ( $empty, %opts ) = @_;
 
-	my $self = { config => undef, opts => {}, ixchel=>$opts{ixchel} };
+	my $self = { config => undef, opts => {}, ixchel => $opts{ixchel} };
 	bless $self;
 
 	if ( defined( $opts{opts} ) ) {
