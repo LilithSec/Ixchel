@@ -1,11 +1,13 @@
 Revision history for Ixchel
 
 0.2.0   2023-12-14/
-		- Fix the Ixchel config not being available as config for xeno_build.
-		- add -r for the xeno action
-		- convert to Pod::Usage and no longer use the method help
-		- sagan_rules massive re-work... now updates the file from a specified base file
-		- Various cleanup to make exec status lines for xeno_build more readable.
+		 - Fix the Ixchel config not being available as config for xeno_build.
+		 - add -r for the xeno action
+		 - convert to Pod::Usage and no longer use the method help
+		 - sagan_rules massive re-work... now updates the file from a specified base file
+		 - Various cleanup to make exec status lines for xeno_build more readable.
+		 - Lots of changes/fixes for Suricata.
+		 - Now uses TOML::Tiny.
 
 0.1.1   2023-11-17/12:00
         - Makefile.PL update
@@ -15,4 +17,3 @@ Revision history for Ixchel
 
 0.0.1   2023-11-16/11:00
         - Initial release.
-
