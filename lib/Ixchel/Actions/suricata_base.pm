@@ -257,7 +257,13 @@ sub action {
 			}
 
 			$base_config_raw = read_file($tmp_file);
+			$self->status_add(
+							  status => "Config... \n".$base_config_raw
+							  );
 			if ($self->{opts}{w}) {
+				$self->status_add(
+								  status => 'Writing out to '.$config_base . '/suricata.yaml'
+								  );
 				write_file( $config_base . '/suricata.yaml', $base_config_raw );
 			}
 		};
