@@ -197,8 +197,10 @@ sub action {
 	# remove unwanted paths
 	#
 	#
-	my @to_remove
-		= ( '.logging.outputs', '.outputs', '.af-packet', '.pcap', '.include', '.rule-files', '.af-xdp', '.dpdk', );
+	my @to_remove = (
+		'.logging.outputs', '.outputs', '.af-packet', '.pcap', '.include', '.rule-files',
+		'.af-xdp',          '.dpdk',    '.sensor-name'
+	);
 	eval {
 		my ( $tnp_fh, $tmp_file ) = tempfile();
 		write_file( $tmp_file, $base_config_raw );
