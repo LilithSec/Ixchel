@@ -39,12 +39,15 @@ This will be fetched using proxies as defined under .proxy .
 
 The following keys are removed.
 
-   .logging
+   .logging.outputs
    .outputs
    .af-packet
    .pcap
    .include
    .rule-files
+   .af-xdp
+   .dpdk
+   .sensor-name
 
 =head1 FLAGS
 
