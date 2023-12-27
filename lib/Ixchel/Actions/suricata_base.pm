@@ -256,6 +256,8 @@ sub action {
 				$yq->create_array( var => '.include', vals => \@include_paths );
 			}
 
+			$self->status_add( status => 'Adding .include finished' );
+
 			$base_config_raw = read_file($tmp_file);
 			$self->status_add(
 							  status => "Config... \n".$base_config_raw
@@ -270,12 +272,6 @@ sub action {
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored adding in include paths or writing file out(if asked)... ' . $@ );
 			return $self->{results};
-		} else {
-			$new_status = 'Adding .include finished';
-			if ( $self->{opts}{pi} ) {
-				$new_status = $new_status . "...\n" . $base_config_raw;
-			}
-			$self->status_add( status => $new_status );
 		}
 	} ## end else [ if ( $self->{config}{suricata}{multi_instance...})]
 
