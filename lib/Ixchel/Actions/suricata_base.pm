@@ -197,7 +197,8 @@ sub action {
 	# remove unwanted paths
 	#
 	#
-	my @to_remove = ( '.logging.outputs', '.outputs', '.af-packet', '.pcap', '.include', '.rule-files' );
+	my @to_remove
+		= ( '.logging.outputs', '.outputs', '.af-packet', '.pcap', '.include', '.rule-files', '.af-xdp', '.dpdk', );
 	eval {
 		my ( $tnp_fh, $tmp_file ) = tempfile();
 		write_file( $tmp_file, $base_config_raw );
@@ -235,8 +236,35 @@ sub action {
 			@instances = keys( %{ $self->{config}{suricata}{instances} } );
 		}
 		foreach my $instance (@instances) {
+			eval {
+				my ( $tnp_fh, $tmp_file ) = tempfile();
+				write_file( $tmp_file, $base_config_raw );
 
-		}
+				my @include_paths = (
+					$config_base . '/include-' . $instance . '.yaml',
+					$config_base . '/outputs-' . $instance . '.yaml',
+				);
+
+				my $yq = YAML::yq::Helper->new( file => $tmp_file );
+				if ( $yq->is_array( var => '.include' ) ) {
+					$yq->set_array( var => '.include', vals => \@include_paths );
+				} else {
+					$yq->create_array( var => '.include', vals => \@include_paths );
+				}
+
+				$self->status_add( status => 'Adding .include finished' );
+
+				$base_config_raw = read_file($tmp_file);
+				$self->status_add( status => "Config... \n" . $base_config_raw );
+				if ( $self->{opts}{w} ) {
+					$self->status_add(
+						status => 'Writing out to ' . $config_base . '/suricata-' . $instance . '.yaml' );
+					write_file( $config_base . '/suricata-' . $instance . '.yaml', $base_config_raw );
+				}
+
+				unlink($tmp_file);
+			} ## end eval
+		} ## end foreach my $instance (@instances)
 	} elsif ( defined( $self->{opts}{i} ) && !$self->{config}{suricata}{multi_instance} ) {
 		$self->status_add(
 			error  => 1,
@@ -259,18 +287,19 @@ sub action {
 			$self->status_add( status => 'Adding .include finished' );
 
 			$base_config_raw = read_file($tmp_file);
-			$self->status_add(
-							  status => "Config... \n".$base_config_raw
-							  );
-			if ($self->{opts}{w}) {
-				$self->status_add(
-								  status => 'Writing out to '.$config_base . '/suricata.yaml'
-								  );
+			$self->status_add( status => "Config... \n" . $base_config_raw );
+			if ( $self->{opts}{w} ) {
+				$self->status_add( status => 'Writing out to ' . $config_base . '/suricata.yaml' );
 				write_file( $config_base . '/suricata.yaml', $base_config_raw );
 			}
+
+			unlink($tmp_file);
 		};
 		if ($@) {
-			$self->status_add( error => 1, status => 'Errored adding in include paths or writing file out(if asked)... ' . $@ );
+			$self->status_add(
+				error  => 1,
+				status => 'Errored adding in include paths or writing file out(if asked)... ' . $@
+			);
 			return $self->{results};
 		}
 	} ## end else [ if ( $self->{config}{suricata}{multi_instance...})]
