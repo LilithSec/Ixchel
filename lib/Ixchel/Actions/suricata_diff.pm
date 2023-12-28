@@ -153,8 +153,10 @@ sub process_config {
 
 	my $instance_status = '';
 	my $instance_part   = '';
+	my $instance_part2   = '';
 	if ( defined( $opts{instance} ) ) {
 		$instance_part   = '-' . $opts{instance};
+		$instance_part2   = $opts{instance}.'-';
 		$instance_status = 'instance="' . $opts{instance} . '"... ';
 	}
 
@@ -163,8 +165,8 @@ sub process_config {
 	my $old_config_outputs = $config_base . '/suricata' . $instance_part . '-outputs.yaml';
 
 	my $new_config_base    = $new_dir . '/suricata' . $instance_part . '.yaml';
-	my $new_config_include = $new_dir . '/suricata' . $instance_part . '-include.yaml';
-	my $new_config_outputs = $new_dir . '/suricata' . $instance_part . '-outputs.yaml';
+	my $new_config_include = $new_dir . '/'.$instance_part2 . '-include.yaml';
+	my $new_config_outputs = $new_dir . '/'.$instance_part2 . '-outputs.yaml';
 
 	if ( !-f $old_config_base ) {
 		$self->status_add( status => $instance_part . ' old config base,"' . $old_config_base . '", does exist' );
@@ -181,10 +183,10 @@ sub process_config {
 
 	my $yq = YAML::yq::Helper->new( file => $temp_dir . '/old.yaml' );
 	if ( -f $temp_dir . '/old-include.yaml' ) {
-		$yq->merge_yaml( yaml => $temp_dir . '/old-include.yaml' );
+		$yq->merge_yaml( yaml => $temp_dir . '/include.yaml' );
 	}
 	if ( -f $temp_dir . '/old-outputs.yaml' ) {
-		$yq->merge_yaml( yaml => $temp_dir . '/old-outputs.yaml' );
+		$yq->merge_yaml( yaml => $temp_dir . '/outputs.yaml' );
 	}
 	$yq->delete( var => '.outputs' );
 
