@@ -115,6 +115,10 @@ Write the generated services to service files.
 
 A instance to operate on.
 
+=head2 -d <base_dir>
+
+Use this as the base dir instead of .suricata.config_base from the config.
+
 =head1 RESULT HASH REF
 
     .errors :: A array of errors encountered.
@@ -176,7 +180,15 @@ sub action {
 		ok          => 0,
 	};
 
-	my $config_base = $self->{config}{suricata}{config_base};
+	my $config_base;
+	if (!defined($self->{opts}{d})) {
+		$config_base=$self->{config}{suricata}{config_base};
+	}else {
+		if (! -d $self->{opts}{d}) {
+			die('-d, "'.$self->{opts}{d}.'" is not a directory');
+		}
+		$config_base=$self->{opts}{d};
+	}
 
 	if ( $self->{config}{suricata}{multi_instance} ) {
 		my @instances;
@@ -296,6 +308,7 @@ sub opts_data {
 	return 'i=s
 np
 w
+d=s
 ';
 }
 
