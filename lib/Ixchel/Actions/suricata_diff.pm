@@ -153,10 +153,10 @@ sub process_config {
 
 	my $instance_status = '';
 	my $instance_part   = '';
-	my $instance_part2   = '';
+	my $instance_part2  = '';
 	if ( defined( $opts{instance} ) ) {
 		$instance_part   = '-' . $opts{instance};
-		$instance_part2   = $opts{instance}.'-';
+		$instance_part2  = $opts{instance} . '-';
 		$instance_status = 'instance="' . $opts{instance} . '"... ';
 	}
 
@@ -165,8 +165,8 @@ sub process_config {
 	my $old_config_outputs = $config_base . '/suricata' . $instance_part . '-outputs.yaml';
 
 	my $new_config_base    = $new_dir . '/suricata' . $instance_part . '.yaml';
-	my $new_config_include = $new_dir . '/'.$instance_part2 . 'include.yaml';
-	my $new_config_outputs = $new_dir . '/'.$instance_part2 . 'outputs.yaml';
+	my $new_config_include = $new_dir . '/' . $instance_part2 . 'include.yaml';
+	my $new_config_outputs = $new_dir . '/' . $instance_part2 . 'outputs.yaml';
 
 	if ( !-f $old_config_base ) {
 		$self->status_add( status => $instance_part . ' old config base,"' . $old_config_base . '", does exist' );
@@ -189,6 +189,7 @@ sub process_config {
 		$yq->merge_yaml( yaml => $temp_dir . '/outputs.yaml' );
 	}
 	$yq->delete( var => '.outputs' );
+	$yq->delete( var => '.include' );
 
 	my $results = $self->{ixchel}
 		->action( action => 'suricata_base', opts => { np => 1, w => 1, i => $opts{instance}, d => $new_dir } );
@@ -201,12 +202,13 @@ sub process_config {
 	$new_yq->merge_yaml( yaml => $new_config_include );
 	$new_yq->merge_yaml( yaml => $new_config_outputs );
 	$new_yq->delete( var => '.outputs' );
+	$new_yq->delete( var => '.include' );
 
-	move($new_config_base, $temp_dir.'/new.yaml');
+	move( $new_config_base, $temp_dir . '/new.yaml' );
 
-	my $diff=$yq->yaml_diff(yaml=>$temp_dir.'/new.yaml');
+	my $diff = $yq->yaml_diff( yaml => $temp_dir . '/new.yaml' );
 
-	$self->status_add( status => $instance_part . ' diff... '.$diff );
+	$self->status_add( status => $instance_part . ' diff... ' . $diff );
 
 	return;
 } ## end sub process_config
