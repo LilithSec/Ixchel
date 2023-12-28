@@ -7,6 +7,7 @@ use File::Slurp;
 use YAML::XS   qw(Dump);
 use File::Temp qw/ tempfile tempdir /;
 use File::Copy;
+use YAML::yq::Helper;
 
 =head1 NAME
 
