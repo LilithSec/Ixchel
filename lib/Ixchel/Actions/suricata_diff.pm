@@ -191,7 +191,7 @@ sub process_config {
 	$results = $self->{ixchel}
 		->action( action => 'suricata_outputs', opts => { np => 1, w => 1, i => $opts{instance}, d => $new_dir } );
 
-	print `cd $new_dir; ls -l new_dir`;
+	print `cd $new_dir; ls -l $new_dir`;
 
 	return;
 } ## end sub process_config
