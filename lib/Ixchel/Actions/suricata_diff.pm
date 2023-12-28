@@ -183,10 +183,10 @@ sub process_config {
 
 	my $yq = YAML::yq::Helper->new( file => $temp_dir . '/old.yaml' );
 	if ( -f $temp_dir . '/old-include.yaml' ) {
-		$yq->merge_yaml( yaml => $temp_dir . '/include.yaml' );
+		$yq->merge_yaml( yaml => $temp_dir . '/old-include.yaml' );
 	}
 	if ( -f $temp_dir . '/old-outputs.yaml' ) {
-		$yq->merge_yaml( yaml => $temp_dir . '/outputs.yaml' );
+		$yq->merge_yaml( yaml => $temp_dir . '/old-outputs.yaml' );
 	}
 	$yq->delete( var => '.outputs' );
 	$yq->delete( var => '.include' );
