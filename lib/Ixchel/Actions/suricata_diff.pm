@@ -157,9 +157,9 @@ sub process_config {
 		$instance_status = 'instance="' . $opts{instance} . '"... ';
 	}
 
-	my $old_config_base    = $config_base . $instance_part . '.yaml';
-	my $old_config_include = $config_base . $instance_part . '-include.yaml';
-	my $old_config_outputs = $config_base . $instance_part . '-outputs.yaml';
+	my $old_config_base    = $config_base . '/suricata' . $instance_part . '.yaml';
+	my $old_config_include = $config_base . '/suricata' . $instance_part . '-include.yaml';
+	my $old_config_outputs = $config_base . '/suricata' . $instance_part . '-outputs.yaml';
 
 	if ( !-f $old_config_base ) {
 		$self->status_add( status => $instance_part . ' old config base,"' . $old_config_base . '", does exist' );
