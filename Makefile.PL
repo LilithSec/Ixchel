@@ -40,7 +40,7 @@ my %WriteMakefileArgs = (
 		'TOML::Tiny'           => 0,
 		'Template'             => '3.101',
 		'YAML::XS'             => 0,
-		'YAML::yq::Helper'     => '0.1.2',
+		'YAML::yq::Helper'     => '0.2.0',
 	},
 	dist       => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean      => { FILES    => 'Ixchel-*' },
