@@ -161,8 +161,8 @@ sub process_config {
 	}
 
 	my $old_config_base    = $config_base . '/suricata' . $instance_part . '.yaml';
-	my $old_config_include = $config_base . '/' . $instance_part2 . '-include.yaml';
-	my $old_config_outputs = $config_base . '/' . $instance_part2 . '-outputs.yaml';
+	my $old_config_include = $config_base . '/' . $instance_part2 . 'include.yaml';
+	my $old_config_outputs = $config_base . '/' . $instance_part2 . 'outputs.yaml';
 
 	my $new_config_base    = $new_dir . '/suricata' . $instance_part . '.yaml';
 	my $new_config_include = $new_dir . '/' . $instance_part2 . 'include.yaml';
