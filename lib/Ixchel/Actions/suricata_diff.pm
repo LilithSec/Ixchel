@@ -118,6 +118,7 @@ sub action {
 			die('-i may not be used in single instance mode, .suricata.multi_instance=1, ,');
 		}
 
+		$self->process_config;
 	}
 
 	if ( !defined( $self->{results}{errors}[0] ) ) {
