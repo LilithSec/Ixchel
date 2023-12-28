@@ -165,8 +165,8 @@ sub process_config {
 	my $old_config_outputs = $config_base . '/suricata' . $instance_part . '-outputs.yaml';
 
 	my $new_config_base    = $new_dir . '/suricata' . $instance_part . '.yaml';
-	my $new_config_include = $new_dir . '/'.$instance_part2 . '-include.yaml';
-	my $new_config_outputs = $new_dir . '/'.$instance_part2 . '-outputs.yaml';
+	my $new_config_include = $new_dir . '/'.$instance_part2 . 'include.yaml';
+	my $new_config_outputs = $new_dir . '/'.$instance_part2 . 'outputs.yaml';
 
 	if ( !-f $old_config_base ) {
 		$self->status_add( status => $instance_part . ' old config base,"' . $old_config_base . '", does exist' );
