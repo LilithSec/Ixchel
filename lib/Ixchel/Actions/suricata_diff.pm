@@ -1,4 +1,4 @@
-package Ixchel::Actions::suricata_include;
+package Ixchel::Actions::suricata_diff;
 
 use 5.006;
 use strict;
