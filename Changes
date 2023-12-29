@@ -8,6 +8,7 @@ Revision history for Ixchel
 		 - Various cleanup to make exec status lines for xeno_build more readable.
 		 - Lots of changes/fixes for Suricata.
 		 - Now uses TOML::Tiny.
+		 - Add suricata_diff for displaying differences between the Ixchel config and current suricata config.
 
 0.1.1   2023-11-17/12:00
         - Makefile.PL update

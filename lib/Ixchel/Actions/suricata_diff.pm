@@ -3,15 +3,13 @@ package Ixchel::Actions::suricata_diff;
 use 5.006;
 use strict;
 use warnings;
-use File::Slurp;
-use YAML::XS   qw(Dump);
 use File::Temp qw/ tempfile tempdir /;
 use File::Copy;
 use YAML::yq::Helper;
 
 =head1 NAME
 
-Ixchel::Actions::suricata_diff :: Prints differences between current Suricata config and what is in the Ixchel config.
+Ixchel::Actions::suricata_diff :: Finds the differences between the Ixchel config and current Suricata config.
 
 =head1 VERSION
 
@@ -130,7 +128,7 @@ sub action {
 } ## end sub action
 
 sub short {
-	return 'Generates the instance specific include for a suricata instance.';
+	return 'Finds the differences between the Ixchel config and current Suricata config.';
 }
 
 sub opts_data {
@@ -208,7 +206,7 @@ sub process_config {
 
 	my $diff = $yq->yaml_diff( yaml => $temp_dir . '/new.yaml' );
 
-	$self->status_add( status => $instance_part . ' diff... ' . $diff );
+	$self->status_add( status => $instance_part . " diff... \n" . $diff );
 
 	return;
 } ## end sub process_config
