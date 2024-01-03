@@ -134,13 +134,13 @@ sub action {
 	};
 
 	my $config_base;
-	if (!defined($self->{opts}{d})) {
-		$config_base=$self->{config}{suricata}{config_base};
-	}else {
-		if (! -d $self->{opts}{d}) {
-			die('-d, "'.$self->{opts}{d}.'" is not a directory');
+	if ( !defined( $self->{opts}{d} ) ) {
+		$config_base = $self->{config}{suricata}{config_base};
+	} else {
+		if ( !-d $self->{opts}{d} ) {
+			die( '-d, "' . $self->{opts}{d} . '" is not a directory' );
 		}
-		$config_base=$self->{opts}{d};
+		$config_base = $self->{opts}{d};
 	}
 
 	my $base_config_url = $self->{config}{suricata}{base_config};
@@ -213,8 +213,9 @@ sub action {
 	#
 	#
 	my @to_remove = (
-		'.logging.outputs', '.outputs', '.af-packet', '.pcap', '.include', '.rule-files',
-		'.af-xdp',          '.dpdk',    '.sensor-name'
+		'.logging.outputs', '.outputs',    '.af-packet', '.pcap',
+		'.include',         '.rule-files', '.af-xdp',    '.napatech',
+		'.dpdk',            '.sensor-name'
 	);
 	eval {
 		my ( $tnp_fh, $tmp_file ) = tempfile();
@@ -341,7 +342,7 @@ pr
 pi
 d=s
 ';
-}
+} ## end sub opts_data
 
 sub status_add {
 	my ( $self, %opts ) = @_;
@@ -363,7 +364,7 @@ sub status_add {
 
 	my $status = '[' . $timestamp . '] [' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
 
-	if (!$self->{opts}{np}) {
+	if ( !$self->{opts}{np} ) {
 		print $status. "\n";
 	}
 
