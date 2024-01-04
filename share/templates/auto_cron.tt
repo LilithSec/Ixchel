@@ -39,8 +39,8 @@
 [% IF config.snmp.extends.hv_monitor.enable %]
 */5 * * * * root /usr/bin/env [% config.snmp.extend_env %] hv_monitor -c > /var/cache/hv_monitor.json -c 2> /dev/null
 [% END %]
-[% IF config.suricata.enable && config.suricata_extract.enable && config.snmp.extends.suricata_extract.enable %]
-[% config.suricata_extract.interval %] root /usr/bin/env [% config.snmp.extend_env %]
+[% IF config.suricata.enable && config.suricata_extract.enable %]
+[% config.suricata_extract.interval %] root /usr/bin/env [% config.snmp.extend_env %] suricata_extract_submit 2> /dev/null > /dev/null
 [% END %]
 [% IF config.snmp.extends.smart.enable %]
 */5 * * * * root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/smart -c [% config.snmp.extends.smart.config %] -u 2> /dev/null > /dev/null
