@@ -83,7 +83,10 @@ master          agentx
 dlmod cmaX /usr/lib/libcmaX64.so
 [% END %]
 
+[% IF config.snmp.extends.ifAlias.enable %]
+pass .1.3.6.1.2.1.31.1.1.1.18 [% config.snmp.extend_base_dir %]/ifAlias
 
+[% END %]
 [% IF config.nptd.enable && config.snmp.extends.ntp_client.enable %]
 extend ntp-client /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/ntp_client
 
@@ -142,10 +145,6 @@ extend zfs /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_
 [% END %]
 [% IF config.squid.enable && config.snmp.extends.squid.enable %]
 proxy -v 2c -c public 127.0.0.1:3401 1.3.6.1.4.1.3495
-
-[% END %]
-[% IF config.snmp.extends.ifAlias.enable %]
-pass .1.3.6.1.2.1.31.1.1.1.18 [% config.snmp.extend_base_dir %]/ifAlias
 
 [% END %]
 [% IF config.snmp.extends.sagan.enable %]
