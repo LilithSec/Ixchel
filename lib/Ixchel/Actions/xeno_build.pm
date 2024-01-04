@@ -773,7 +773,8 @@ sub action {
 					type   => $type,
 					status => 'Trying to install Perl ' . $module . ' via pkg',
 				);
-				my $returned = perl_module_via_pkg( module => $module );
+				my $returned;
+				eval { perl_module_via_pkg( module => $module ); };
 				# if this fails, set error and return as the module is required to be installed via pkg and we can't
 				if ($returned) {
 					$self->status_add(
@@ -797,7 +798,8 @@ sub action {
 					type   => $type,
 					status => 'Trying to install Perl ' . $module . ' via pkg',
 				);
-				my $returned = perl_module_via_pkg( module => $module );
+				my $returned;
+				eval { $returned = perl_module_via_pkg( module => $module ); };
 				if ($returned) {
 					$self->status_add(
 						type   => $type,

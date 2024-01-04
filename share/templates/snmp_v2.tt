@@ -64,7 +64,7 @@ access client   ""      usm       auth      exact  client  none   none
 syslocation '[% config.snmp.syslocation %]'
 syscontact '[% config.snmp.syslocation %]'
 
-extend distro [% config.snmp.extend_base_dir %]/distro
+extend distro /usr/bin/distro
 
 extend manufacturer /bin/echo [% shell_quote( sys_info.Host.manufacturer ) %]
 
@@ -78,7 +78,7 @@ extend osupdate /bin/cat /var/cache/osupdate.extend
 [% END %]
 
 [% IF file_exists( '/usr/lib/libcmaX64.so' ) %]
-# HP RAID monitoring
+# HP RAID monitoring for linux
 master          agentx
 dlmod cmaX /usr/lib/libcmaX64.so
 [% END %]
@@ -88,7 +88,7 @@ pass .1.3.6.1.2.1.31.1.1.1.18 [% config.snmp.extend_base_dir %]/ifAlias
 
 [% END %]
 [% IF config.nptd.enable && config.snmp.extends.ntp_client.enable %]
-extend ntp-client /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/ntp_client
+extend ntp-client /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/ntp-client
 
 [% END %]
 [% IF config.snmp.extends.linux_softnet_stat.enable && is_linux %]
