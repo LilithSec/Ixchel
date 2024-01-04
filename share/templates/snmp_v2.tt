@@ -163,6 +163,9 @@ extend sagan-stats /usr/bin/env [% config.snmp.extend_env %] sagan_stat_check -c
 [% IF config.snmp.extends.suricata.enable %]
 extend suricata-stats /usr/bin/env [% config.snmp.extend_env %] suricata_stat_check -c [% config.snmp.extends.suricata.args %] -b > /dev/null 2> /dev/null
 
+[% IF config.snmp.extends.suricata_extract.enable %]
+extend suricata-extract [% config.snmp.extend_env %] suricata_extract_submit_extend
+[% END %]
 [% END %]
 
 
