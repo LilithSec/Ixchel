@@ -28,10 +28,17 @@ our $VERSION = '0.1.0';
 
 =head1 DESCRIPTION
 
-This calls runs the following actions.
+This calls runs the following actions if
+.sagan.merged_base_include is false.
 
     sagan_base
     sagan_include
+    sagan_rules
+
+This calls runs the following actions if
+.sagan.merged_base_include is true.
+
+    sagan_merged
     sagan_rules
 
 =head1 FLAGS
@@ -52,9 +59,22 @@ A instance to operate on.
 
 Do not rebuild the base files.
 
+Only relevant is the config item .sagan.merged_base_include
+is false.
+
 =head2 --no_include
 
 Do not rebuild the include files.
+
+Only relevant is the config item .sagan.merged_base_include
+is false.
+
+=head2 --no_merged
+
+Do not rebuild the the merged base/include files.
+
+Only relevant is the config item .sagan.merged_base_include
+is true.
 
 =head2 --no_rules
 
@@ -119,53 +139,67 @@ sub action {
 		errors      => [],
 		status_text => '',
 		ok          => 0,
-				   };
+	};
 
-	my %opts=%{ $self->{opts} };
-	$opts{np}=1;
+	my %opts = %{ $self->{opts} };
+	$opts{np} = 1;
 
-    if (!$self->{opts}{no_base}) {
-		my $status= '-----[ sagan_base ]-------------------------------------' . "\n";
-		my $returned=$self->{ixchel}->action(action=>'sagan_base', opts=>\%opts);
-		if (defined($returned->{errors}[0])) {
-			$status=$status.join("\n", @{ $returned->{errors} })."\n";
-		}else {
-			$status=$status."Completed with out errors.\n";
+	if ( $self->{config}{sagan}{merged_base_include} ) {
+		if ( !$self->{opts}{no_merged} ) {
+			my $status   = '-----[ sagan_merged ]-------------------------------------' . "\n";
+			my $returned = $self->{ixchel}->action( action => 'sagan_merged', opts => \%opts );
+			if ( defined( $returned->{errors}[0] ) ) {
+				$status = $status . join( "\n", @{ $returned->{errors} } ) . "\n";
+			} else {
+				$status = $status . "Completed with out errors.\n";
+			}
+			$results->{status_text} = $results->{status_text} . $status;
+			push( @{ $results->{errors} }, @{ $returned->{errors} } );
+		} ## end if ( !$self->{opts}{no_merged} )
+	} else {
+		if ( !$self->{opts}{no_base} ) {
+			my $status   = '-----[ sagan_base ]-------------------------------------' . "\n";
+			my $returned = $self->{ixchel}->action( action => 'sagan_base', opts => \%opts );
+			if ( defined( $returned->{errors}[0] ) ) {
+				$status = $status . join( "\n", @{ $returned->{errors} } ) . "\n";
+			} else {
+				$status = $status . "Completed with out errors.\n";
+			}
+			$results->{status_text} = $results->{status_text} . $status;
+			push( @{ $results->{errors} }, @{ $returned->{errors} } );
+		} ## end if ( !$self->{opts}{no_base} )
+
+		if ( !$self->{opts}{no_include} ) {
+			my $status   = '-----[ sagan_include ]-------------------------------------' . "\n";
+			my $returned = $self->{ixchel}->action( action => 'sagan_include', opts => \%opts );
+			if ( defined( $returned->{errors}[0] ) ) {
+				$status = $status . join( "\n", @{ $returned->{errors} } ) . "\n";
+			} else {
+				$status = $status . "Completed with out errors.\n";
+			}
+			$results->{status_text} = $results->{status_text} . $status;
+			push( @{ $results->{errors} }, @{ $returned->{errors} } );
+		} ## end if ( !$self->{opts}{no_include} )
+	} ## end else [ if ( $self->{config}{sagan}{merged_base_include...})]
+
+	if ( !$self->{opts}{no_rules} ) {
+		my $status   = '-----[ sagan_rules ]-------------------------------------' . "\n";
+		my $returned = $self->{ixchel}->action( action => 'sagan_rules', opts => \%opts );
+		if ( defined( $returned->{errors}[0] ) ) {
+			$status = $status . join( "\n", @{ $returned->{errors} } ) . "\n";
+		} else {
+			$status = $status . "Completed with out errors.\n";
 		}
-		$results->{status_text}=$results->{status_text}.$status;
-		push(@{ $results->{errors} }, @{ $returned->{errors} });
-	}
-
-	if (!$self->{opts}{no_include}) {
-		my $status= '-----[ sagan_include ]-------------------------------------' . "\n";
-		my $returned=$self->{ixchel}->action(action=>'sagan_include', opts=>\%opts);
-		if (defined($returned->{errors}[0])) {
-			$status=$status.join("\n", @{ $returned->{errors} })."\n";
-		}else {
-			$status=$status."Completed with out errors.\n";
-		}
-		$results->{status_text}=$results->{status_text}.$status;
-		push(@{ $results->{errors} }, @{ $returned->{errors} });
-	}
-
-	if (!$self->{opts}{no_rules}) {
-		my $status= '-----[ sagan_rules ]-------------------------------------' . "\n";
-		my $returned=$self->{ixchel}->action(action=>'sagan_rules', opts=>\%opts);
-		if (defined($returned->{errors}[0])) {
-			$status=$status.join("\n", @{ $returned->{errors} })."\n";
-		}else {
-			$status=$status."Completed with out errors.\n";
-		}
-		$results->{status_text}=$results->{status_text}.$status;
-		push(@{ $results->{errors} }, @{ $returned->{errors} });
-	}
+		$results->{status_text} = $results->{status_text} . $status;
+		push( @{ $results->{errors} }, @{ $returned->{errors} } );
+	} ## end if ( !$self->{opts}{no_rules} )
 
 	if ( !$self->{opts}{np} ) {
 		print $results->{status_text};
 	}
 
-	if (!defined($results->{errors}[0])) {
-		$results->{ok}=1;
+	if ( !defined( $results->{errors}[0] ) ) {
+		$results->{ok} = 1;
 	}
 
 	return $results;
@@ -182,7 +216,8 @@ w
 no_base
 no_include
 no_rules
+no_merged
 ';
-}
+} ## end sub opts_data
 
 1;

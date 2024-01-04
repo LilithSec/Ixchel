@@ -84,15 +84,16 @@ sub get {
 			interval    => '*/2 * * * *',
 		},
 		sagan => {
-			multi_instance  => 0,
-			config_base     => '/usr/local/etc/',
-			instances       => {},
-			config          => {},
-			rules           => [],
-			instances_rules => {},
-			enable          => 0,
-			base_config     => 'https://raw.githubusercontent.com/quadrantsec/sagan/main/etc/sagan.yaml',
-			rules           => 'https://raw.githubusercontent.com/quadrantsec/sagan-rules/main/rules.yaml'
+			multi_instance      => 0,
+			merged_base_include => 1,
+			config_base         => '/usr/local/etc/',
+			instances           => {},
+			config              => {},
+			rules               => [],
+			instances_rules     => {},
+			enable              => 0,
+			base_config         => 'https://raw.githubusercontent.com/quadrantsec/sagan/main/etc/sagan.yaml',
+			rules               => 'https://raw.githubusercontent.com/quadrantsec/sagan-rules/main/rules.yaml'
 		},
 		meer => {
 			multi_instance => 0,
