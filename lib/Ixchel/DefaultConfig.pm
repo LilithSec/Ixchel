@@ -261,7 +261,7 @@ sub get {
 				ntp_client         => { enable => 0, },
 				logsize            => {
 					enable          => 0,
-					remote          => 1,
+					remote          => 0,
 					remote_sub_dirs => 0,
 					remote_exclude  => [ 'achive', ],
 					suricata_flows  => 1,

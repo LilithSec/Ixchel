@@ -17,6 +17,7 @@ Revision history for Ixchel
 		 - sagan_conf_update now uses .sagan.merged_base_include for if sagan_merged v. sagan_base and sagan_include should be used
 		 - add extend_logsize_config
 		 - apt_proxy write_file fix
+		 - .config.snmp.extends.logsize.remote is now 0 by default
 
 0.1.1   2023-11-17/12:00
         - Makefile.PL update

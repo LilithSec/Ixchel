@@ -1,4 +1,4 @@
-package Ixchel::Actions::apt_proxy;
+package Ixchel::Actions::extend_logsize_config;
 
 use 5.006;
 use strict;
