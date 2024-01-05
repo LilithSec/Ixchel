@@ -122,6 +122,7 @@ sub action {
 		my @disabled;
 		my @errored;
 		my @installed;
+		push(@extends, 'distro');
 		foreach my $item (@extends) {
 			if ( $self->{config}{snmp}{extends}{$item}{enable} ) {
 				my $results;
