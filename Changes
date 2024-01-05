@@ -11,13 +11,14 @@ Revision history for Ixchel
 		 - Add suricata_diff for displaying differences between the Ixchel config and current suricata config.
 		 - dump_config now uses yaml by default
 		 - add sagan_merged action for generating sagan configs that have the base and include merged
-		 - add auto_cron action
-		 - add snmp_extends action
+		 - add auto_cron action for calling the auto_cron template and optionally writing it out
+		 - add snmp_extends action for automatically installing the snmp extends via xeno remote
 		 - sagan_conf_update now uses .sagan.merged_base_include for if sagan_merged v. sagan_base and sagan_include should be used
 		 - add extend_logsize_config
 		 - apt_proxy write_file fix
 		 - .config.snmp.extends.logsize.remote is now 0 by default
-		 - add suricata_extract_submit_config action
+		 - add suricata_extract_submit_config action for generating the suricata_extract_submit config
+		 - add extend_smart_config for generating the config file for the smart extend
 
 0.1.1   2023-11-17/12:00
         - Makefile.PL update
