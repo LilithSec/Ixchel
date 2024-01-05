@@ -217,7 +217,8 @@ sub get {
 			krb5_ccname                   => '',
 			dref                          => '',
 		},
-		snmp => {
+		sneck => { enable => 0, },
+		snmp  => {
 			community         => 'public',
 			extend_env        => 'PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin LC_ALL=C',
 			syslocation       => '',
