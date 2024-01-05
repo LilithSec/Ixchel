@@ -94,12 +94,12 @@ sub new {
 sub action {
 	my $self = $_[0];
 
-	return $self->{results};
-
 	if ( !$self->{opts}{l} || !$self->{opts}{u} ) {
 		$self->status_add( error => 1, status => 'Neither -l or -u specified' );
+		return $self->{results};
 	} elsif ( $self->{opts}{l} && $self->{opts}{u} ) {
 		$self->status_add( error => 1, status => 'Both -l and -u specified' );
+		return $self->{results};
 	}
 
 	if ( $self->{opts}{l} ) {
