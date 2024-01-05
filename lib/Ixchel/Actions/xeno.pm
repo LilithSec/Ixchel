@@ -24,7 +24,7 @@ our $VERSION = '0.1.0';
 
     use Data::Dumper;
 
-    my $results=$ixchel->action(action=>'suricata_outputs', opts=>{np=>1, w=>1, });
+    my $results=$ixchel->action(action=>'xeno', opts=>{r=>'librenms/extends/smart' });
 
     print Dumper($results);
 
