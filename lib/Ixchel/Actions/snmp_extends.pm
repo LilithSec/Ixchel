@@ -119,6 +119,9 @@ sub action {
 
 	if ( $self->{opts}{u} ) {
 		my @extends = keys( %{ $self->{config}{snmp}{extends} } );
+		my @disabled;
+		my @errored;
+		my @installed;
 		foreach my $item (@extends) {
 			if ( $self->{config}{snmp}{extends}{$item}{enable} ) {
 				my $results;
@@ -137,9 +140,17 @@ sub action {
 									  status => 'Errored installing/updating librenms/extends/'
 									  . $item
 									  );
+					push( @errored, $item );
+				}else {
+					push( @installed, $item );
 				}
+			}else {
+				push( @disabled, $item );
 			} ## end if ( $self->{config}{snmp}{extends}{$item}...)
 		} ## end foreach my $item (@extends)
+		$self->status_add(status=>'Currently Disabled: '.join(',', @disabled));
+		$self->status_add(status=>'Installed/Updated: '.join(',', @installed));
+		$self->status_add(status=>'Errored: '.join(',', @installed));
 	} ## end if ( $self->{opts}{u} )
 
 } ## end sub action
