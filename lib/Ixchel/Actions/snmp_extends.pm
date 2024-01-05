@@ -104,23 +104,43 @@ sub action {
 
 	if ( $self->{opts}{l} ) {
 		my @extends = keys( %{ $self->{config}{snmp}{extends} } );
-		foreach my $item (@extends) {
-			my $results;
-			my $error = 0;
-			eval {
-				$results
-					= $self->{ixchel}->action( action => 'xeno', opts => { r => 'librenms/extends/' . $item } );
-			};
-			if ( $@ && defined( $results->{errors}[0] ) ) {
-				$error = 1;
+		my @enabled;
+		my @disabled;
+		foreach my $item (@enabled) {
+			if ( $self->{config}{snmp}{extends}{$item}{enable} ) {
+				push( @enabled, $item );
+			} else {
+				push( @disabled, $item );
 			}
-			$self->status_add(
-				np     => 1,
-				error  => $error,
-				status => 'Results for calling xeno for librenms/extends/' . $item . ' ...' . $results->{status_text}
-			);
+		}
+		$self->status_add('Currently Enabled: '.join(',', @enabled));
+		$self->status_add('Currently Disabled: '.join(',', @disabled));
+	} ## end if ( $self->{opts}{u} )
+
+	if ( $self->{opts}{u} ) {
+		my @extends = keys( %{ $self->{config}{snmp}{extends} } );
+		foreach my $item (@extends) {
+			if ( $self->{config}{snmp}{extends}{$item}{enable} ) {
+				my $results;
+				my $error = 0;
+				eval {
+					$results
+						= $self->{ixchel}->action( action => 'xeno', opts => { r => 'librenms/extends/' . $item } );
+				};
+				if ( $@ && defined( $results->{errors}[0] ) ) {
+					$error = 1;
+				}
+				$self->status_add(
+					np     => 1,
+					error  => $error,
+					status => 'Results for calling xeno for librenms/extends/'
+						. $item . ' ...'
+						. $results->{status_text}
+
+				);
+			} ## end if ( $self->{config}{snmp}{extends}{$item}...)
 		} ## end foreach my $item (@extends)
-	} ## end if ( $self->{opts}{l} )
+	} ## end if ( $self->{opts}{u} )
 
 } ## end sub action
 
