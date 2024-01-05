@@ -92,6 +92,7 @@ t/041-load-Ixchel__Action__suricata_diff.t
 t/042-load-Ixchel__Action__sagan_merged.t
 t/043-load-Ixchel__Action__auto_cron.t
 t/044-load-Ixchel__Action__snmp_extends.t
+lib/Ixchel/Actions/extend_logsize_config.pm
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
