@@ -265,7 +265,7 @@ sub get {
 					remote_sub_dirs => 0,
 					remote_exclude  => [ 'achive', ],
 					suricata_flows  => 1,
-					suricata_base   => 0,
+					suricata_base   => 1,
 					sagan_base      => 0,
 					apache2         => 1,
 					var_log         => 1,
