@@ -36,7 +36,7 @@ Format to print it in.
 
 Available: json, yaml, toml, dumper
 
-Default: toml
+Default: yaml
 
 =head2 -s <section>
 
@@ -68,7 +68,7 @@ sub action {
 	my $self = $_[0];
 
 	if ( !defined( $self->{opts}->{o} ) ) {
-		$self->{opts}->{o} = 'toml';
+		$self->{opts}->{o} = 'yaml';
 	}
 
 	if (   $self->{opts}->{o} ne 'toml'
