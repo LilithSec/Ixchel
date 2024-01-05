@@ -94,7 +94,7 @@ sub new {
 sub action {
 	my $self = $_[0];
 
-	if ( !$self->{opts}{l} || !$self->{opts}{u} ) {
+	if ( !$self->{opts}{l} && !$self->{opts}{u} ) {
 		$self->status_add( error => 1, status => 'Neither -l or -u specified' );
 		return $self->{results};
 	} elsif ( $self->{opts}{l} && $self->{opts}{u} ) {
