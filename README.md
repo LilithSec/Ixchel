@@ -169,7 +169,6 @@ p5-Template-Toolkit p5-YAML-LibYAML p5-App-cpanminus`
   - Lilith
 	- install client
 	- db server setup
-  - Suricata::Extract
   - CAPEv2
   - snmp setup
 - better documentation for Suricata outputs

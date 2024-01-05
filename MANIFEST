@@ -43,6 +43,8 @@ lib/Ixchel/Actions/suricata_diff.pm
 lib/Ixchel/Actions/sagan_merged.pm
 lib/Ixchel/Actions/auto_cron.pm
 lib/Ixchel/Actions/snmp_extends.pm
+lib/Ixchel/Actions/extend_logsize_config.pm
+lib/Ixchel/Actions/suricata_extract_submit_config.pm
 lib/Ixchel/DefaultConfig.pm
 Makefile.PL
 MANIFEST			This list of files
@@ -92,6 +94,8 @@ t/041-load-Ixchel__Action__suricata_diff.t
 t/042-load-Ixchel__Action__sagan_merged.t
 t/043-load-Ixchel__Action__auto_cron.t
 t/044-load-Ixchel__Action__snmp_extends.t
+t/045-load-Ixchel__Action__extend_logsize_config.t
+t/046-load-Ixchel__Action__suricata_extract_submit_config.t
 lib/Ixchel/Actions/extend_logsize_config.pm
 t/manifest.t
 t/pod-coverage.t
