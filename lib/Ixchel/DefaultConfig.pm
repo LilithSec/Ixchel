@@ -78,7 +78,7 @@ sub get {
 			filestore   => '',
 			ignore      => '',
 			ignoreHosts => '',
-			env_proxy   => 1,
+			env_proxy   => 0,
 			stats_file  => '/var/cache/suricata_extract_submit_stats.json',
 			stats_dir   => '/var/cache/suricata_extract_submit_stats/',
 			interval    => '*/2 * * * *',
