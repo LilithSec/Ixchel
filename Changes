@@ -15,6 +15,8 @@ Revision history for Ixchel
 		 - add auto_cron action
 		 - add snmp_extends action
 		 - sagan_conf_update now uses .sagan.merged_base_include for if sagan_merged v. sagan_base and sagan_include should be used
+		 - add extend_logsize_config
+		 - apt_proxy write_file fix
 
 0.1.1   2023-11-17/12:00
         - Makefile.PL update
