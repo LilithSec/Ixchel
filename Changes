@@ -9,6 +9,12 @@ Revision history for Ixchel
 		 - Lots of changes/fixes for Suricata.
 		 - Now uses TOML::Tiny.
 		 - Add suricata_diff for displaying differences between the Ixchel config and current suricata config.
+		 - dump_config now uses yaml by default
+		 - add suricata_diff action
+		 - add sagan_merged action
+		 - add auto_cron action
+		 - add snmp_extends action
+		 - sagan_conf_update now uses .sagan.merged_base_include for if sagan_merged v. sagan_base and sagan_include should be used
 
 0.1.1   2023-11-17/12:00
         - Makefile.PL update
