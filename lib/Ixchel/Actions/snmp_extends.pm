@@ -150,7 +150,7 @@ sub action {
 		} ## end foreach my $item (@extends)
 		$self->status_add(status=>'Currently Disabled: '.join(',', @disabled));
 		$self->status_add(status=>'Installed/Updated: '.join(',', @installed));
-		$self->status_add(status=>'Errored: '.join(',', @installed));
+		$self->status_add(status=>'Errored: '.join(',', @errored));
 	} ## end if ( $self->{opts}{u} )
 
 } ## end sub action
