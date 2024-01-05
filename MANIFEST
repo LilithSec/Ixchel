@@ -104,3 +104,4 @@ share/templates/auto_cron.tt
 share/templates/systemd_service.tt
 share/templates/extend_logsize.tt
 share/templates/suricata_outputs.tt
+share/templates/suricata_extract_submit.tt
