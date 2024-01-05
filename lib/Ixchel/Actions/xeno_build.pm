@@ -427,7 +427,7 @@ sub action {
 
 	$self->{results} = {
 		errors => [],
-		status => '',
+		status_text => '',
 		ok     => 0,
 	};
 
@@ -1161,7 +1161,7 @@ sub status_add {
 
 	print $status. "\n";
 
-	$self->{results}{status} = $self->{results}{status} . $status;
+	$self->{results}{status_text} = $self->{results}{status_text} . $status;
 
 	if ( $opts{error} ) {
 		push( @{ $self->{results}{errors} }, $opts{status} );

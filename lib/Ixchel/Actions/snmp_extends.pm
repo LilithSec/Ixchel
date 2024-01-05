@@ -106,15 +106,15 @@ sub action {
 		my @extends = keys( %{ $self->{config}{snmp}{extends} } );
 		my @enabled;
 		my @disabled;
-		foreach my $item (@enabled) {
+		foreach my $item (@extends) {
 			if ( $self->{config}{snmp}{extends}{$item}{enable} ) {
 				push( @enabled, $item );
 			} else {
 				push( @disabled, $item );
 			}
 		}
-		$self->status_add('Currently Enabled: '.join(',', @enabled));
-		$self->status_add('Currently Disabled: '.join(',', @disabled));
+		$self->status_add(status=>'Currently Enabled: '.join(',', @enabled));
+		$self->status_add(status=>'Currently Disabled: '.join(',', @disabled));
 	} ## end if ( $self->{opts}{u} )
 
 	if ( $self->{opts}{u} ) {
@@ -123,21 +123,21 @@ sub action {
 			if ( $self->{config}{snmp}{extends}{$item}{enable} ) {
 				my $results;
 				my $error = 0;
+				$self->status_add(status=>'Calling xeno for librenms/extends/' . $item);
 				eval {
 					$results
 						= $self->{ixchel}->action( action => 'xeno', opts => { r => 'librenms/extends/' . $item } );
 				};
-				if ( $@ && defined( $results->{errors}[0] ) ) {
+				if ( $@ || !defined($results) || defined( $results->{errors}[0] ) ) {
 					$error = 1;
+					use Data::Dumper; print Dumper($results);
+					$self->status_add(
+									  np     => 1,
+									  error  => $error,
+									  status => 'Errored installing/updating librenms/extends/'
+									  . $item
+									  );
 				}
-				$self->status_add(
-					np     => 1,
-					error  => $error,
-					status => 'Results for calling xeno for librenms/extends/'
-						. $item . ' ...'
-						. $results->{status_text}
-
-				);
 			} ## end if ( $self->{config}{snmp}{extends}{$item}...)
 		} ## end foreach my $item (@extends)
 	} ## end if ( $self->{opts}{u} )
