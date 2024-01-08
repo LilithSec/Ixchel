@@ -264,6 +264,7 @@ sub get {
 				ntp_client         => { enable => 0, },
 				mojo_cape_submit   => { enable => 0, },
 				mdadm              => { enable => 0, },
+				distro             => { enable => 1, },
 				logsize            => {
 					enable          => 0,
 					remote          => 0,
