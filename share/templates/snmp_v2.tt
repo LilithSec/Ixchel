@@ -96,7 +96,7 @@ extend linux_softnet_stat /usr/bin/env [% config.snmp.extend_env %] [% config.sn
 
 [% END %]
 [% IF config.snmp.extends.sneck.enable %]
-extend /usr/bin/env [% config.snmp.extend_env %] sneck -c -b
+extend sneck /usr/bin/env [% config.snmp.extend_env %] sneck -c -b
 
 [% END %]
 [% IF config.fail2ban.enable && config.snmp.extends.fail2ban.enable %]
