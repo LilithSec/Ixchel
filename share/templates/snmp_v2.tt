@@ -140,7 +140,7 @@ xtend chronyd /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_ba
 
 [% END %]
 [% IF config.zfs.enable && config.snmp.extends.zfs.enable %]
-extend zfs /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/zfs
+extend zfs /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/zfs -b
 
 [% END %]
 [% IF config.squid.enable && config.snmp.extends.squid.enable %]
