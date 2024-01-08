@@ -48,6 +48,7 @@
 @daily root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/smart -c [% config.snmp.extends.smart.config %] -t [% config.snmp.extends.smart.nightly_test %] 2> /dev/null > /dev/null
 [% END %]
 [% END %]
+[% IF config.snmp.extends.mdadm.enable %]
 */5 * * * * root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/mdadm 2> /dev/null >  /var/cache/mdadm.extend
 [% END %]
 
