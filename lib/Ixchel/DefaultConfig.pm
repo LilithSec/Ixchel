@@ -245,6 +245,8 @@ sub get {
 				systemd            => { enable => 0, cache => '/var/cache/systemd.extend', use_cache => 1 },
 				mysql              => { enable => 0, host  => '127.0.0.1', port => '3306', ssl => 0, timeout => 0, },
 				sneck              => { enable => 0, },
+				bind               => { enable => 0, },
+				borgbackup         => { enable => 0, },
 				suricata_extract   => { enable => 0, },
 				suricata           => { enable => 0, args => '', },
 				sagan              => { enable => 0, args => '', },
@@ -260,6 +262,8 @@ sub get {
 				squid              => { enable => 0, },
 				ifAlias            => { enable => 0, },
 				ntp_client         => { enable => 0, },
+				mojo_cape_submit   => { enable => 0, },
+				mdadm              => { enable => 0, },
 				logsize            => {
 					enable          => 0,
 					remote          => 0,

@@ -19,6 +19,7 @@ Revision history for Ixchel
 		 - .config.snmp.extends.logsize.remote is now 0 by default
 		 - add suricata_extract_submit_config action for generating the suricata_extract_submit config
 		 - add extend_smart_config for generating the config file for the smart extend
+		 - add extend support for borgbackup, bind, mojo_cape_submit, mdadm
 
 0.1.1   2023-11-17/12:00
         - Makefile.PL update

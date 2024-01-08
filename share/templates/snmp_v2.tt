@@ -158,7 +158,22 @@ extend suricata-stats /usr/bin/env [% config.snmp.extend_env %] suricata_stat_ch
 extend suricata-extract [% config.snmp.extend_env %] suricata_extract_submit_extend
 [% END %]
 [% END %]
+[% IF config.snmp.extends.bind.enable %]
+extend bind /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/bind
 
+[% END %]
+[% IF config.snmp.extends.borgbackup.enable %]
+extend borgbackup /bin/cat /var/cache/borgbackup_extend/extend_return
+
+[% END %]
+[% IF config.snmp.extends.mojo_cape_submit.enable %]
+extend mojo_cape_submit /usr/local/bin/mojo_cape_submit_extend
+
+[% END %]
+[% IF config.snmp.extends.mdadm.enable %]
+extend mdadm /bin/cat /var/cache/mdadm.extend
+
+[% END %]
 
 [% FOREACH listen_type IN config.snmp.listen_types %]
 [% IF listen_type == 'array' %]

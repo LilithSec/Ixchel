@@ -48,6 +48,8 @@
 @daily root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/smart -c [% config.snmp.extends.smart.config %] -t [% config.snmp.extends.smart.nightly_test %] 2> /dev/null > /dev/null
 [% END %]
 [% END %]
+*/5 * * * * root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/mdadm 2> /dev/null >  /var/cache/mdadm.extend
+[% END %]
 
 [% IF config.snmp.extends.sagan.enable %]
 */5 * * * * root /usr/bin/env [% config.snmp.extend_env %] sagan_stat_check -u [% config.snmp.extends.sagan.args %] > /dev/null 2> /dev/null
