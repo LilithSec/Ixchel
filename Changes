@@ -1,6 +1,6 @@
 Revision history for Ixchel
 
-0.2.0   2023-12-14/
+0.2.0   2024-01-08/14:00
 		 - Fix the Ixchel config not being available as config for xeno_build.
 		 - add -r for the xeno action
 		 - convert to Pod::Usage and no longer use the method help
