@@ -1,5 +1,8 @@
 Revision history for Ixchel
 
+0.2.2   2024-01-08/23:45
+		 - POD fix for actions
+
 0.2.1   2024-01-08/23:30
 		 - auto_cron, fix writing file out
 		 - auto_cron template, compress the results for smart
