@@ -15,7 +15,7 @@ $::QUIET = 2;
 
 =head1 NAME
 
-Ixchel::functions::perl_module_via_pkg
+Ixchel::functions::perl_module_via_pkg - Tries to install a Perl module via the package manager.
 
 =head1 VERSION
 
