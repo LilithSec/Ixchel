@@ -10,7 +10,7 @@ use File::Find::Rule;
 
 =head1 NAME
 
-Ixchel::Actions::template :: Fill in a template.
+Ixchel::Actions::template - Fill in a template.
 
 =head1 VERSION
 

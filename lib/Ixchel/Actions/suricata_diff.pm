@@ -9,7 +9,7 @@ use YAML::yq::Helper;
 
 =head1 NAME
 
-Ixchel::Actions::suricata_diff :: Finds the differences between the Ixchel config and current Suricata config.
+Ixchel::Actions::suricata_diff - Finds the differences between the Ixchel config and current Suricata config.
 
 =head1 VERSION
 

@@ -8,7 +8,7 @@ use Ixchel::functions::install_yq;
 
 =head1 NAME
 
-Ixchel::Actions::install_yq :: Install installs yq
+Ixchel::Actions::install_yq - Install installs yq
 
 =head1 VERSION
 

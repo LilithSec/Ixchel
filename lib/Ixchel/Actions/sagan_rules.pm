@@ -11,7 +11,7 @@ use File::Spec;
 
 =head1 NAME
 
-Ixchel::Actions::sagan_rules :: Generate the rules include for Sagan.
+Ixchel::Actions::sagan_rules - Generate the rules include for Sagan.
 
 =head1 VERSION
 

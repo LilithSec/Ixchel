@@ -7,7 +7,7 @@ use Config::Tiny;
 
 =head1 NAME
 
-Ixchel::Actions::systemd_journald_conf :: Generate a systemd journald config include.
+Ixchel::Actions::systemd_journald_conf - Generate a systemd journald config include.
 
 =head1 VERSION
 

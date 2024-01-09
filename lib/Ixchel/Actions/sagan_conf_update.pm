@@ -8,7 +8,7 @@ use YAML::XS qw(Dump);
 
 =head1 NAME
 
-Ixchel::Actions::sagan_conf_update :: Update the all Sagan confs.
+Ixchel::Actions::sagan_conf_update - Update the all Sagan confs.
 
 =head1 VERSION
 

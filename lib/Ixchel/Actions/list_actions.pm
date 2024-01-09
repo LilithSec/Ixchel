@@ -7,7 +7,7 @@ use Module::List qw(list_modules);
 
 =head1 NAME
 
-Ixchel::Actions::list_actions :: Lists the various actions with a short description.
+Ixchel::Actions::list_actions - Lists the various actions with a short description.
 
 =head1 VERSION
 

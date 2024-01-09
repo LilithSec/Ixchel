@@ -11,7 +11,7 @@ use File::Temp qw/ tempfile  /;
 
 =head1 NAME
 
-Ixchel::Actions::suricata_base :: Reels in the base Suricata config and uses it for generating the base config for each instance.
+Ixchel::Actions::suricata_base - Reels in the base Suricata config and uses it for generating the base config for each instance.
 
 =head1 VERSION
 

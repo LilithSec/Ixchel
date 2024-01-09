@@ -8,7 +8,7 @@ use Ixchel::functions::install_cpanm;
 
 =head1 NAME
 
-Ixchel::Actions::install_cpanm :: Install cpanm via packages.
+Ixchel::Actions::install_cpanm - Install cpanm via packages.
 
 =head1 VERSION
 

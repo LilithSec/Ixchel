@@ -9,7 +9,7 @@ use Ixchel::functions::install_cpanm;
 
 =head1 NAME
 
-Ixchel::Actions::perl :: Handles making sure desired Perl modules are installed as specified by the config.
+Ixchel::Actions::perl - Handles making sure desired Perl modules are installed as specified by the config.
 
 =head1 VERSION
 

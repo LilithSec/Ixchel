@@ -8,7 +8,7 @@ use YAML::XS qw(Dump);
 
 =head1 NAME
 
-Ixchel::Actions::suricata_include :: Generates the instance specific include for a suricata instance.
+Ixchel::Actions::suricata_include - Generates the instance specific include for a suricata instance.
 
 =head1 VERSION
 

@@ -8,7 +8,7 @@ use String::ShellQuote;
 
 =head1 NAME
 
-Ixchel::Actions::suricata_ouputs :: Generate a outputs include for suricata.
+Ixchel::Actions::suricata_ouputs - Generate a outputs include for suricata.
 
 =head1 VERSION
 

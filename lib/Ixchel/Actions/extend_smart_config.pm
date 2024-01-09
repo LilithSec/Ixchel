@@ -7,7 +7,7 @@ use File::Slurp;
 
 =head1 NAME
 
-Ixchel::Actions::extend_smart_config :: Generates the config for the SMART SNMP extend.
+Ixchel::Actions::extend_smart_config - Generates the config for the SMART SNMP extend.
 
 =head1 VERSION
 

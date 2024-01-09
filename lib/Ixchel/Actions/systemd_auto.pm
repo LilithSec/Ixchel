@@ -8,7 +8,7 @@ use String::ShellQuote;
 
 =head1 NAME
 
-Ixchel::Actions::systemd_auto :: Generate systemd service files using the systemd_service template.
+Ixchel::Actions::systemd_auto - Generate systemd service files using the systemd_service template.
 
 =head1 VERSION
 

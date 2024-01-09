@@ -12,7 +12,7 @@ use File::Spec;
 
 =head1 NAME
 
-Ixchel::Actions::sagan_base :: Generates the base config for a sagan instance.
+Ixchel::Actions::sagan_base - Generates the base config for a sagan instance.
 
 =head1 VERSION
 

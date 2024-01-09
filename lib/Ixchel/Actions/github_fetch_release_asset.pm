@@ -10,7 +10,7 @@ use Ixchel::functions::github_fetch_release_asset;
 
 =head1 NAME
 
-Ixchel::Actions::github_fetch_release_asset :: Fetch an release asset from a github repo.
+Ixchel::Actions::github_fetch_release_asset - Fetch an release asset from a github repo.
 
 =head1 VERSION
 

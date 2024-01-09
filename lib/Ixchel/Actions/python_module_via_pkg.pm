@@ -8,7 +8,7 @@ use Ixchel::functions::python_module_via_pkg;
 
 =head1 NAME
 
-Ixchel::Actions::python_module_via_pkg :: Install cpanm via packages.
+Ixchel::Actions::python_module_via_pkg - Install cpanm via packages.
 
 =head1 VERSION
 

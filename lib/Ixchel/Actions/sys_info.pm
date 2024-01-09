@@ -11,7 +11,7 @@ use Data::Dumper;
 
 =head1 NAME
 
-Ixchel::Actions::sys_info :: Fetches system info via Rex::Hardware and prints it in various formats.
+Ixchel::Actions::sys_info - Fetches system info via Rex::Hardware and prints it in various formats.
 
 =head1 VERSION
 

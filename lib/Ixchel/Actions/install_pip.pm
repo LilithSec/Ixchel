@@ -8,7 +8,7 @@ use Ixchel::functions::install_pip;
 
 =head1 NAME
 
-Ixchel::Actions::install_pip :: Install pip via packages.
+Ixchel::Actions::install_pip - Install pip via packages.
 
 =head1 VERSION
 

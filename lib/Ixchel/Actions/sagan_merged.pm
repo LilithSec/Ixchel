@@ -15,7 +15,7 @@ use File::Copy;
 
 =head1 NAME
 
-Ixchel::Actions::sagan_merged :: Generated a merged base/include for Sagan.
+Ixchel::Actions::sagan_merged - Generated a merged base/include for Sagan.
 
 =head1 VERSION
 

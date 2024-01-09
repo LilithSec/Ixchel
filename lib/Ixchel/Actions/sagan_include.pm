@@ -9,7 +9,7 @@ use File::Spec;
 
 =head1 NAME
 
-Ixchel::Actions::sagan_include :: Generates the instance specific include for a sagan instance.
+Ixchel::Actions::sagan_include - Generates the instance specific include for a sagan instance.
 
 =head1 VERSION
 

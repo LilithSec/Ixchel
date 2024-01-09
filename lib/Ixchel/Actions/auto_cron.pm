@@ -7,7 +7,7 @@ use File::Slurp;
 
 =head1 NAME
 
-Ixchel::Actions::auto_cron :: Generates a cron file for stuff configured/handled via Ixchel.
+Ixchel::Actions::auto_cron - Generates a cron file for stuff configured/handled via Ixchel.
 
 =head1 VERSION
 

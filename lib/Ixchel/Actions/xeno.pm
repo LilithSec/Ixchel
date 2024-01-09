@@ -10,7 +10,7 @@ use Ixchel::functions::file_get;
 
 =head1 NAME
 
-Ixchel::Actions::xeno :: Invokes xeno_build with the specified hash.
+Ixchel::Actions::xeno - Invokes xeno_build with the specified hash.
 
 =head1 VERSION
 

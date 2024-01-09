@@ -8,7 +8,7 @@ use Ixchel::functions::perl_module_via_pkg;
 
 =head1 NAME
 
-Ixchel::Actions::perl_module_via_pkg :: Install Perl modules via the package manager.
+Ixchel::Actions::perl_module_via_pkg - Install Perl modules via the package manager.
 
 =head1 VERSION
 

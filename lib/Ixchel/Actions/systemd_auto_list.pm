@@ -6,7 +6,7 @@ use warnings;
 
 =head1 NAME
 
-Ixchel::Actions::systemd_auto_list :: List systemd auto generated services.
+Ixchel::Actions::systemd_auto_list - List systemd auto generated services.
 
 =head1 VERSION
 

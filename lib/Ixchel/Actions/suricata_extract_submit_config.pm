@@ -7,7 +7,7 @@ use File::Slurp;
 
 =head1 NAME
 
-Ixchel::Actions::suricata_extract_submit_config :: Generates the config file for suricata_extract_submit.
+Ixchel::Actions::suricata_extract_submit_config - Generates the config file for suricata_extract_submit.
 
 =head1 VERSION
 

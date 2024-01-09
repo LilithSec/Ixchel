@@ -7,7 +7,7 @@ use File::Slurp;
 
 =head1 NAME
 
-Ixchel::Actions::snmp_extends :: List or install/update SNMP extends
+Ixchel::Actions::snmp_extends - List or install/update SNMP extends
 
 =head1 VERSION
 

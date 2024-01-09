@@ -17,7 +17,7 @@ use Cwd;
 
 =head1 NAME
 
-Ixchel::Actions::xeno_build :: Builds and installs stuff based on the supplied hash.
+Ixchel::Actions::xeno_build - Builds and installs stuff based on the supplied hash.
 
 =head1 VERSION
 

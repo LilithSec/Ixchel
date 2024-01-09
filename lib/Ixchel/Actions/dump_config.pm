@@ -12,7 +12,7 @@ use JSON::Path;
 
 =head1 NAME
 
-Ixchel::Actions::sys_info :: Prints out the config.
+Ixchel::Actions::sys_info - Prints out the config.
 
 =head1 VERSION
 

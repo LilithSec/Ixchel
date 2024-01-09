@@ -7,7 +7,7 @@ use File::Slurp;
 
 =head1 NAME
 
-Ixchel::Actions::extend_logsize_config :: Generates the config for the logsize SNMP extend.
+Ixchel::Actions::extend_logsize_config - Generates the config for the logsize SNMP extend.
 
 =head1 VERSION
 

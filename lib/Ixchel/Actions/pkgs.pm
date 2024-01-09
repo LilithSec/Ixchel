@@ -8,7 +8,7 @@ use Rex::Commands::Pkg;
 
 =head1 NAME
 
-Ixchel::Actions::pkgs :: Handles making sure desired packages are installed as specified by the config.
+Ixchel::Actions::pkgs - Handles making sure desired packages are installed as specified by the config.
 
 =head1 VERSION
 

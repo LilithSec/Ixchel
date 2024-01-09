@@ -7,7 +7,7 @@ use File::Slurp;
 
 =head1 NAME
 
-Ixchel::Actions::apt_proxy :: Generates the proxy config file for apt.
+Ixchel::Actions::apt_proxy - Generates the proxy config file for apt.
 
 =head1 VERSION
 
