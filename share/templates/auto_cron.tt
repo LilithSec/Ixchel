@@ -58,13 +58,13 @@
 [% IF config.snmp.extends.suricata.enable %]
 30 0 * * * root /usr/bin/env [% config.snmp.extend_env %] suricata_stat_check -u [% config.snmp.extends.suricata.args %] > /dev/null 2> /dev/null
 [% END %]
-[% IF config.snmp.extends.suricata.update.enable %]
-*/5 * * * * root /usr/bin/env [% config.snmp.extend_env %] suricata-update update-sources ; /usr/bin/env [% config.snmp.extend_env %] suricata-update [% IF config.snmp.extends.suricata.update.no_reload %]
---no-reload [% END %] [% IF config.snmp.extends.suricata.update.no_test %]
+[% IF config.suricata.update.enable %]
+*/5 * * * * root /usr/bin/env [% config.snmp.extend_env %] suricata-update update-sources ; /usr/bin/env [% config.snmp.extend_env %] suricata-update [% IF config.suricata.update.no_reload %]
+--no-reload [% END %] [% IF config.suricata.update.no_test %]
 --no-test
-[% END %] [% IF config.snmp.extends.suricata.update.offline %]
+[% END %] [% IF config.suricata.update.offline %]
 --offline
-[% END %]  [% IF config.snmp.extends.suricata.update.fail %]
+[% END %]  [% IF config.suricata.update.fail %]
 --fail
 [% END %]
 [% END %]
