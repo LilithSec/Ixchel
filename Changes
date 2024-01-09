@@ -1,5 +1,13 @@
 Revision history for Ixchel
 
+0.2.1   2024-01-08/23:30
+		 - auto_cron, fix writing file out
+		 - auto_cron template, compress the results for smart
+		 - snmp_v2 template, compress the zfs return
+		 - auto_cron template, fix mdadm
+		 - default config, add distro snmp extend with default enabled
+		 - snmp_v2 template, fix sneck extend
+
 0.2.0   2024-01-08/14:00
 		 - Fix the Ixchel config not being available as config for xeno_build.
 		 - add -r for the xeno action
