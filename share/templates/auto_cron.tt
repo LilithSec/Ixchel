@@ -56,10 +56,10 @@
 */5 * * * * root /usr/bin/env [% config.snmp.extend_env %] sagan_stat_check -u [% config.snmp.extends.sagan.args %] > /dev/null 2> /dev/null
 [% END %]
 [% IF config.snmp.extends.suricata.enable %]
-*/5 * * * * root /usr/bin/env [% config.snmp.extend_env %] suricata_stat_check -u [% config.snmp.extends.suricata.args %] > /dev/null 2> /dev/null
+30 0 * * * root /usr/bin/env [% config.snmp.extend_env %] suricata_stat_check -u [% config.snmp.extends.suricata.args %] > /dev/null 2> /dev/null
 [% END %]
 [% IF config.snmp.extends.suricata.update.enable %]
-*/5 * * * * root /usr/bin/env [% config.snmp.extend_env %] suricata-update [% IF config.snmp.extends.suricata.update.no_reload %]
+*/5 * * * * root /usr/bin/env [% config.snmp.extend_env %] suricata-update update-sources ; /usr/bin/env [% config.snmp.extend_env %] suricata-update [% IF config.snmp.extends.suricata.update.no_reload %]
 --no-reload [% END %] [% IF config.snmp.extends.suricata.update.no_test %]
 --no-test
 [% END %] [% IF config.snmp.extends.suricata.update.offline %]
