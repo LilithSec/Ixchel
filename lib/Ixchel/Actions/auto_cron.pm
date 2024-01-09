@@ -116,7 +116,7 @@ sub action {
 	}
 
 	if ( $self->{opts}{w} ) {
-		write_file( $self->{opts}{o} );
+		write_file( $self->{opts}{o}, $filled_in );
 	} else {
 		print $filled_in;
 	}
