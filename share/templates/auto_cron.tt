@@ -43,7 +43,7 @@
 [% config.suricata_extract.interval %] root /usr/bin/env [% config.snmp.extend_env %] suricata_extract_submit 2> /dev/null > /dev/null
 [% END %]
 [% IF config.snmp.extends.smart.enable %]
-*/5 * * * * root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/smart -c [% config.snmp.extends.smart.config %] -u 2> /dev/null > /dev/null
+*/5 * * * * root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/smart -c [% config.snmp.extends.smart.config %] -u -Z 2> /dev/null > /dev/null
 [% IF config.snmp.extends.smart.enable && config.snmp.extends.smart.nightly_test_enable  %]
 @daily root /usr/bin/env [% config.snmp.extend_env %] [% config.snmp.extend_base_dir %]/smart -c [% config.snmp.extends.smart.config %] -t [% config.snmp.extends.smart.nightly_test %] 2> /dev/null > /dev/null
 [% END %]
