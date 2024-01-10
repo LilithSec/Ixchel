@@ -160,9 +160,9 @@ sub action {
 	if ( -f $template ) {
 		$template_file = $template;
 	} elsif ( -f '/usr/local/etc/ixchel/templates/' . $template ) {
-		$template_file =  '/usr/local/etc/ixchel/templates/' . $template;
+		$template_file = '/usr/local/etc/ixchel/templates/' . $template;
 	} elsif ( -f '/usr/local/etc/ixchel/templates/' . $template . '.tt' ) {
-		$template_file =  '/usr/local/etc/ixchel/templates/' . $template . '.tt';
+		$template_file = '/usr/local/etc/ixchel/templates/' . $template . '.tt';
 	} elsif ( -f $self->{share_dir} . '/templates/' . $template ) {
 		$template_file = $self->{share_dir} . '/templates/' . $template;
 	} elsif ( -f $self->{share_dir} . '/templates/' . $template . '.tt' ) {
@@ -233,7 +233,8 @@ sub action {
 	}
 
 	my $output = '';
-	$self->{t}->process( \$template_data, $vars, \$output );
+	$self->{t}->process( \$template_data, $vars, \$output )
+		|| die( 'Failed to process template... ' . $template->error );
 
 	if ( !$self->{opts}->{np} ) {
 		print $output;
