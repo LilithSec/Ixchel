@@ -242,6 +242,7 @@ sub get {
 			syslocation       => '',
 			syscontact        => '',
 			extend_base_dir   => '/usr/local/etc/snmp',
+			config_file       => '/usr/local/etc/snmpd.conf',
 			extend_avail_dir  => '',
 			listen_types      => ['array'],
 			listen_array      => [ 'udp:161', 'tcp:161' ],
@@ -303,6 +304,7 @@ sub get {
 	if ( $^O eq 'linux' ) {
 		$config->{suricata}{config_base}            = '/etc/suricata';
 		$config->{snmp}{extend_base_dir}            = '/etc/snmp/';
+		$config->{snmp}{config_file}            = '/etc/snmp/snmpd.conf';
 		$config->{snmp}{linux_softnet_stat}{enable} = 1;
 
 		#		if ($host_info->{operating_system} eq 'Debian' || $host_info->{operating_system} eq 'Ubuntu') {
