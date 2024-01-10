@@ -311,10 +311,10 @@ sub get {
 		$config->{suricata}{base_fill_in}{e_defaultruledir} = '/var/lib/suricata/rules';
 	}
 
-	$config->{suricata}{update}{disable_file} = $config->{suricata}{config_base} . '/disable.yaml';
-	$config->{suricata}{update}{enable_file}  = $config->{suricata}{config_base} . '/enable.yaml';
-	$config->{suricata}{update}{modify_file}  = $config->{suricata}{config_base} . '/modify.yaml';
-	$config->{suricata}{update}{drop_file}    = $config->{suricata}{config_base} . '/drop.yaml';
+	$config->{suricata}{update}{disable_file} = $config->{suricata}{config_base} . '/disable.conf';
+	$config->{suricata}{update}{enable_file}  = $config->{suricata}{config_base} . '/enable.conf';
+	$config->{suricata}{update}{modify_file}  = $config->{suricata}{config_base} . '/modify.conf';
+	$config->{suricata}{update}{drop_file}    = $config->{suricata}{config_base} . '/drop.conf';
 	$config->{suricata}{update}{conf_file}    = $config->{suricata}{config_base} . '/suricata.yaml';
 	$config->{suricata}{update}{update_file}  = $config->{suricata}{config_base} . '/update.yaml';
 
