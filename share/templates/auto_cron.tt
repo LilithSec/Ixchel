@@ -61,12 +61,9 @@
 [% IF config.suricata.update.enable %]
 [% config.suricata.update.when %] root /usr/bin/env [% config.snmp.extend_env %] suricata-update update-sources 2> /dev/null ; /usr/bin/env [% config.snmp.extend_env %] suricata-update [% IF config.suricata.update.no_reload %]
 --no-reload [% END %] [% IF config.suricata.update.no_test %]
---no-test
-[% END %] [% IF config.suricata.update.offline %]
---offline
-[% END %] [% IF config.suricata.update.fail %]
---fail
-[% END %] [% IF file_exists( config.suricata.update.conf_file ) %]
+--no-test [% END %] [% IF config.suricata.update.offline %]
+--offline [% END %] [% IF config.suricata.update.fail %]
+--fail [% END %] [% IF file_exists( config.suricata.update.conf_file ) %]
 --suricata-conf [% config.suricata.update.conf_file %]
 [% END %] [% IF file_exists( config.suricata.update.update_file ) %]
 -c [% config.suricata.update.update_file %]
