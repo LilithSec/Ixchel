@@ -84,6 +84,7 @@ sub get {
 				drop_conf    => 0,
 				drop_file    => undef,
 				conf_file    => undef,
+				when         => '33 0 * * *',
 			},
 		},
 		suricata_extract => {
