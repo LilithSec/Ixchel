@@ -234,7 +234,7 @@ sub action {
 
 	my $output = '';
 	$self->{t}->process( \$template_data, $vars, \$output )
-		|| die( 'Failed to process template... ' . $template->error );
+		|| die( 'Failed to process template... ' . $self->{t}->error );
 
 	if ( !$self->{opts}->{np} ) {
 		print $output;
