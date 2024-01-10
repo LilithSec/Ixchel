@@ -109,7 +109,7 @@ sub action {
 			vars   => {},
 			opts   => {
 				np => 1,
-				t  => 'auto_cron',
+				t  => 'snmp_v2',
 			},
 		);
 	};
