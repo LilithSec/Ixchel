@@ -75,15 +75,16 @@ sub get {
 				no_test      => 0,
 				offline      => 0,
 				fail         => 0,
-				disable_conf => 0,
+				disable_conf => 1,
 				disable_file => undef,
-				enable_conf  => 0,
+				enable_conf  => 1,
 				disable_file => undef,
-				modify_conf  => 0,
+				modify_conf  => 1,
 				modify_file  => undef,
-				drop_conf    => 0,
+				drop_conf    => 1,
 				drop_file    => undef,
 				conf_file    => undef,
+				update_file  => undef,
 				when         => '33 0 * * *',
 			},
 		},
@@ -309,6 +310,13 @@ sub get {
 	} elsif ( $^O eq 'freebsd' ) {
 		$config->{suricata}{base_fill_in}{e_defaultruledir} = '/var/lib/suricata/rules';
 	}
+
+	$config->{suricata}{update}{disable_file} = $config->{suricata}{config_base} . '/disable.yaml';
+	$config->{suricata}{update}{enable_file}  = $config->{suricata}{config_base} . '/enable.yaml';
+	$config->{suricata}{update}{modify_file}  = $config->{suricata}{config_base} . '/modify.yaml';
+	$config->{suricata}{update}{drop_file}    = $config->{suricata}{config_base} . '/drop.yaml';
+	$config->{suricata}{update}{conf_file}    = $config->{suricata}{config_base} . '/suricata.yaml';
+	$config->{suricata}{update}{update_file}  = $config->{suricata}{config_base} . '/update.yaml';
 
 	return $config;
 } ## end sub get

@@ -64,8 +64,20 @@
 --no-test
 [% END %] [% IF config.suricata.update.offline %]
 --offline
-[% END %]  [% IF config.suricata.update.fail %]
+[% END %] [% IF config.suricata.update.fail %]
 --fail
-[% END %] 2> /dev/null
+[% END %] [% IF -f config.suricata.update.conf_file %]
+--suricata-conf [% config.suricata.update.conf_file %]
+[% END %] [% IF -f config.suricata.update.update_file %]
+-c [% config.suricata.update.update_file %]
+[% END %] [% IF config.suricata.update.disable_conf && -f config.suricata.update.disable_file %]
+--disable-conf [% config.suricata.update.disable_file %]
+[% END %] [% IF config.suricata.update.enable_conf && -f config.suricata.update.enable_file %]
+--enable-conf [% config.suricata.update.enable_file %]
+[% END %] [% IF config.suricata.update.modify_conf && -f config.suricata.update.modify_file %]
+--modify-conf [% config.suricata.update.modify_file %]
+[% END %] [% IF config.suricata.update.drop_conf && -f config.suricata.update.drop_file %]
+--drop-conf [% config.suricata.update.drop_file %]
+[% END %]
 [% END %]
 
