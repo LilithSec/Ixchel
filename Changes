@@ -1,5 +1,11 @@
 Revision history for Ixchel
 
+0.3.0   2024-01-09/23:00
+		 - add suricata-update support to auto_cron
+		 - the template action will now die when template errors instead of returning blank
+		 - add action snmp_v2
+		 - more minor POD stuff
+
 0.2.2   2024-01-08/23:45
 		 - POD fix for actions
 
