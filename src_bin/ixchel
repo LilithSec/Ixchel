@@ -39,6 +39,15 @@ Do not attempt to load the config even if it exists.
 
 This is automatic for the action 'list_actions' and 'sys_info'
 
+=head1 ENVIROMENTAL VARIABLES
+
+If the following values are defined, the matching ENV is set.
+
+    .proxy.ftp       ->  FTP_PROXY
+    .proxy.http      ->  HTTP_PROXY
+    .proxy.https     ->  HTTPS_PROXY
+    .perl.cpanm_home ->  PERL_CPANM_HOME
+
 =cut
 
 use strict;
@@ -54,7 +63,7 @@ use Pod::Usage;
 use Pod::Find qw(pod_where);
 
 sub version {
-	print "ixchel v. 0.1.0\n";
+	print 'ixchel v. '.$Ixchel::VERSION."\n";
 }
 
 # disable color if asked

@@ -15,11 +15,11 @@ Ixchel - Automate various sys admin stuff.
 
 =head1 VERSION
 
-Version 0.3.0
+Version 0.4.0
 
 =cut
 
-our $VERSION = '0.3.0';
+our $VERSION = '0.4.0';
 
 =head1 METHODS
 
@@ -141,6 +141,13 @@ Now if we want to pass '--np' to not print it, we would do it like below.
 
     my $rendered_template=$ixchel->action( action=>'template', opts=>{ t=>'extend_logsize', np=>1 });
 
+If the following values are defined, the matching ENV is set.
+
+    .proxy.ftp       ->  FTP_PROXY
+    .proxy.http      ->  HTTP_PROXY
+    .proxy.https     ->  HTTPS_PROXY
+    .perl.cpanm_home ->  PERL_CPANM_HOME
+
 =cut
 
 sub action {
@@ -155,7 +162,7 @@ sub action {
 		$opts{no_die_on_error} = 1;
 	}
 
-	# if custom opts are not defined, read the commandline args and fetch what we should use
+ 	# if custom opts are not defined, read the commandline args and fetch what we should use
 	my $opts_to_use;
 	if ( !defined( $opts{opts} ) ) {
 		my %parsed_options;
@@ -186,6 +193,19 @@ sub action {
 	my $vars;
 	if ( defined( $opts{vars} ) ) {
 		$vars = $opts{vars};
+	}
+
+	if ( defined( $self->{config}{proxy}{ftp} ) && $self->{config}{proxy}{ftp} ne '' ) {
+		$ENV{FTP_PROXY} = $self->{config}{proxy}{ftp};
+	}
+	if ( defined( $self->{config}{proxy}{http} ) && $self->{config}{proxy}{http} ne '' ) {
+		$ENV{HTTP_PROXY} = $self->{config}{proxy}{http};
+	}
+	if ( defined( $self->{config}{proxy}{https} ) && $self->{config}{proxy}{https} ne '' ) {
+		$ENV{HTTPS_PROXY} = $self->{config}{proxy}{https};
+	}
+	if ( defined( $self->{config}{perl}{cpanm_home} ) && $self->{config}{perl}{cpanm_home} ne '' ) {
+		$ENV{PERL_CPANM_HOME} = $self->{config}{perl}{cpanm_home};
 	}
 
 	my $action_return;

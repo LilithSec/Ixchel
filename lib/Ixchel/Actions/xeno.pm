@@ -14,11 +14,11 @@ Ixchel::Actions::xeno - Invokes xeno_build with the specified hash.
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.2.0
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.2.0';
 
 =head1 SYNOPSIS
 
@@ -129,22 +129,6 @@ sub action {
 		push( @{ $self->{results}{errors} }, $error );
 		return $self->{results};
 	}
-
-	# set the proxy proxy info if we have any in the config
-	if ( defined( $self->{config}{proxy} ) ) {
-		if ( defined( $self->{config}{proxy}{ftp} ) && $self->{config}{proxy}{ftp} ne '' ) {
-			$ENV{FTP_PROXY} = $self->{config}{proxy}{ftp};
-			$ENV{ftp_proxy} = $self->{config}{proxy}{ftp};
-		}
-		if ( defined( $self->{config}{proxy}{http} ) && $self->{config}{proxy}{http} ne '' ) {
-			$ENV{HTTP_PROXY} = $self->{config}{proxy}{http};
-			$ENV{http_proxy} = $self->{config}{proxy}{http};
-		}
-		if ( defined( $self->{config}{proxy}{https} ) && $self->{config}{proxy}{https} ne '' ) {
-			$ENV{HTTPS_PROXY} = $self->{config}{proxy}{https};
-			$ENV{https_proxy} = $self->{config}{proxy}{https};
-		}
-	} ## end if ( defined( $self->{config}{proxy} ) )
 
 	my $xeno_build;
 	my $xeno_build_raw;

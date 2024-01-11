@@ -11,11 +11,11 @@ Ixchel::DefaultConfig - The default config used for with Ixchel.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 SYNOPSIS
 
@@ -160,6 +160,7 @@ sub get {
 			pkgs_optional   => [],
 			pkgs_always_try => 1,
 			pkgs_require    => [],
+			cpanm_home      => undef,
 		},
 		systemd => {
 			auto     => {},
@@ -304,7 +305,7 @@ sub get {
 	if ( $^O eq 'linux' ) {
 		$config->{suricata}{config_base}            = '/etc/suricata';
 		$config->{snmp}{extend_base_dir}            = '/etc/snmp/';
-		$config->{snmp}{config_file}            = '/etc/snmp/snmpd.conf';
+		$config->{snmp}{config_file}                = '/etc/snmp/snmpd.conf';
 		$config->{snmp}{linux_softnet_stat}{enable} = 1;
 
 		#		if ($host_info->{operating_system} eq 'Debian' || $host_info->{operating_system} eq 'Ubuntu') {

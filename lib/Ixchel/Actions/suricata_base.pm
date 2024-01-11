@@ -15,11 +15,11 @@ Ixchel::Actions::suricata_base - Reels in the base Suricata config and uses it f
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.2.0
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.2.0';
 
 =head1 SYNOPSIS
 
@@ -156,18 +156,6 @@ sub action {
 
 	my $base_config_raw;
 	eval {
-		if ( defined( $self->{config}{proxy}{ftp} ) && $self->{config}{proxy}{ftp} ne '' ) {
-			$ENV{FTP_PROXY} = $self->{config}{proxy}{ftp};
-			$self->status_add( status => 'FTP_PROXY=' . $self->{config}{proxy}{ftp} );
-		}
-		if ( defined( $self->{config}{proxy}{http} ) && $self->{config}{proxy}{http} ne '' ) {
-			$ENV{HTTP_PROXY} = $self->{config}{proxy}{http};
-			$self->status_add( status => 'HTTP_PROXY=' . $self->{config}{proxy}{http} );
-		}
-		if ( defined( $self->{config}{proxy}{https} ) && $self->{config}{proxy}{https} ne '' ) {
-			$ENV{HTTPS_PROXY} = $self->{config}{proxy}{https};
-			$self->status_add( status => 'HTTPS_PROXY=' . $self->{config}{proxy}{https} );
-		}
 		$self->status_add( status => 'Fetching ' . $base_config_url );
 		$base_config_raw = file_get( url => $base_config_url );
 	};
