@@ -1,7 +1,8 @@
 Revision history for Ixchel
 
-0.3.0   2024-01-
+0.4.0   2024-01-
 		 - ENV handling for proxy stuff and and cpanm home has moved to Ixchel->action to make handling easier
+		 - variables defined under .env are now transfered to %ENV vy Ixchel->action
 
 0.3.0   2024-01-09/23:00
 		 - add suricata-update support to auto_cron
