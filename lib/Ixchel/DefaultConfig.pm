@@ -237,6 +237,7 @@ sub get {
 			dref                          => '',
 		},
 		sneck => { enable => 0, },
+		env   => {},
 		snmp  => {
 			community         => 'public',
 			extend_env        => 'PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin LC_ALL=C',

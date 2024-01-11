@@ -148,6 +148,9 @@ If the following values are defined, the matching ENV is set.
     .proxy.https     ->  HTTPS_PROXY
     .perl.cpanm_home ->  PERL_CPANM_HOME
 
+Additionally any of the variables defined under .env will also be
+set. So .env.TMPDIR will set $ENV{TMPDIR}.
+
 =cut
 
 sub action {
@@ -162,7 +165,7 @@ sub action {
 		$opts{no_die_on_error} = 1;
 	}
 
- 	# if custom opts are not defined, read the commandline args and fetch what we should use
+	# if custom opts are not defined, read the commandline args and fetch what we should use
 	my $opts_to_use;
 	if ( !defined( $opts{opts} ) ) {
 		my %parsed_options;
@@ -195,6 +198,7 @@ sub action {
 		$vars = $opts{vars};
 	}
 
+	# set the enviromental variables if needed
 	if ( defined( $self->{config}{proxy}{ftp} ) && $self->{config}{proxy}{ftp} ne '' ) {
 		$ENV{FTP_PROXY} = $self->{config}{proxy}{ftp};
 	}
@@ -206,6 +210,12 @@ sub action {
 	}
 	if ( defined( $self->{config}{perl}{cpanm_home} ) && $self->{config}{perl}{cpanm_home} ne '' ) {
 		$ENV{PERL_CPANM_HOME} = $self->{config}{perl}{cpanm_home};
+	}
+	my @env_keys = keys( %{ $self->{config}{env} } );
+	foreach my $env_key (@env_keys) {
+		if ( defined( $self->{config}{env}{$env_key} ) && ref( $self->{config}{env}{$env_key} ) eq '' ) {
+			$ENV{$env_key} = $self->{config}{env}{$env_key};
+		}
 	}
 
 	my $action_return;
