@@ -229,7 +229,7 @@ sub action {
 					},
 				);
 				if ( $self->{opts}{w} ) {
-					write_file( $config_base . '/outputs-' . $instance . '.yaml', $filled_in );
+					write_file( $config_base . '/' . $instance . '-outputs.yaml', $filled_in );
 				}
 			};
 			if ($@) {

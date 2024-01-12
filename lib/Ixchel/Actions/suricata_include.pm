@@ -136,13 +136,13 @@ sub action {
 	};
 
 	my $config_base;
-	if (!defined($self->{opts}{d})) {
-		$config_base=$self->{config}{suricata}{config_base};
-	}else {
-		if (! -d $self->{opts}{d}) {
-			die('-d, "'.$self->{opts}{d}.'" is not a directory');
+	if ( !defined( $self->{opts}{d} ) ) {
+		$config_base = $self->{config}{suricata}{config_base};
+	} else {
+		if ( !-d $self->{opts}{d} ) {
+			die( '-d, "' . $self->{opts}{d} . '" is not a directory' );
 		}
-		$config_base=$self->{opts}{d};
+		$config_base = $self->{opts}{d};
 	}
 
 	if ( $self->{config}{suricata}{multi_instance} ) {
@@ -193,7 +193,7 @@ sub action {
 				$filled_in = '%YAML 1.1' . "\n" . Dump($merged);
 
 				if ( $self->{opts}{w} ) {
-					write_file( $config_base . '/include-' . $instance . '.yaml', $filled_in );
+					write_file( $config_base . '/' . $instance . '-include.yaml', $filled_in );
 				}
 			};
 			if ($@) {

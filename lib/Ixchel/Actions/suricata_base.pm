@@ -247,8 +247,8 @@ sub action {
 				write_file( $tmp_file, $base_config_raw );
 
 				my @include_paths = (
-					$config_base . '/include-' . $instance . '.yaml',
-					$config_base . '/outputs-' . $instance . '.yaml',
+					$config_base . '/' . $instance . '-include.yaml',
+					$config_base . '/' . $instance . '-outputs.yaml',
 				);
 
 				my $yq = YAML::yq::Helper->new( file => $tmp_file );
