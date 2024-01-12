@@ -110,7 +110,7 @@ sub action {
 			@instances = keys( %{ $self->{config}{suricata}{instances} } );
 		}
 		foreach my $instance (@instances) {
-
+					$self->process_config(instance=>$instance);
 		}
 	} else {
 		if ( defined( $self->{opts}{i} ) ) {
