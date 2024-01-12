@@ -5,6 +5,7 @@ Revision history for Ixchel
 		 - variables defined under .env are now transfered to %ENV vy Ixchel->action
 		 - perl action, print results at the end
 		 - misc POD fixes
+		 - add sneck_config action and sneck template
 
 0.3.0   2024-01-09/23:00
 		 - add suricata-update support to auto_cron
