@@ -1,4 +1,4 @@
-package Ixchel::Actions::sneck;
+package Ixchel::Actions::sneck_config;
 
 use 5.006;
 use strict;
