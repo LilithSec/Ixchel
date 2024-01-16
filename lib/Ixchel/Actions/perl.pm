@@ -272,18 +272,18 @@ sub action {
 
 		} ## end if ( !defined( $installed{$module} ) )
 	} ## end foreach my $module (@modules)
-	$self->status_add( status => 'Installed: ' . jain( ',', keys( %{installed} ) ) );
+	$self->status_add( status => 'Installed: ' . join( ',', keys( %{installed} ) ) );
 	if ( defined( $installed_via_cpanm[0] ) ) {
-		$self->status_add( status => 'Installed Via CPANM: ' . jain( ',', @installed_via_cpanm ) );
+		$self->status_add( status => 'Installed Via CPANM: ' . join( ',', @installed_via_cpanm ) );
 	}
 	if ( defined( $pkgs_installed[0] ) ) {
-		$self->status_add( status => 'Installed Via CPANM: ' . jain( ',', @pkgs_installed ) );
+		$self->status_add( status => 'Installed Via CPANM: ' . join( ',', @pkgs_installed ) );
 	}
 	if ( defined( $cpanm_failed[0] ) ) {
-		$self->status_add( status => 'CPANM Failed: ' . jain( ',', @cpanm_failed ) );
+		$self->status_add( status => 'CPANM Failed: ' . join( ',', @cpanm_failed ) );
 	}
 	if ( defined( $failed_pkg_required[0] ) ) {
-		$self->status_add( status => 'Failed Required By Pkg: ' . jain( ',', @failed_pkg_required ) );
+		$self->status_add( status => 'Failed Required By Pkg: ' . join( ',', @failed_pkg_required ) );
 	}
 
 	return $self->{results};
