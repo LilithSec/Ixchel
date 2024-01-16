@@ -188,7 +188,6 @@ sub action {
 				push( @modules, $module );
 				$self->status_add(
 					status => 'Failed to install ' . $module . ' via packages',
-					error  => 1
 				);
 				$tried_via_packages{$module} = 1;
 			} else {
@@ -220,7 +219,6 @@ sub action {
 				push( @modules, $module );
 				$self->status_add(
 					status => 'Failed to install ' . $module . ' via packages',
-					error  => 1
 				);
 			} else {
 				$self->{results}{status_text} = $self->{results}{status_text} . $status;
