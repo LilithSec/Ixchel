@@ -109,15 +109,19 @@ sub action {
 		ok          => 0,
 	};
 
+	my $latest = '';
 	my @latest_failed;
 	my @latest_handled;
+	my $present = '';
 	my @present_failed;
 	my @present_handled;
+	my $absent = '';
 	my @absent_failed;
 	my @absent_handled;
 
 	if ( ref( $self->{config}{pkgs}{latest} ) eq 'ARRAY' && defined( $self->{config}{pkgs}{latest}[0] ) ) {
-		$self->status_add( status => 'Starting Latest: ' . join( ', ', @{ $self->{config}{pkgs}{latest} } ) );
+		$latest = join( ', ', @{ $self->{config}{pkgs}{latest} } );
+		$self->status_add( status => 'Starting Latest: ' . $latest );
 		foreach my $pkg ( @{ $self->{config}{pkgs}{latest} } ) {
 			$self->status_add( status => 'ensuring ' . $pkg . ' is latest..' );
 			eval { pkg( $pkg, ensure => 'latest' ); };
@@ -131,7 +135,8 @@ sub action {
 	} ## end if ( ref( $self->{config}{pkgs}{latest} ) ...)
 
 	if ( ref( $self->{config}{pkgs}{present} ) eq 'ARRAY' && defined( $self->{config}{pkgs}{present}[0] ) ) {
-		$self->status_add( status => 'Starting Present: ' . join( ', ', @{ $self->{config}{pkgs}{present} } ) );
+		$present = join( ', ', @{ $self->{config}{pkgs}{present} } );
+		$self->status_add( status => 'Starting Present: ' . $present );
 		foreach my $pkg ( @{ $self->{config}{pkgs}{present} } ) {
 			$self->status_add( status => 'ensuring ' . $pkg . ' is present...' );
 			eval { pkg( $pkg, ensure => 'present' ); };
@@ -145,7 +150,8 @@ sub action {
 	} ## end if ( ref( $self->{config}{pkgs}{present} )...)
 
 	if ( ref( $self->{config}{pkgs}{absent} ) eq 'ARRAY' && defined( $self->{config}{pkgs}{absent}[0] ) ) {
-		$self->status_add( status => 'Starting Absent: ' . join( ', ', @{ $self->{config}{pkgs}{absent} } ) );
+		$absent = join( ', ', @{ $self->{config}{pkgs}{absent} } );
+		$self->status_add( status => 'Starting Absent: ' . $absent );
 		foreach my $pkg ( @{ $self->{config}{pkgs}{absent} } ) {
 			$self->status_add( status => 'ensuring ' . $pkg . ' is absent...' );
 			eval { pkg( $pkg, ensure => 'absent' ); };
@@ -158,13 +164,13 @@ sub action {
 		} ## end foreach my $pkg ( @{ $self->{config}{pkgs}{absent...}})
 	} ## end if ( ref( $self->{config}{pkgs}{absent} ) ...)
 
-	$self->status_add( status => 'Latest: ' . join( ', ', @{ $self->{config}{pkgs}{latest} } ) );
+	$self->status_add( status => 'Latest: ' . $latest );
 	$self->status_add( status => 'Latest Handled: ' . join( ', ', @latest_handled ) );
 	$self->status_add( error  => 1, status => 'Latest Failed: ' . join( ', ', @latest_failed ) );
 	$self->status_add( status => 'Present: ' . join( ', ', @{ $self->{config}{pkgs}{present} } ) );
-	$self->status_add( status => 'Present Handled: ' . join( ', ', @present_handled ) );
+	$self->status_add( status => 'Present Handled: ' . $present );
 	$self->status_add( error  => 1, status => 'Present Failed: ' . join( ', ', @present_failed ) );
-	$self->status_add( status => 'Absent: ' . join( ', ', @{ $self->{config}{pkgs}{absent} } ) );
+	$self->status_add( status => 'Absent: ' . $absent );
 	$self->status_add( status => 'Absent Handled: ' . join( ', ', @absent_handled ) );
 	$self->status_add( error  => 1, status => 'Absent Failed: ' . join( ', ', @absent_failed ) );
 
