@@ -4,26 +4,25 @@ use 5.006;
 use strict;
 use warnings;
 use File::Slurp;
-use Ixchel::functions::install_cpanm;
 use Ixchel::functions::perl_module_via_pkg;
 
 =head1 NAME
 
-Ixchel::Actions::sneck_install - Installs Sneck using packages as much as possible.
+Ixchel::Actions::sneck_install - Installs Lilith using packages as much as possible.
 
 =head1 VERSION
 
-Version 0.0.2
+Version 0.0.1
 
 =cut
 
-our $VERSION = '0.0.2';
+our $VERSION = '0.0.1';
 
 =head1 SYNOPSIS
 
     use Data::Dumper;
 
-    my $results=$ixchel->action(action=>'sneck_install', opts=>{});
+    my $results=$ixchel->action(action=>'lilith_install', opts=>{});
 
 =head1 RESULT HASH REF
 
@@ -88,7 +87,14 @@ sub action {
 
 	$self->status_add( status => 'Installing Monitoring::Sneck depends via packages' );
 
-	my @depends = ( 'JSON', 'File::Slurp', 'MIME::Base64', 'Pod::Usage' );
+	my @depends = (
+		'POE::Wheel::FollowTail', 'TOML',            'DBI',                    'JSON',
+		'File::ReadBackwards',    'Digest::SHA',     'POE',                    'Sys::Hostname',
+		'File::Slurp',            'MIME::Base64',    'Gzip::Faster',           'DBD::Pg',
+		'Data::Dumper',           'Text::ANSITable', 'Net::Server::Daemonize', 'Sys::Syslog',
+		'YAML::PP',               'File::Slurp',     'TOML',                   'Term::ANSIColor',
+		'MIME::Base64',           'Time::Piece::Guess'
+	);
 
 	$self->status_add( status => 'Perl Depends: ' . join( ', ' . @depends ) );
 
@@ -103,11 +109,11 @@ sub action {
 		}
 	} ## end foreach my $depend (@depends)
 
-	system('cpanm', 'Monitoring::Sneck');
-	if ($@) {
-		$self->status_add( status => 'Failed to install Sneck via cpanm', error => 1 );
+	system('cpanm', 'Lilith');
+	if ($? != 0) {
+		$self->status_add( status => 'Failed to install Lilith via cpanm', error => 1 );
 	} else {
-		$self->status_add( status => 'Sneck installed' );
+		$self->status_add( status => 'Lilith installed' );
 	}
 
 	if ( !defined( $self->{results}{errors}[0] ) ) {
@@ -120,7 +126,7 @@ sub action {
 } ## end sub action
 
 sub short {
-	return 'Installs Sneck using packages as much as possible.';
+	return 'Installs Lilith using packages as much as possible.';
 }
 
 sub opts_data {
@@ -140,7 +146,7 @@ sub status_add {
 	}
 
 	if ( !defined( $opts{type} ) ) {
-		$opts{type} = 'sneck_install';
+		$opts{type} = 'lilith_install';
 	}
 
 	my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);

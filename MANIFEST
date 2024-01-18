@@ -51,6 +51,7 @@ lib/Ixchel/Actions/sneck_config.pm
 lib/Ixchel/DefaultConfig.pm
 lib/Ixchel/Actions/sneck_installs.pm
 lib/Ixchel/Actions/snmp_install.pm
+lib/Ixchel/Actions/lilith_install.pm
 Makefile.PL
 MANIFEST			This list of files
 README.md
