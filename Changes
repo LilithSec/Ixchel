@@ -1,5 +1,10 @@
 Revision history for Ixchel
 
+0.5.0   2024-01-17/
+		 - add snmp_install action
+		 - add sneck_install install
+		 - action pkgs, add in results reporting at the end of the action
+
 0.4.0   2024-01-16/17:00
 		 - ENV handling for proxy stuff and and cpanm home has moved to Ixchel->action to make handling easier
 		 - variables defined under .env are now transfered to %ENV by Ixchel->action
