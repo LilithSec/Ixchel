@@ -16,11 +16,11 @@ Ixchel::Actions::sagan_base - Generates the base config for a sagan instance.
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.1.1
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.1.1';
 
 =head1 SYNOPSIS
 
@@ -242,8 +242,10 @@ sub action {
 		print $results->{status_text};
 	}
 
-	if ( !defined( $results->{errors}[0] ) ) {
-		$results->{ok} = 1;
+	if ( !defined( $self->{results}{errors}[0] ) ) {
+		$self->{results}{ok} = 1;
+	} else {
+		$self->{results}{ok} = 0;
 	}
 
 	unlink($tmp_file);

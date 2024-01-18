@@ -12,11 +12,11 @@ Ixchel::Actions::install_yq - Install installs yq
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.1.1
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.1.1';
 
 =head1 SYNOPSIS
 
@@ -111,6 +111,12 @@ sub action {
 		$self->status_add(status=>'Failed to install yq ... '.$@, error=>1);
 	}else {
 		$self->status_add(status=>'yq installed');
+	}
+
+	if ( !defined( $self->{results}{errors}[0] ) ) {
+		$self->{results}{ok} = 1;
+	} else {
+		$self->{results}{ok} = 0;
 	}
 
 	return $self->{results};

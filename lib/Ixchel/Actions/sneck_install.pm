@@ -13,11 +13,11 @@ Ixchel::Actions::sneck_install - Installs Sneck using packages as much as possib
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.0.2
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.0.2';
 
 =head1 SYNOPSIS
 
@@ -94,14 +94,14 @@ sub action {
 
 	foreach my $depend (@depends) {
 		my $status;
-		$self->status_add( status => 'Trying to install '.$depend.' as a package...'  );
+		$self->status_add( status => 'Trying to install ' . $depend . ' as a package...' );
 		eval { $status = perl_module_via_pkg( module => $depend ); };
 		if ($@) {
-			$self->status_add( status => $depend.' could not be installed as a package'  );
-		}else {
-			$self->status_add( status => $depend.' could not be installed as a package'  );
+			$self->status_add( status => $depend . ' could not be installed as a package' );
+		} else {
+			$self->status_add( status => $depend . ' could not be installed as a package' );
 		}
-	}
+	} ## end foreach my $depend (@depends)
 
 	eval { install_cpanm; };
 	if ($@) {
@@ -110,8 +110,10 @@ sub action {
 		$self->status_add( status => 'cpanm installed' );
 	}
 
-	if (defined($self->{results}{errors}[0])) {
-		$self->{results}{ok}=0;
+	if ( !defined( $self->{results}{errors}[0] ) ) {
+		$self->{results}{ok} = 1;
+	} else {
+		$self->{results}{ok} = 0;
 	}
 
 	return $self->{results};

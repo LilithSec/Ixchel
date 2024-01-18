@@ -15,11 +15,11 @@ Ixchel::Actions::sagan_rules - Generate the rules include for Sagan.
 
 =head1 VERSION
 
-Version 0.2.0
+Version 0.2.1
 
 =cut
 
-our $VERSION = '0.2.0';
+our $VERSION = '0.2.1';
 
 =head1 SYNOPSIS
 
@@ -213,6 +213,8 @@ sub action {
 
 	if ( !defined( $self->{results}{errors}[0] ) ) {
 		$self->{results}{ok} = 1;
+	} else {
+		$self->{results}{ok} = 0;
 	}
 
 	return $self->{results};

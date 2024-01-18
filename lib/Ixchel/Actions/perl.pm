@@ -284,6 +284,12 @@ sub action {
 		$self->status_add( status => 'Failed Required By Pkg: ' . join( ',', @failed_pkg_required ) );
 	}
 
+	if ( !defined( $self->{results}{errors}[0] ) ) {
+		$self->{results}{ok} = 1;
+	} else {
+		$self->{results}{ok} = 0;
+	}
+
 	return $self->{results};
 } ## end sub action
 

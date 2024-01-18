@@ -12,11 +12,11 @@ Ixchel::Actions::install_pip - Install pip via packages.
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.1.1
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.1.1';
 
 =head1 SYNOPSIS
 
@@ -95,6 +95,12 @@ sub action {
 		$self->status_add(status=>'Failed to install pip via packages ... '.$@, error=>1);
 	}else {
 		$self->status_add(status=>'pip installed');
+	}
+
+	if ( !defined( $self->{results}{errors}[0] ) ) {
+		$self->{results}{ok} = 1;
+	} else {
+		$self->{results}{ok} = 0;
 	}
 
 	return $self->{results};

@@ -13,11 +13,11 @@ Ixchel::Actions::suricata_diff - Finds the differences between the Ixchel config
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.1.1
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.1.1';
 
 =head1 SYNOPSIS
 
@@ -122,6 +122,8 @@ sub action {
 
 	if ( !defined( $self->{results}{errors}[0] ) ) {
 		$self->{results}{ok} = 1;
+	} else {
+		$self->{results}{ok} = 0;
 	}
 
 	return $self->{results};

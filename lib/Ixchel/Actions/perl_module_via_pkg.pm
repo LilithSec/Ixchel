@@ -12,11 +12,11 @@ Ixchel::Actions::perl_module_via_pkg - Install Perl modules via the package mana
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.2.0
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.2.0';
 
 =head1 SYNOPSIS
 
@@ -100,16 +100,22 @@ sub action {
 	$self->status_add( status => 'Installing cpanm via packges' );
 
 	my $status;
-	eval { $status=perl_module_via_pkg( module => $self->{opts}{module} ); };
+	eval { $status = perl_module_via_pkg( module => $self->{opts}{module} ); };
 	if ($@) {
-		$self->{results}{status_text}=$self->{results}{status_text}.$@;
+		$self->{results}{status_text} = $self->{results}{status_text} . $@;
 		$self->status_add(
 			status => 'Failed to install ' . $self->{opts}{module} . ' via packages',
 			error  => 1
 		);
 	} else {
-		$self->{results}{status_text}=$self->{results}{status_text}.$status;
+		$self->{results}{status_text} = $self->{results}{status_text} . $status;
 		$self->status_add( status => $self->{opts}{module} . ' installed' );
+	}
+
+	if ( !defined( $self->{results}{errors}[0] ) ) {
+		$self->{results}{ok} = 1;
+	} else {
+		$self->{results}{ok} = 0;
 	}
 
 	return $self->{results};

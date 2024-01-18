@@ -12,17 +12,17 @@ Ixchel::Actions::install_cpanm - Install cpanm via packages.
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.1.1
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.1.1';
 
 =head1 SYNOPSIS
 
     use Data::Dumper;
 
-    my $results=$ixchel->action(action=>'instal_cpanm', opts=>{});
+    my $results=$ixchel->action(action=>'install_cpanm', opts=>{});
 
 =head1 RESULT HASH REF
 
@@ -94,6 +94,12 @@ sub action {
 		$self->status_add(status=>'Failed to install cpanm via packages ... '.$@, error=>1);
 	}else {
 		$self->status_add(status=>'cpanm installed');
+	}
+
+	if (!defined($self->{results}{errors}[0])) {
+		$self->{results}{ok}=1;
+	}else {
+		$self->{results}{ok}=0;
 	}
 
 	return $self->{results};
