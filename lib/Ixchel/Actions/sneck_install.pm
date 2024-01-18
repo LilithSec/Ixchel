@@ -90,15 +90,21 @@ sub action {
 
 	my @depends = ( 'JSON', 'File::Slurp', 'MIME::Base64', 'Pod::Usage' );
 
-	$self->status_add( status => 'Perl Depends: ' . join( ', ' . @depends ) );
+	$self->status_add( status => 'Perl Depends: ' . join( ', ', @depends ) );
+
+	my @installed;
+	my @failed;
+
 
 	foreach my $depend (@depends) {
 		my $status;
 		$self->status_add( status => 'Trying to install ' . $depend . ' as a package...' );
 		eval { $status = perl_module_via_pkg( module => $depend ); };
 		if ($@) {
+			push( @failed, $depend );
 			$self->status_add( status => $depend . ' could not be installed as a package' );
 		} else {
+			push( @installed, $depend );
 			$self->status_add( status => $depend . ' could not be installed as a package' );
 		}
 	} ## end foreach my $depend (@depends)
@@ -109,6 +115,9 @@ sub action {
 	} else {
 		$self->status_add( status => 'Sneck installed' );
 	}
+
+	$self->status_add( status => 'Installed via Packages: ' . join( ', ', @installed ) );
+	$self->status_add( status => 'Needed via cpanm: ' . join( ', ', @failed ) );
 
 	if ( !defined( $self->{results}{errors}[0] ) ) {
 		$self->{results}{ok} = 1;

@@ -1,4 +1,4 @@
-package Ixchel::Actions::sneck_install;
+package Ixchel::Actions::lilith_install;
 
 use 5.006;
 use strict;
@@ -8,7 +8,7 @@ use Ixchel::functions::perl_module_via_pkg;
 
 =head1 NAME
 
-Ixchel::Actions::sneck_install - Installs Lilith using packages as much as possible.
+Ixchel::Actions::lilith_install - Installs Lilith using packages as much as possible.
 
 =head1 VERSION
 
@@ -85,36 +85,43 @@ sub new {
 sub action {
 	my $self = $_[0];
 
-	$self->status_add( status => 'Installing Monitoring::Sneck depends via packages' );
+	$self->status_add( status => 'Installing Lilith depends via packages' );
 
 	my @depends = (
-		'POE::Wheel::FollowTail', 'TOML',            'DBI',                    'JSON',
-		'File::ReadBackwards',    'Digest::SHA',     'POE',                    'Sys::Hostname',
-		'File::Slurp',            'MIME::Base64',    'Gzip::Faster',           'DBD::Pg',
-		'Data::Dumper',           'Text::ANSITable', 'Net::Server::Daemonize', 'Sys::Syslog',
-		'YAML::PP',               'File::Slurp',     'TOML',                   'Term::ANSIColor',
-		'MIME::Base64',           'Time::Piece::Guess'
+		'TOML',                   'DBI',             'JSON',         'File::ReadBackwards',
+		'Digest::SHA',            'POE',             'File::Slurp',  'MIME::Base64',
+		'Gzip::Faster',           'DBD::Pg',         'Data::Dumper', 'Text::ANSITable',
+		'Net::Server::Daemonize', 'Sys::Syslog',     'YAML::PP',     'File::Slurp',
+		'TOML',                   'Term::ANSIColor', 'MIME::Base64', 'Time::Piece::Guess'
 	);
 
-	$self->status_add( status => 'Perl Depends: ' . join( ', ' . @depends ) );
+	$self->status_add( status => 'Perl Depends: ' . join( ', ', @depends ) );
+
+	my @installed;
+	my @failed;
 
 	foreach my $depend (@depends) {
 		my $status;
 		$self->status_add( status => 'Trying to install ' . $depend . ' as a package...' );
 		eval { $status = perl_module_via_pkg( module => $depend ); };
 		if ($@) {
+			push( @failed, $depend );
 			$self->status_add( status => $depend . ' could not be installed as a package' );
 		} else {
+			push( @installed, $depend );
 			$self->status_add( status => $depend . ' could not be installed as a package' );
 		}
 	} ## end foreach my $depend (@depends)
 
-	system('cpanm', 'Lilith');
-	if ($? != 0) {
+	system( 'cpanm', 'Lilith' );
+	if ( $? != 0 ) {
 		$self->status_add( status => 'Failed to install Lilith via cpanm', error => 1 );
 	} else {
 		$self->status_add( status => 'Lilith installed' );
 	}
+
+	$self->status_add( status => 'Installed via Packages: ' . join( ', ', @installed ) );
+	$self->status_add( status => 'Needed via cpanm: ' . join( ', ', @failed ) );
 
 	if ( !defined( $self->{results}{errors}[0] ) ) {
 		$self->{results}{ok} = 1;
