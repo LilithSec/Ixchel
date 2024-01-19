@@ -1,5 +1,8 @@
 Revision history for Ixchel
 
+0.6.0  2024-01-?
+		 - pkgs action, don't mark end report as errors
+
 0.5.1   2024-01-19/09:45
 		 - Fix typo in MANIFEST sneck_installs -> sneck_install
 
