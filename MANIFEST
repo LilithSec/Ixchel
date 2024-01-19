@@ -49,7 +49,7 @@ lib/Ixchel/Actions/extend_smart_config.pm
 lib/Ixchel/Actions/snmp_v2.pm
 lib/Ixchel/Actions/sneck_config.pm
 lib/Ixchel/DefaultConfig.pm
-lib/Ixchel/Actions/sneck_installs.pm
+lib/Ixchel/Actions/sneck_install.pm
 lib/Ixchel/Actions/snmp_install.pm
 lib/Ixchel/Actions/lilith_install.pm
 Makefile.PL
