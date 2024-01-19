@@ -166,13 +166,13 @@ sub action {
 
 	$self->status_add( status => 'Latest: ' . $latest );
 	$self->status_add( status => 'Latest Handled: ' . join( ', ', @latest_handled ) );
-	$self->status_add( error  => 1, status => 'Latest Failed: ' . join( ', ', @latest_failed ) );
+	$self->status_add( status => 'Latest Failed: ' . join( ', ', @latest_failed ) );
 	$self->status_add( status => 'Present: ' . join( ', ', @{ $self->{config}{pkgs}{present} } ) );
 	$self->status_add( status => 'Present Handled: ' . $present );
-	$self->status_add( error  => 1, status => 'Present Failed: ' . join( ', ', @present_failed ) );
+	$self->status_add( status => 'Present Failed: ' . join( ', ', @present_failed ) );
 	$self->status_add( status => 'Absent: ' . $absent );
 	$self->status_add( status => 'Absent Handled: ' . join( ', ', @absent_handled ) );
-	$self->status_add( error  => 1, status => 'Absent Failed: ' . join( ', ', @absent_failed ) );
+	$self->status_add( status => 'Absent Failed: ' . join( ', ', @absent_failed ) );
 
 	return $self->{results};
 } ## end sub action
