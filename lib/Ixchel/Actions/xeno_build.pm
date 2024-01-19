@@ -648,6 +648,8 @@ sub action {
 
 					my $response = $ua->get($url);
 
+					$return_code = $response->status_line;
+
 					my $content;
 					if ( $response->is_success ) {
 						$content = $response->decoded_content;
