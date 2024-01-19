@@ -4,7 +4,6 @@ use 5.006;
 use strict;
 use warnings;
 use File::Slurp;
-use LWP::Simple;
 use JSON;
 use Ixchel::functions::github_fetch_release_asset;
 

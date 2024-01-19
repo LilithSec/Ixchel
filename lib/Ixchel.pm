@@ -141,11 +141,11 @@ Now if we want to pass '--np' to not print it, we would do it like below.
 
     my $rendered_template=$ixchel->action( action=>'template', opts=>{ t=>'extend_logsize', np=>1 });
 
-If the following values are defined, the matching ENV is set.
+If the following values are defined, the matching ENVs are set.
 
-    .proxy.ftp       ->  FTP_PROXY
-    .proxy.http      ->  HTTP_PROXY
-    .proxy.https     ->  HTTPS_PROXY
+    .proxy.ftp       ->  FTP_PROXY, ftp_proxy
+    .proxy.http      ->  HTTP_PROXY, http_proxy
+    .proxy.https     ->  HTTPS_PROXY, https_proxy
     .perl.cpanm_home ->  PERL_CPANM_HOME
 
 Additionally any of the variables defined under .env will also be
@@ -201,12 +201,15 @@ sub action {
 	# set the enviromental variables if needed
 	if ( defined( $self->{config}{proxy}{ftp} ) && $self->{config}{proxy}{ftp} ne '' ) {
 		$ENV{FTP_PROXY} = $self->{config}{proxy}{ftp};
+		$ENV{ftp_proxy} = $self->{config}{proxy}{ftp};
 	}
 	if ( defined( $self->{config}{proxy}{http} ) && $self->{config}{proxy}{http} ne '' ) {
 		$ENV{HTTP_PROXY} = $self->{config}{proxy}{http};
+		$ENV{http_proxy} = $self->{config}{proxy}{http};
 	}
 	if ( defined( $self->{config}{proxy}{https} ) && $self->{config}{proxy}{https} ne '' ) {
 		$ENV{HTTPS_PROXY} = $self->{config}{proxy}{https};
+		$ENV{https_proxy} = $self->{config}{proxy}{https};
 	}
 	if ( defined( $self->{config}{perl}{cpanm_home} ) && $self->{config}{perl}{cpanm_home} ne '' ) {
 		$ENV{PERL_CPANM_HOME} = $self->{config}{perl}{cpanm_home};
