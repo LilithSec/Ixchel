@@ -8,7 +8,7 @@ use String::ShellQuote;
 use Rex::Commands::Gather;
 use File::Temp qw/ tempdir /;
 use Rex::Commands::Pkg;
-use LWP::Simple;
+use LWP::UserAgent ();
 use Ixchel::functions::perl_module_via_pkg;
 use Ixchel::functions::install_cpanm;
 use Ixchel::functions::python_module_via_pkg;
@@ -426,9 +426,9 @@ sub action {
 	my $self = $_[0];
 
 	$self->{results} = {
-		errors => [],
+		errors      => [],
 		status_text => '',
-		ok     => 0,
+		ok          => 0,
 	};
 
 	# if this is not set, no reason to continue
@@ -631,10 +631,41 @@ sub action {
 						status => 'Fetch "' . $fetch_name . '" DST Template Results: ' . $dst
 					);
 				} ## end if ($template_it)
-				my $return_code = getstore( $url, $dst );
+
+				my $return_code  = 'undef';
+				my $return_extra = '';
+				eval {
+					my $ua = LWP::UserAgent->new( timeout => 10 );
+					if ( defined( $ENV{HTTP_PROXY} ) ) {
+						$ua->proxy( ['http'], $ENV{HTTP_PROXY} );
+					}
+					if ( defined( $ENV{HTTPS_PROXY} ) ) {
+						$ua->proxy( ['https'], $ENV{HTTPS_PROXY} );
+					}
+					if ( defined( $ENV{FTP_PROXY} ) ) {
+						$ua->proxy( ['ftp'], $ENV{FTP_PROXY} );
+					}
+
+					my $response = $ua->get($url);
+
+					my $content;
+					if ( $response->is_success ) {
+						$content = $response->decoded_content;
+					} else {
+						die( $response->status_line );
+					}
+
+					write_file( $dst, $content );
+				};
+				my $fetch_errored = 0;
+				if ($@) {
+					$return_extra  = '   ...   ' . $@;
+					$fetch_errored = 1;
+				}
 				$self->status_add(
 					type   => $type,
-					status => 'Fetch "' . $fetch_name . '" Return Code: ' . $return_code
+					error  => $fetch_errored,
+					status => 'Fetch "' . $fetch_name . '" Return Code: ' . $return_code . $return_extra
 				);
 			} ## end foreach my $fetch_name (@fetch_names)
 
