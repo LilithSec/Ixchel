@@ -153,7 +153,7 @@ sub status_add {
 	}
 
 	if ( !defined( $opts{type} ) ) {
-		$opts{type} = 'sneck_install';
+		$opts{type} = 'snmp_install';
 	}
 
 	my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);
