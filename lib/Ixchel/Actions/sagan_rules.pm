@@ -21,7 +21,11 @@ Version 0.2.1
 
 our $VERSION = '0.2.1';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a sagan_rules [B<--np>] [B<-w>] [B<-i> <instance>]
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

@@ -18,7 +18,11 @@ Version 0.1.0
 
 our $VERSION = '0.1.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a python_module_via_pkg B<--module> <module>
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

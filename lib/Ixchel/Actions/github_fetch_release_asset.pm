@@ -19,7 +19,14 @@ Version 0.1.0
 
 our $VERSION = '0.1.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a github_fetch_release_asset B<-o> <owner> B<-r> <repo> B<-f> <asset> B<-P> [B<-p>] B<-P>
+
+ixchel -a github_fetch_release_asset B<-o> <owner> B<-r> <repo> B<-f> <asset> B<-w> <outfile>
+[B<-p>] [B<-N>] [B<-A>] [B<-B>] [B<-U>] <umask>
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

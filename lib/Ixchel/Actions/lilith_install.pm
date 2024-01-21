@@ -18,7 +18,11 @@ Version 0.0.1
 
 our $VERSION = '0.0.1';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a lilith_install
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

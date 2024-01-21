@@ -18,7 +18,11 @@ Version 0.1.1
 
 our $VERSION = '0.1.1';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a install_yq
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

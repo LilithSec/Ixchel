@@ -18,7 +18,12 @@ Version 0.1.0
 
 our $VERSION = '0.1.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a systemd_auto [B<-s> <service>] [B<--np>] [B<-w>] [B<-s> <service>]
+[B<--reload>] [B<--enable>] [B<--start>] [B<--restart>]
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 
@@ -49,6 +54,8 @@ Write the generated services to service files.
 =head2 -s <service>
 
 A auto service to operate on.
+
+Otherwise operates on them all.
 
 =head2 --reload
 

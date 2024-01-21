@@ -12,7 +12,7 @@ use JSON::Path;
 
 =head1 NAME
 
-Ixchel::Actions::sys_info - Prints out the config.
+Ixchel::Actions::dump_config - Prints out the config.
 
 =head1 VERSION
 
@@ -22,7 +22,11 @@ Version 0.1.0
 
 our $VERSION = '0.1.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a <dump_config> [B<-o> <format>] [B<-s> <section>]
+
+=head1 CODE SYNOPSIS
 
     $ixchel->action(action=>'dump_config', opts=>{ o=>'toml' });
 

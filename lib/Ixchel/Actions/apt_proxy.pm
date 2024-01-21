@@ -17,7 +17,11 @@ Version 0.1.0
 
 our $VERSION = '0.1.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a apt_proxy [B<-w>] [B<-o> <file>]
+
+=head1 CODE SYNOPSIS
 
     my $filled_in=$ixchel->action(action=>'apt_proxy', opts=>{w=>1});
 

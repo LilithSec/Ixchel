@@ -16,7 +16,11 @@ Version 0.1.0
 
 our $VERSION = '0.1.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a <systemd_auto_list>
+
+=head1 CODE SYNOPSIS
 
     my @systemd_auto_units=$ixchel->action(action=>'systemd_auto_list', opts=>{np=>1}, );
 

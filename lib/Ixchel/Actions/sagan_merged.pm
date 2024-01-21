@@ -25,7 +25,11 @@ Version 0.0.2
 
 our $VERSION = '0.0.2';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a sagan_merged [B<--np>] [B<-w>] [B<-i> <instance>]
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

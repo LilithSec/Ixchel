@@ -19,11 +19,15 @@ Version 0.1.1
 
 our $VERSION = '0.1.1';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a suricata_diff [B<-i> <instance>]
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 
-    my $results=$ixchel->action(action=>'suricata_diff', opts=>{np=>1, w=>1, });
+    my $results=$ixchel->action(action=>'suricata_diff', opts=>{np=>1, });
 
     print Dumper($results);
 

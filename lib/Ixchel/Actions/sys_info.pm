@@ -21,7 +21,11 @@ Version 0.1.0
 
 our $VERSION = '0.1.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a sys_info [B<-o> <format>]
+
+=head1 CODE SYNOPSIS
 
 Fetches system info via Rex::Hardware and prints it in various formats.
 

@@ -17,7 +17,13 @@ Version 0.1.0
 
 our $VERSION = '0.1.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a systemd_journald_conf
+
+ixchel -a systemd_journald_conf B<-w> [B<--np>] [B<--die>]
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

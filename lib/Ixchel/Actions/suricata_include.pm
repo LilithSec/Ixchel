@@ -18,7 +18,13 @@ Version 0.1.0
 
 our $VERSION = '0.1.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a suricata_include [B<-i> <instance>] [B<-d> <base_dir>]
+
+ixchel -a suricata_include [B<-w>] [B<--np>] [B<-i> <instance>] [B<-d> <base_dir>]
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

@@ -19,7 +19,11 @@ Version 0.0.2
 
 our $VERSION = '0.0.2';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a sneck_install
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

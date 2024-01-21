@@ -20,7 +20,13 @@ Version 0.2.0
 
 our $VERSION = '0.2.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a xeno B<--xb> <file>
+
+ixchel -a xeno B<-r> <repo item>
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

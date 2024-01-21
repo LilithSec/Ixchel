@@ -17,7 +17,13 @@ Version 0.0.1
 
 our $VERSION = '0.0.1';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a snmp_v2
+
+ixchel -a snmp_v2 B<-w> [B<-o> <file>]
+
+=head1 CODE SYNOPSIS
 
     my $filled_in=$ixchel->action(action=>'snmp_v2', opts=>{w=>1});
 

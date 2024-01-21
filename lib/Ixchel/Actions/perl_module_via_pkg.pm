@@ -18,11 +18,13 @@ Version 0.2.0
 
 our $VERSION = '0.2.0';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
 
-    use Data::Dumper;
+ixchel -a perl_module_via_pkg B<--module> <module>
 
-    my $results=$ixchel->action(action=>'perl_module_via_pkg', opts=>{module=>'Monitoring::Sneck'});
+=head1 CODE SYNOPSIS
+
+my $results=$ixchel->action(action=>'perl_module_via_pkg', opts=>{module=>'Monitoring::Sneck'});
 
 =head1 FLAGS
 

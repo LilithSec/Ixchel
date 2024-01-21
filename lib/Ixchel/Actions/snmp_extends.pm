@@ -17,7 +17,13 @@ Version 0.0.1
 
 our $VERSION = '0.0.1';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a snmp_extends B<-l>
+
+ixchel -a snmp_extends B<-u>
+
+=head1 CODE SYNOPSIS
 
     use Data::Dumper;
 

@@ -17,7 +17,11 @@ Version 0.0.1
 
 our $VERSION = '0.0.1';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a sneck_config [B<-w>] [B<-o> <file>]
+
+=head1 CODE SYNOPSIS
 
     my $filled_in=$ixchel->action(action=>'sneck_config', opts=>{w=>1});
 

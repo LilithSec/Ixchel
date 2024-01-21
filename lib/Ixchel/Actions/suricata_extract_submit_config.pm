@@ -17,7 +17,13 @@ Version 0.0.1
 
 our $VERSION = '0.0.1';
 
-=head1 SYNOPSIS
+=head1 CLI SYNOPSIS
+
+ixchel -a suricata_extract_submit_config
+
+ixchel -a suricata_extract_submit_config B<-w> [B<-o> <file>]
+
+=head1 CODE SYNOPSIS
 
     my $filled_in=$ixchel->action(action=>'suricata_extract_submit_config', opts=>{w=>1});
 
