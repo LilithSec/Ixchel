@@ -33,6 +33,8 @@ our $VERSION = '0.0.1';
 sub new {
 	my ( $empty, %opts ) = @_;
 
+	my $class=shift;
+
 	my $self = {
 		config   => {},
 		vars     => {},
@@ -40,7 +42,7 @@ sub new {
 		opts     => {},
 		no_print => 0,
 	};
-	bless $self;
+	bless $self, $class;
 
 	$self->{type} = ref($self);
 	$self->{type} =~ s/^Ixchel\:\:Actions\:\://;
@@ -75,13 +77,13 @@ sub new {
 		$self->{ixchel} = $opts{ixchel};
 	}
 
-	$self->new_extra;
-
 	$self->{results} = {
 		errors      => [],
 		status_text => '',
 		ok          => 0,
 	};
+
+	$self->new_extra;
 
 	return $self;
 } ## end sub new
