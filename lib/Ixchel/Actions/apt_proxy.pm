@@ -65,7 +65,7 @@ Don't print the the filled in template.
 
 =cut
 
-sub new_extra{}
+sub new_extra { }
 
 sub action {
 	my $self = $_[0];
@@ -93,8 +93,13 @@ sub action {
 	};
 	if ($@) {
 		$self->status_add( status => 'Failed to fill out template apt_proxy ... ' . $@, error => 1 );
+		return $self->{results};
 	}
 	$self->{results}{filled_in} = $filled_in;
+
+	if ( !$self->{opts}{np} ) {
+		print $filled_in;
+	}
 
 	if ( $self->{opts}{w} ) {
 		eval { write_file( $self->{opts}{o}, $filled_in ); };
@@ -106,11 +111,11 @@ sub action {
 		}
 	}
 
-	if ( !$self->{opts}{np} ) {
-		print $filled_in;
+	if ( !defined( $self->{results}{errors}[0] ) ) {
+		$self->{results}{ok} = 1;
 	}
 
-	return $filled_in;
+	return $self->{results};
 } ## end sub action
 
 sub short {
