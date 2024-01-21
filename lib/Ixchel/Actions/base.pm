@@ -99,7 +99,7 @@ The returned object has the following keys.
 sub new {
 	my ( $empty, %opts ) = @_;
 
-	my $class=shift;
+	my $class = shift;
 
 	my $self = {
 		config   => {},
@@ -154,6 +154,73 @@ sub new {
 	return $self;
 } ## end sub new
 
+=head2 action
+
+Will call $self->action_extra.
+
+Upon undef it will check if $self->{results}{errors}[0]
+is defined and if it is not $self->{results}{ok} is set
+to 1.
+
+Upon $self->{results} being returned, it makes it checks if
+$results->{errors} is defined, is a array and then if
+it is a array it will check $results->{errors}[0] is defined
+for setting $results->{ok} before returning $results.
+
+Any other results return will be returned as is.
+
+Or as code it does...
+
+    if (   defined($results)
+        && ref($results) eq 'HASH'
+        && defined( $self->{results}{errors} )
+        && ref( $results->{results}{errors} ) eq 'ARRAY' )
+    {
+        if ( !defined( $self->{results}{errors}[0] ) ) {
+            $self->{results}{ok} = 1;
+        }
+        return $self->{results};
+    }elsif (!defined($results)) {
+        if ( !defined( $self->{results}{errors}[0] ) ) {
+            $self->{results}{ok} = 1;
+        }
+        return $self->{results};
+    }
+
+    return $results;
+
+=cut
+
+sub action {
+	my ($self) = @_;
+
+	my $results;
+	eval { $results = $self->action_extra; };
+	if ($@) {
+		$self->status_add( error => 1, '$self->action_extra died... ' . $@ );
+		return $self->{results};
+	}
+
+	if (   defined($results)
+		&& ref($results) eq 'HASH'
+		&& defined( $self->{results}{errors} )
+		&& ref( $results->{results}{errors} ) eq 'ARRAY' )
+	{
+		if ( !defined( $self->{results}{errors}[0] ) ) {
+			$self->{results}{ok} = 1;
+		}
+		return $self->{results};
+	} elsif ( !defined($results) ) {
+		if ( !defined( $self->{results}{errors}[0] ) ) {
+			$self->{results}{ok} = 1;
+		}
+
+		return $self->{results};
+	}
+
+	return $results;
+} ## end sub action
+
 =head2 status_add
 
 Adds a item to $self->{results}{status_text}.
@@ -198,7 +265,7 @@ sub status_add {
 
 	my $status = '[' . $timestamp . '] [' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
 
-	if (!$self->{no_print}) {
+	if ( !$self->{no_print} ) {
 		print $status. "\n";
 	}
 

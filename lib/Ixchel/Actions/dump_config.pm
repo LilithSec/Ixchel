@@ -9,6 +9,7 @@ use JSON       qw(to_json);
 use YAML::XS   qw(Dump);
 use Data::Dumper;
 use JSON::Path;
+use base 'Ixchel::Actions::base';
 
 =head1 NAME
 
@@ -16,11 +17,11 @@ Ixchel::Actions::dump_config - Prints out the config.
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.2.0
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.2.0';
 
 =head1 CLI SYNOPSIS
 
@@ -28,9 +29,13 @@ ixchel -a <dump_config> [B<-o> <format>] [B<-s> <section>]
 
 =head1 CODE SYNOPSIS
 
-    $ixchel->action(action=>'dump_config', opts=>{ o=>'toml' });
+    my $results=$ixchel->action(action=>'apt_proxy', opts=>{w=>1, np=>1});
 
-Prints out the config.
+    if ($results->{ok}) {
+        print $results->{raw};
+    }else{
+        die('Action errored... '.joined("\n", @{$results->{errors}}));
+    }
 
 =head1 Switches
 
@@ -49,65 +54,74 @@ config via L<JSON::Path>.
 
 Default: undef
 
+=head1 RESULT HASH REF
+
+    .errors :: A array of errors encountered.
+    .status_text :: A string description of what was done and the results.
+    .ok :: Set to zero if any of the above errored.
+    .raw :: The config in the specified format.
+    .config :: The config hash.
+
 =cut
 
-sub new {
-	my ( $empty, %opts ) = @_;
+sub new_extra { }
 
-	if ( !defined( $opts{config} ) ) {
-		die('$opts{config} is undef');
-	}
-
-	my $self = { config => $opts{config}, opts => {}, ixchel => $opts{ixchel} };
-	bless $self;
-
-	if ( defined( $opts{opts} ) ) {
-		$self->{opts} = \%{ $opts{opts} };
-	}
-
-	return $self;
-} ## end sub new
-
-sub action {
+sub action_extra {
 	my $self = $_[0];
 
 	if ( !defined( $self->{opts}->{o} ) ) {
 		$self->{opts}->{o} = 'yaml';
 	}
 
-	if (   $self->{opts}->{o} ne 'toml'
-		&& $self->{opts}->{o} ne 'json'
-		&& $self->{opts}->{o} ne 'dumper'
-		&& $self->{opts}->{o} ne 'yaml' )
+	if (   $self->{opts}{o} ne 'toml'
+		&& $self->{opts}{o} ne 'json'
+		&& $self->{opts}{o} ne 'dumper'
+		&& $self->{opts}{o} ne 'yaml' )
 	{
-		die( '-o is set to "' . $self->{opts}->{o} . '" which is not a understood setting' );
-		$self->{ixchel}{errors_count}++;
-	}
+		self->status_add(
+			status => '-o is set to "' . $self->{opts}{o} . '" which is not a understood setting',
+			error  => 1
+		);
+		return undef;
+	} ## end if ( $self->{opts}{o} ne 'toml' && $self->...)
 
 	my $config;
 	if ( defined( $self->{opts}{s} ) ) {
-		my $jpath = JSON::Path->new( $self->{opts}{s} );
-		$config = $jpath->get( $self->{config} );
+		eval {
+			my $jpath = JSON::Path->new( $self->{opts}{s} );
+			$config = $jpath->get( $self->{config} );
+		};
+		if ($@) {
+			$self->status_add( status => 'JSON::Path errored ... ' . $@, error => 1 );
+			return undef;
+		}
 	} else {
 		$config = $self->{config};
 	}
+	$self->{results}{config} = $config;
 
 	my $string;
 	if ( $self->{opts}->{o} eq 'toml' ) {
 		$string = to_toml($config) . "\n";
-		print $string;
+		if ( !$self->{opts}{np} ) {
+			print $string;
+		}
 	} elsif ( $self->{opts}->{o} eq 'json' ) {
 		my $json = JSON->new;
 		$json->canonical(1);
 		$json->pretty(1);
 		$string = $json->encode($config);
-		print $string;
+		if ( !$self->{opts}{np} ) {
+			print $string;
+		}
 	} elsif ( $self->{opts}->{o} eq 'yaml' ) {
 		$string = Dump($config);
-		print $string;
+		if ( !$self->{opts}{np} ) {
+			print $string;
+		}
 	}
 
-	return $string;
+	return undef;
 } ## end sub action
 
 sub short {
@@ -116,7 +130,9 @@ sub short {
 
 sub opts_data {
 	return 'o=s
-s=s';
+s=s
+np
+';
 }
 
 1;

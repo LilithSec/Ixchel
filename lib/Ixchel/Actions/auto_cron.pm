@@ -64,7 +64,7 @@ Don't print the the filled in template.
 
 sub new_extra { }
 
-sub action {
+sub action_extra {
 	my $self = $_[0];
 
 	# set the default output for -o if not defined
@@ -90,7 +90,7 @@ sub action {
 	};
 	if ($@) {
 		$self->status_add( status => 'Failed to fill out template auto_cron ... ' . $@, error => 1 );
-		return $self->{results};
+		return undef;
 	}
 	$self->{results}{filled_in} = $filled_in;
 
@@ -108,11 +108,7 @@ sub action {
 		}
 	}
 
-	if ( !defined( $self->{results}{errors}[0] ) ) {
-		$self->{results}{ok} = 1;
-	}
-
-	return $self->{results};
+	return undef;
 } ## end sub action
 
 sub short {
