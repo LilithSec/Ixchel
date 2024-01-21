@@ -18,6 +18,44 @@ our $VERSION = '0.0.1';
 
 =head1 SYNOPSIS
 
+    package Ixchel::Actions::install_cpanm;
+
+    use 5.006;
+    use strict;
+    use warnings;
+    use Ixchel::functions::install_cpanm;
+    use base 'Ixchel::Actions::base';
+
+    sub new_extra {
+    }
+
+    sub action {
+	    my $self = $_[0];
+
+	    $self->status_add(status=>'Installing cpanm via packges');
+
+	    eval{
+		    install_cpanm;
+	    };
+	    if ($@) {
+		    $self->status_add(status=>'Failed to install cpanm via packages ... '.$@, error=>1);
+	    }else {
+		    $self->status_add(status=>'cpanm installed');
+	    }
+
+	    if (!defined($self->{results}{errors}[0])) {
+		   $self->{results}{ok}=1;
+	    }else {
+		   $self->{results}{ok}=0;
+	    }
+
+        return $self->{results};
+    }
+
+    sub short {
+	    return 'Install cpanm via packages.';
+    }
+
     my $results=$ixchel->action(action=>'perl_module_via_pkg', opts=>{module=>'Monitoring::Sneck'});
 
 =head2 DESCRIPTION
@@ -27,6 +65,34 @@ our $VERSION = '0.0.1';
     .errors :: A array of errors encountered.
     .status_text :: A string description of what was done and the results.
     .ok :: Set to zero if any of the above errored.
+
+=cut
+
+=head1 METHODS
+
+=head2 new
+
+This initiates the action. At the ned of the new method, $self->new_extra; is called.
+This method should exist in the action package. It is for anything else that needs done
+for new. If nothing it should just be empty.
+
+The returned object has the following keys.
+
+    - $self->{config} :: The config hash for Ixchel.
+
+    - $self->{vars} :: The value of vars passed to the new method.
+
+    - $self->{opts} :: Decoded opts as specifed via opts data.
+
+    - $self->{argv} :: Left over arguments post decoding opts.
+
+    - $self->{ixchel} :: The calling Ixchel object.
+
+    - $self->{share_dir} :: Location of the share dir.
+
+    - $self->{type} :: The type that will be used with status_add.
+
+    - $self->{t} :: The Template object Initiated via Ixchel.
 
 =cut
 
@@ -106,6 +172,10 @@ The following are optional.
     - type :: What to display the current type as in the status line.
         Default :: $action
 
+    $self->status_add(status=>'Some status');
+
+    $self->status_add(error=>1, status=>'Some error');
+
 =cut
 
 sub status_add {
@@ -138,5 +208,26 @@ sub status_add {
 		push( @{ $self->{results}{errors} }, $opts{status} );
 	}
 } ## end sub status_add
+
+=head2 short
+
+The default short just returns ''.
+
+=cut
+
+sub short {
+	return '';
+}
+
+=head2 opts_data
+
+The default opts_data returns "\n".
+
+=cut
+
+sub opts_data {
+	return '
+';
+}
 
 1;

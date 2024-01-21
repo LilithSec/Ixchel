@@ -3,7 +3,6 @@ package Ixchel::Actions::install_cpanm;
 use 5.006;
 use strict;
 use warnings;
-use File::Slurp;
 use Ixchel::functions::install_cpanm;
 use base 'Ixchel::Actions::base';
 
@@ -65,11 +64,6 @@ sub action {
 
 sub short {
 	return 'Install cpanm via packages.';
-}
-
-sub opts_data {
-	return '
-';
 }
 
 1;
