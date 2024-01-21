@@ -4,6 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 use File::Slurp;
+use base 'Ixchel::Actions::base';
 
 =head1 NAME
 
@@ -102,7 +103,7 @@ sub action_extra {
 		eval { write_file( $self->{opts}{o}, $filled_in ); };
 		if ($@) {
 			$self->status_add(
-				status => 'Failed to write out template to "' . $self->{opts}{o} . '" ... ' . $@,
+				status => 'Failed to write out filled in template to "' . $self->{opts}{o} . '" ... ' . $@,
 				error  => 1
 			);
 		}
