@@ -108,6 +108,7 @@ t/048-load-Ixchel__Action__snmp_v2.t
 t/049-load-Ixchel__Action__sneck_config.t
 t/050-load-Ixchel__Action__sneck_install.t
 t/051-load-Ixchel__Action__snmp_install.t
+t/052-load-Ixchel__Action__snmp_service.t
 lib/Ixchel/Actions/extend_logsize_config.pm
 t/manifest.t
 t/pod-coverage.t
