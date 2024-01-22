@@ -8,6 +8,7 @@ use YAML::XS qw(Dump);
 use Ixchel::functions::file_get;
 use YAML::yq::Helper;
 use File::Temp qw/ tempfile  /;
+use base 'Ixchel::Actions::base';
 
 =head1 NAME
 
@@ -15,11 +16,11 @@ Ixchel::Actions::suricata_base - Reels in the base Suricata config and uses it f
 
 =head1 VERSION
 
-Version 0.2.1
+Version 0.3.0
 
 =cut
 
-our $VERSION = '0.2.1';
+our $VERSION = '0.3.0';
 
 =head1 CLI SYNOPSIS
 
@@ -57,10 +58,6 @@ The following keys are removed.
 
 =head1 FLAGS
 
-=head2 --np
-
-Do not print the status of it.
-
 =head2 -w
 
 Write the generated services to service files.
@@ -81,73 +78,25 @@ Use this as the base dir instead of .suricata.config_base from the config.
 
 =cut
 
-sub new {
-	my ( $empty, %opts ) = @_;
+sub new_extra { }
 
-	my $self = {
-		config  => {},
-		vars    => {},
-		arggv   => [],
-		opts    => {},
-		results => {
-			errors => [],
-			status => '',
-			ok     => 0,
-		},
-	};
-	bless $self;
-
-	if ( defined( $opts{config} ) ) {
-		$self->{config} = $opts{config};
-	}
-
-	if ( defined( $opts{t} ) ) {
-		$self->{t} = $opts{t};
-	} else {
-		die('$opts{t} is undef');
-	}
-
-	if ( defined( $opts{share_dir} ) ) {
-		$self->{share_dir} = $opts{share_dir};
-	}
-
-	if ( defined( $opts{opts} ) ) {
-		$self->{opts} = \%{ $opts{opts} };
-	}
-
-	if ( defined( $opts{argv} ) ) {
-		$self->{argv} = $opts{argv};
-	}
-
-	if ( defined( $opts{vars} ) ) {
-		$self->{vars} = $opts{vars};
-	}
-
-	if ( defined( $opts{ixchel} ) ) {
-		$self->{ixchel} = $opts{ixchel};
-	}
-
-	return $self;
-} ## end sub new
-
-sub action {
+sub action_extra {
 	my $self = $_[0];
-
-	$self->{results} = {
-		errors => [],
-		status => '',
-		ok     => 0,
-	};
 
 	my $config_base;
 	if ( !defined( $self->{opts}{d} ) ) {
 		$config_base = $self->{config}{suricata}{config_base};
 	} else {
 		if ( !-d $self->{opts}{d} ) {
-			die( '-d, "' . $self->{opts}{d} . '" is not a directory' );
+			$self->status_add(
+				status => '-d, "' . $self->{opts}{d} . '" is not a directory',
+				error  => 1
+			);
+
+			return undef;
 		}
 		$config_base = $self->{opts}{d};
-	}
+	} ## end else [ if ( !defined( $self->{opts}{d} ) ) ]
 
 	my $base_config_url = $self->{config}{suricata}{base_config};
 
@@ -157,7 +106,7 @@ sub action {
 			status =>
 				'The config value .config.base_config is undef. It should be the value for URL to fetch it from'
 		);
-		return $self->{results};
+		return undef;
 	}
 
 	my $base_config_raw;
@@ -167,7 +116,7 @@ sub action {
 	};
 	if ($@) {
 		$self->status_add( error => 1, status => 'Fetch Error... ' . $@ );
-		return $self->{results};
+		return undef;
 	}
 
 	# rebuild the file
@@ -226,7 +175,7 @@ sub action {
 	};
 	if ($@) {
 		$self->status_add( error => 1, status => 'Errored removing paths... ' . $@ );
-		return $self->{results};
+		return undef;
 	}
 	$new_status = 'Path removal finished';
 	if ( $self->{opts}{pr} ) {
@@ -312,18 +261,12 @@ sub action {
 				error  => 1,
 				status => 'Errored adding in include paths or writing file out(if asked)... ' . $@
 			);
-			return $self->{results};
+			return undef;
 		}
 	} ## end else [ if ( $self->{config}{suricata}{multi_instance...})]
 
-	if ( !defined( $self->{results}{errors}[0] ) ) {
-		$self->{results}{ok} = 1;
-	} else {
-		$self->{results}{ok} = 0;
-	}
-
-	return $self->{results};
-} ## end sub action
+	return undef;
+} ## end sub action_extra
 
 sub short {
 	return 'Reels in the base Suricata config and uses it for generating the base config for each instance.';
@@ -331,44 +274,12 @@ sub short {
 
 sub opts_data {
 	return 'i=s
-np
 w
 pp
 pr
 pi
 d=s
 ';
-} ## end sub opts_data
-
-sub status_add {
-	my ( $self, %opts ) = @_;
-
-	if ( !defined( $opts{status} ) ) {
-		return;
-	}
-
-	if ( !defined( $opts{error} ) ) {
-		$opts{error} = 0;
-	}
-
-	if ( !defined( $opts{type} ) ) {
-		$opts{type} = 'suricata_base';
-	}
-
-	my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);
-	my $timestamp = sprintf( "%04d-%02d-%02dT%02d:%02d:%02d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
-
-	my $status = '[' . $timestamp . '] [' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
-
-	if ( !$self->{opts}{np} ) {
-		print $status. "\n";
-	}
-
-	$self->{results}{status} = $self->{results}{status} . $status;
-
-	if ( $opts{error} ) {
-		push( @{ $self->{results}{errors} }, $opts{status} );
-	}
-} ## end sub status_add
+}
 
 1;
