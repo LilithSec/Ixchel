@@ -57,6 +57,13 @@ Default :: /usr/local/etc/smart-extend.conf
 
 Don't print the the filled in template.
 
+=head1 RESULT HASH REF
+
+    .errors :: A array of errors encountered.
+    .status_text :: A string description of what was done and the results.
+    .ok :: Set to zero if any of the above errored.
+    .filled_in :: The filled in template.
+
 =cut
 
 sub new_extra { }
