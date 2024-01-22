@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use File::Slurp;
 use Ixchel::functions::install_pip;
+use base 'Ixchel::Actions::base';
 
 =head1 NAME
 
