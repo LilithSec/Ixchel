@@ -30,7 +30,7 @@ ixchel -a lilith_install
     my $results=$ixchel->action(action=>'lilith_install', opts=>{});
 
     if ($results->{ok}) {
-        print $results->{filled_in};
+        print $results->{status_text};
     }else{
         die('Action errored... '.joined("\n", @{$results->{errors}}));
     }
