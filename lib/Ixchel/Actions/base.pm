@@ -20,7 +20,6 @@ our $VERSION = '0.0.1';
 
     package Ixchel::Actions::install_cpanm;
 
-    use 5.006;
     use strict;
     use warnings;
     use Ixchel::functions::install_cpanm;
@@ -55,8 +54,6 @@ our $VERSION = '0.0.1';
     sub short {
 	    return 'Install cpanm via packages.';
     }
-
-    my $results=$ixchel->action(action=>'perl_module_via_pkg', opts=>{module=>'Monitoring::Sneck'});
 
 =head2 DESCRIPTION
 
