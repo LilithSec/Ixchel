@@ -3,9 +3,9 @@ package Ixchel::Actions::snmp_service;
 use 5.006;
 use strict;
 use warnings;
-use File::Slurp;
 use Rex::Commands::Gather;
 use Rex::Commands::Service;
+use base 'Ixchel::Actions::base';
 
 # prevents Rex from printing out rex is exiting after the script ends
 $::QUIET = 2;
@@ -16,11 +16,11 @@ Ixchel::Actions::snmp_service - Manage the snmpd service.
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 =head1 CLI SYNOPSIS
 
@@ -108,79 +108,31 @@ May not be combined with.
 
 =cut
 
-sub new {
-	my ( $empty, %opts ) = @_;
+sub new_extra { }
 
-	my $self = {
-		config => {},
-		vars   => {},
-		arggv  => [],
-		opts   => {},
-	};
-	bless $self;
-
-	if ( defined( $opts{config} ) ) {
-		$self->{config} = $opts{config};
-	}
-
-	if ( defined( $opts{t} ) ) {
-		$self->{t} = $opts{t};
-	} else {
-		die('$opts{t} is undef');
-	}
-
-	if ( defined( $opts{share_dir} ) ) {
-		$self->{share_dir} = $opts{share_dir};
-	}
-
-	if ( defined( $opts{opts} ) ) {
-		$self->{opts} = \%{ $opts{opts} };
-	}
-
-	if ( defined( $opts{argv} ) ) {
-		$self->{argv} = $opts{argv};
-	}
-
-	if ( defined( $opts{vars} ) ) {
-		$self->{vars} = $opts{vars};
-	}
-
-	if ( defined( $opts{ixchel} ) ) {
-		$self->{ixchel} = $opts{ixchel};
-	}
-
-	$self->{results} = {
-		errors      => [],
-		status_text => '',
-		ok          => 0,
-	};
-
-	return $self;
-} ## end sub new
-
-sub action {
+sub action_extra {
 	my $self = $_[0];
 
 	$self->status_add( status => 'Enabling snmpd' );
 
 	# make sure we don't have extra start/stop stuff specified
-	my $extra_opts=0;
-	my @various_opts=('restart', 'start', 'stop', 'stopstart');
+	my $extra_opts   = 0;
+	my @various_opts = ( 'restart', 'start', 'stop', 'stopstart' );
 	foreach my $item (@various_opts) {
-		if (defined($self->{opts}{$item})) {
+		if ( defined( $self->{opts}{$item} ) ) {
 			$extra_opts++;
 		}
 	}
-	if ($extra_opts > 1) {
-		my $extra_opts_string='--'.join(', --',@various_opts);
-		$self->status_add( error => 1, status => $extra_opts_string.' can not be combined' );
-		return;
+	if ( $extra_opts > 1 ) {
+		my $extra_opts_string = '--' . join( ', --', @various_opts );
+		$self->status_add( error => 1, status => $extra_opts_string . ' can not be combined' );
+		return undef;
 	}
 
 	# make sure --enable and --disable are not both specified
 	if ( $self->{opts}{enable} && $self->{opts}{disable} ) {
 		$self->status_add( error => 1, status => '--disable and --enable may not be specified at the same time' );
-		return;
+		return undef;
 	}
 
 	# enable/disable it
@@ -228,8 +180,8 @@ sub action {
 		$self->{results}{ok} = 0;
 	}
 
-	return $self->{results};
-} ## end sub action
+	return undef;
+} ## end sub action_extra
 
 sub short {
 	return 'Manage the snmpd service.';
@@ -244,35 +196,6 @@ stop
 restart
 stopstart
 ';
-}
-
-sub status_add {
-	my ( $self, %opts ) = @_;
-
-	if ( !defined( $opts{status} ) ) {
-		return;
-	}
-
-	if ( !defined( $opts{error} ) ) {
-		$opts{error} = 0;
-	}
-
-	if ( !defined( $opts{type} ) ) {
-		$opts{type} = 'snmp_service';
-	}
-
-	my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);
-	my $timestamp = sprintf( "%04d-%02d-%02dT%02d:%02d:%02d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
-
-	my $status = '[' . $timestamp . '] [' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
-
-	print $status. "\n";
-
-	$self->{results}{status_text} = $self->{results}{status_text} . $status;
-
-	if ( $opts{error} ) {
-		push( @{ $self->{results}{errors} }, $opts{status} );
-	}
-} ## end sub status_add
+} ## end sub opts_data
 
 1;
