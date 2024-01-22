@@ -6,6 +6,7 @@ use warnings;
 use File::Temp qw/ tempfile tempdir /;
 use File::Copy;
 use YAML::yq::Helper;
+use base 'Ixchel::Actions::base';
 
 =head1 NAME
 
@@ -13,11 +14,11 @@ Ixchel::Actions::suricata_diff - Finds the differences between the Ixchel config
 
 =head1 VERSION
 
-Version 0.1.1
+Version 0.2.0
 
 =cut
 
-our $VERSION = '0.1.1';
+our $VERSION = '0.2.0';
 
 =head1 CLI SYNOPSIS
 
@@ -36,10 +37,6 @@ ixchel -a suricata_diff [B<-i> <instance>]
 
 =head1 FLAGS
 
-=head2 --np
-
-Do not print the status of it.
-
 =head2 -i instance
 
 A instance to operate on.
@@ -52,58 +49,10 @@ A instance to operate on.
 
 =cut
 
-sub new {
-	my ( $empty, %opts ) = @_;
+sub new_extra { }
 
-	my $self = {
-		config => {},
-		vars   => {},
-		arggv  => [],
-		opts   => {},
-	};
-	bless $self;
-
-	if ( defined( $opts{config} ) ) {
-		$self->{config} = $opts{config};
-	}
-
-	if ( defined( $opts{t} ) ) {
-		$self->{t} = $opts{t};
-	} else {
-		die('$opts{t} is undef');
-	}
-
-	if ( defined( $opts{share_dir} ) ) {
-		$self->{share_dir} = $opts{share_dir};
-	}
-
-	if ( defined( $opts{opts} ) ) {
-		$self->{opts} = \%{ $opts{opts} };
-	}
-
-	if ( defined( $opts{argv} ) ) {
-		$self->{argv} = $opts{argv};
-	}
-
-	if ( defined( $opts{vars} ) ) {
-		$self->{vars} = $opts{vars};
-	}
-
-	if ( defined( $opts{ixchel} ) ) {
-		$self->{ixchel} = $opts{ixchel};
-	}
-
-	return $self;
-} ## end sub new
-
-sub action {
+sub action_extra {
 	my $self = $_[0];
-
-	$self->{results} = {
-		errors => [],
-		status => '',
-		ok     => 0,
-	};
 
 	if ( $self->{config}{suricata}{multi_instance} ) {
 		my @instances;
@@ -114,24 +63,27 @@ sub action {
 			@instances = keys( %{ $self->{config}{suricata}{instances} } );
 		}
 		foreach my $instance (@instances) {
-			$self->process_config( instance => $instance );
+			eval { $self->process_config( instance => $instance ); };
+			if ($@) {
+				$self->status_add(
+					status => 'Proccessing instance "' . $instance . '" failed ... ' . $@,
+					error  => 1
+				);
+			}
 		}
 	} else {
 		if ( defined( $self->{opts}{i} ) ) {
-			die('-i may not be used in single instance mode, .suricata.multi_instance=1, ,');
+			$self->status_add(
+				status => '-i may not be used in single instance mode, .suricata.multi_instance=1',
+				error  => 1
+			);
 		}
 
 		$self->process_config;
-	}
+	} ## end else [ if ( $self->{config}{suricata}{multi_instance...})]
 
-	if ( !defined( $self->{results}{errors}[0] ) ) {
-		$self->{results}{ok} = 1;
-	} else {
-		$self->{results}{ok} = 0;
-	}
-
-	return $self->{results};
-} ## end sub action
+	return undef;
+} ## end sub action_extra
 
 sub short {
 	return 'Finds the differences between the Ixchel config and current Suricata config.';
@@ -139,7 +91,6 @@ sub short {
 
 sub opts_data {
 	return 'i=s
-np
 w
 ';
 }
@@ -216,36 +167,5 @@ sub process_config {
 
 	return;
 } ## end sub process_config
-
-sub status_add {
-	my ( $self, %opts ) = @_;
-
-	if ( !defined( $opts{status} ) ) {
-		return;
-	}
-
-	if ( !defined( $opts{error} ) ) {
-		$opts{error} = 0;
-	}
-
-	if ( !defined( $opts{type} ) ) {
-		$opts{type} = 'suricata_diff';
-	}
-
-	my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);
-	my $timestamp = sprintf( "%04d-%02d-%02dT%02d:%02d:%02d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
-
-	my $status = '[' . $timestamp . '] [' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
-
-	if ( !$self->{opts}{np} ) {
-		print $status. "\n";
-	}
-
-	$self->{results}{status} = $self->{results}{status} . $status;
-
-	if ( $opts{error} ) {
-		push( @{ $self->{results}{errors} }, $opts{status} );
-	}
-} ## end sub status_add
 
 1;
