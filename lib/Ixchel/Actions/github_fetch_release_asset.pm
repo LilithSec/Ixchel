@@ -6,6 +6,7 @@ use warnings;
 use File::Slurp;
 use JSON;
 use Ixchel::functions::github_fetch_release_asset;
+use base 'Ixchel::Actions::base';
 
 =head1 NAME
 
@@ -21,10 +22,10 @@ our $VERSION = '0.1.0';
 
 =head1 CLI SYNOPSIS
 
-ixchel -a github_fetch_release_asset B<-o> <owner> B<-r> <repo> B<-f> <asset> B<-P> [B<-p>] B<-P>
+ixchel -a github_fetch_release_asset B<-o> <owner> B<-r> <repo> B<-f> <asset> B<-P> [B<--pre>] B<-P>
 
 ixchel -a github_fetch_release_asset B<-o> <owner> B<-r> <repo> B<-f> <asset> B<-w> <outfile>
-[B<-p>] [B<-N>] [B<-A>] [B<-B>] [B<-U>] <umask>
+[B<--ppre>] [B<-N>] [B<-A>] [B<-B>] [B<-U>] <umask>
 
 =head1 CODE SYNOPSIS
 
@@ -51,7 +52,7 @@ The repo to fetch it from in org/repo format.
 
 The name of the asset to fetch for a release.
 
-=head2 -p
+=head2 --pre
 
 Pre-releases are okay.
 
@@ -83,83 +84,45 @@ Write the file in a atomicly if possible.
 
 Umask to use. If undef will default to what ever sysopen is.
 
+=head1 RESULT HASH REF
+
+    .errors :: A array of errors encountered.
+    .status_text :: A string description of what was done and the results.
+    .ok :: Set to zero if any of the above errored.
+    .content :: Fetched content.
+
 =cut
 
-sub new {
-	my ( $empty, %opts ) = @_;
+sub new_extra { }
 
-	my $self = {
-		config => {},
-		vars   => {},
-		arggv  => [],
-		opts   => {},
-	};
-	bless $self;
-
-	if ( defined( $opts{config} ) ) {
-		$self->{config} = $opts{config};
-	}
-
-	if ( defined( $opts{t} ) ) {
-		$self->{t} = $opts{t};
-	} else {
-		die('$opts{t} is undef');
-	}
-
-	if ( defined( $opts{share_dir} ) ) {
-		$self->{share_dir} = $opts{share_dir};
-	}
-
-	if ( defined( $opts{opts} ) ) {
-		$self->{opts} = \%{ $opts{opts} };
-	}
-
-	if ( defined( $opts{argv} ) ) {
-		$self->{argv} = $opts{argv};
-	}
-
-	if ( defined( $opts{vars} ) ) {
-		$self->{vars} = $opts{vars};
-	}
-
-	if ( defined( $opts{ixchel} ) ) {
-		$self->{ixchel} = $opts{ixchel};
-	}
-
-	return $self;
-} ## end sub new
-
-sub action {
+sub action_extra {
 	my $self = $_[0];
-
-	$self->{results} = {
-		errors      => [],
-		status_text => '',
-		ok          => 0,
-	};
 
 	# if neither are defined error and return
 	if ( !defined( $self->{opts}{r} ) ) {
-		my $error = '-r not specified';
-		warn($error);
-		push( @{ $self->{results}{errors} }, $error );
-		return $self->{results};
+		$self->status_add(
+			error  => 1,
+			status => '-r not specified'
+		);
+		return undef;
 	}
 
 	# if neither are defined error and return
 	if ( !defined( $self->{opts}{o} ) ) {
-		my $error = '-o not specified';
-		warn($error);
-		push( @{ $self->{results}{errors} }, $error );
-		return $self->{results};
+		$self->status_add(
+			error  => 1,
+			status => '-o not specified'
+		);
+		return undef;
 	}
 
 	# if neither are defined error and return
 	if ( !defined( $self->{opts}{f} ) ) {
-		my $error = '-fs not specified';
-		warn($error);
-		push( @{ $self->{results}{errors} }, $error );
-		return $self->{results};
+		$self->status_add(
+			error  => 1,
+			status => '-fs not specified'
+		);
+		return undef;
 	}
 
 	my $content;
@@ -177,13 +140,18 @@ sub action {
 		);
 	};
 	if ($@) {
-		die( 'Fetching ' . $self->{opts}{o} . '/' . $self->{opts}{r} . ' failed... ' . $@ );
+		$self->status_add(
+			error  => 1,
+			status => 'Fetching ' . $self->{opts}{o} . '/' . $self->{opts}{r} . ' failed... ' . $@
+		);
 	}
+	$self->{results}{content} = $content;
 
 	if ( $self->{opts}{P} ) {
 		print $content;
 	}
-} ## end sub action
+	return undef;
+} ## end sub action_extra
 
 sub short {
 	return 'Fetch an release asset from a github repo.';
@@ -193,7 +161,7 @@ sub opts_data {
 	return '
 r=s
 f=s
-p
+pre
 d
 o=s
 w=s
