@@ -60,7 +60,7 @@ None.
 
 sub new_extra { }
 
-sub action_Extra {
+sub action_extra {
 	my $self = $_[0];
 
 	my $latest = '';
