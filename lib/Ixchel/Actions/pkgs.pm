@@ -129,7 +129,7 @@ sub action_extra {
 	$self->status_add( status => 'Absent Failed: ' . join( ', ', @absent_failed ) );
 
 	return undef;
-} ## end sub action_Extra
+} ## end sub action_extra
 
 sub short {
 	return 'Install packages specified by the config.';
