@@ -1,6 +1,6 @@
 Revision history for Ixchel
 
-0.6.0  2024-01-?
+0.6.0  2024-01-22/09:45
 		 - pkgs action, don't mark end report as errors
 		 - snmp_service, add new action
 		 - rework the synopsis section for all the actions
