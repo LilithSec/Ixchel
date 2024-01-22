@@ -12,11 +12,11 @@ Ixchel::Actions::install_pip - Install pip via packages.
 
 =head1 VERSION
 
-Version 0.1.1
+Version 0.2.0
 
 =cut
 
-our $VERSION = '0.1.1';
+our $VERSION = '0.2.0';
 
 =head1 CLI SYNOPSIS
 
@@ -26,8 +26,13 @@ ixchel -a install_pip
 
     use Data::Dumper;
 
-    my $results=$ixchel->action(action=>'instal_cpanm', opts=>{});
+    my $results=$ixchel->action(action=>'instal_pip', opts=>{});
 
+    if ($results->{ok}) {
+        print $results->{status_text};
+    }else{
+        die('Action errored... '.joined("\n", @{$results->{errors}}));
+    }
 
 =head1 RESULT HASH REF
 
@@ -37,78 +42,22 @@ ixchel -a install_pip
 
 =cut
 
-sub new {
-	my ( $empty, %opts ) = @_;
+sub new_extra { }
 
-	my $self = {
-		config => {},
-		vars   => {},
-		arggv  => [],
-		opts   => {},
-	};
-	bless $self;
-
-	if ( defined( $opts{config} ) ) {
-		$self->{config} = $opts{config};
-	}
-
-	if ( defined( $opts{t} ) ) {
-		$self->{t} = $opts{t};
-	} else {
-		die('$opts{t} is undef');
-	}
-
-	if ( defined( $opts{share_dir} ) ) {
-		$self->{share_dir} = $opts{share_dir};
-	}
-
-	if ( defined( $opts{opts} ) ) {
-		$self->{opts} = \%{ $opts{opts} };
-	}
-
-	if ( defined( $opts{argv} ) ) {
-		$self->{argv} = $opts{argv};
-	}
-
-	if ( defined( $opts{vars} ) ) {
-		$self->{vars} = $opts{vars};
-	}
-
-	if ( defined( $opts{ixchel} ) ) {
-		$self->{ixchel} = $opts{ixchel};
-	}
-
-	$self->{results}={
-		errors      => [],
-		status_text => '',
-		ok          => 0,
-	};
-
-	return $self;
-} ## end sub new
-
-sub action {
+sub action_extra {
 	my $self = $_[0];
 
-	$self->status_add(status=>'Installing pip via packges');
+	$self->status_add( status => 'Installing pip via packges' );
 
-	eval{
-		install_pip;
-	};
+	eval { install_pip; };
 	if ($@) {
-		$self->status_add(status=>'Failed to install pip via packages ... '.$@, error=>1);
-	}else {
-		$self->status_add(status=>'pip installed');
-	}
-
-	if ( !defined( $self->{results}{errors}[0] ) ) {
-		$self->{results}{ok} = 1;
+		$self->status_add( status => 'Failed to install pip via packages ... ' . $@, error => 1 );
 	} else {
-		$self->{results}{ok} = 0;
+		$self->status_add( status => 'pip installed' );
 	}
 
-	return $self->{results};
-} ## end sub action
+	return undef;
+} ## end sub action_extra
 
 sub short {
 	return 'Install pip via packages.';
@@ -118,35 +67,5 @@ sub opts_data {
 	return '
 ';
 }
-
-sub status_add {
-        my ( $self, %opts ) = @_;
-
-        if ( !defined( $opts{status} ) ) {
-                return;
-        }
-
-        if ( !defined( $opts{error} ) ) {
-                $opts{error} = 0;
-        }
-
-        if ( !defined( $opts{type} ) ) {
-                $opts{type} = 'install_cpanm';
-        }
-
-		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
-		my $timestamp = sprintf ( "%04d-%02d-%02dT%02d:%02d:%02d",
-									   $year+1900,$mon+1,$mday,$hour,$min,$sec);
-
-        my $status = '['.$timestamp.'] ['.$opts{type}.', ' . $opts{error} . '] ' . $opts{status};
-
-        print $status."\n";
-
-        $self->{results}{status_text} = $self->{results}{status_text} . $status;
-
-        if ( $opts{error} ) {
-                push( @{ $self->{results}{errors} }, $opts{status} );
-        }
-} ## end sub status_add
 
 1;
