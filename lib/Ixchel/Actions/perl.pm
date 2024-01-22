@@ -3,9 +3,9 @@ package Ixchel::Actions::perl;
 use 5.006;
 use strict;
 use warnings;
-use File::Slurp;
 use Ixchel::functions::perl_module_via_pkg;
 use Ixchel::functions::install_cpanm;
+use base 'Ixchel::Actions::base';
 
 =head1 NAME
 
@@ -13,11 +13,11 @@ Ixchel::Actions::perl - Handles making sure desired Perl modules are installed a
 
 =head1 VERSION
 
-Version 0.2.0
+Version 0.3.0
 
 =cut
 
-our $VERSION = '0.2.0';
+our $VERSION = '0.3.0';
 
 =head1 CLI SYNOPSIS
 
@@ -25,9 +25,13 @@ ixchel -a perl [B<--notest>] [B<--reinstall>] [B<--force>]
 
 =head1 CODE SYNOPSIS
 
-    use Data::Dumper;
-
     my $results=$ixchel->action(action=>'perl', opts=>{}'});
+
+    if ($results->{ok}) {
+        print $results->{status_text};
+    }else{
+        die('Action errored... '.joined("\n", @{$results->{errors}}));
+    }
 
 =head1 DESCRIPTION
 
@@ -75,64 +79,10 @@ When calling cpanm, add --force to it.
 
 =cut
 
-sub new {
-	my ( $empty, %opts ) = @_;
+sub new_extra { }
 
-	my $self = {
-		config => {},
-		vars   => {},
-		arggv  => [],
-		opts   => {},
-	};
-	bless $self;
-
-	if ( defined( $opts{config} ) ) {
-		$self->{config} = $opts{config};
-	}
-
-	if ( defined( $opts{t} ) ) {
-		$self->{t} = $opts{t};
-	} else {
-		die('$opts{t} is undef');
-	}
-
-	if ( defined( $opts{share_dir} ) ) {
-		$self->{share_dir} = $opts{share_dir};
-	}
-
-	if ( defined( $opts{opts} ) ) {
-		$self->{opts} = \%{ $opts{opts} };
-	}
-
-	if ( defined( $opts{argv} ) ) {
-		$self->{argv} = $opts{argv};
-	}
-
-	if ( defined( $opts{vars} ) ) {
-		$self->{vars} = $opts{vars};
-	}
-
-	if ( defined( $opts{ixchel} ) ) {
-		$self->{ixchel} = $opts{ixchel};
-	}
-
-	$self->{results} = {
-		errors      => [],
-		status_text => '',
-		ok          => 0,
-	};
-
-	return $self;
-} ## end sub new
-
-sub action {
+sub action_extra {
 	my $self = $_[0];
-
-	$self->{results} = {
-		errors      => [],
-		status_text => '',
-		ok          => 0,
-	};
 
 	# if we've already installed cpanm or not
 	my $installed_cpanm = 0;
@@ -190,9 +140,7 @@ sub action {
 			if ($@) {
 				# not an error here as it using packages is optional and will be used later.
 				push( @modules, $module );
-				$self->status_add(
-					status => 'Failed to install ' . $module . ' via packages',
-				);
+				$self->status_add( status => 'Failed to install ' . $module . ' via packages', );
 				$tried_via_packages{$module} = 1;
 			} else {
 				$self->{results}{status_text} = $self->{results}{status_text} . $status;
@@ -221,9 +169,7 @@ sub action {
 			if ($@) {
 				# not an error here as it using packages is optional and will be used later.
 				push( @modules, $module );
-				$self->status_add(
-					status => 'Failed to install ' . $module . ' via packages',
-				);
+				$self->status_add( status => 'Failed to install ' . $module . ' via packages', );
 			} else {
 				$self->{results}{status_text} = $self->{results}{status_text} . $status;
 				$self->status_add( status => $module . ' installed' );
@@ -241,7 +187,7 @@ sub action {
 				if ($@) {
 					$self->status_add( status => 'Failed to install cpanm via packages ... ' . $@, error => 1 );
 					# can't proceced beyond here as cpanm is required
-					return $self->{results};
+					return undef;
 				} else {
 					$self->status_add( status => 'cpanm installed' );
 				}
@@ -288,14 +234,8 @@ sub action {
 		$self->status_add( status => 'Failed Required By Pkg: ' . join( ',', @failed_pkg_required ) );
 	}
 
-	if ( !defined( $self->{results}{errors}[0] ) ) {
-		$self->{results}{ok} = 1;
-	} else {
-		$self->{results}{ok} = 0;
-	}
-
-	return $self->{results};
-} ## end sub action
+	return undef;
+} ## end sub action_extra
 
 sub short {
 	return 'Install Perl modules specified by the config.';
@@ -308,34 +248,5 @@ force
 reinstall
 ';
 }
-
-sub status_add {
-	my ( $self, %opts ) = @_;
-
-	if ( !defined( $opts{status} ) ) {
-		return;
-	}
-
-	if ( !defined( $opts{error} ) ) {
-		$opts{error} = 0;
-	}
-
-	if ( !defined( $opts{type} ) ) {
-		$opts{type} = 'perl';
-	}
-
-	my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);
-	my $timestamp = sprintf( "%04d-%02d-%02dT%02d:%02d:%02d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
-
-	my $status = '[' . $timestamp . '] [' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
-
-	print $status. "\n";
-
-	$self->{results}{status_text} = $self->{results}{status_text} . $status;
-
-	if ( $opts{error} ) {
-		push( @{ $self->{results}{errors} }, $opts{status} );
-	}
-} ## end sub status_add
 
 1;
