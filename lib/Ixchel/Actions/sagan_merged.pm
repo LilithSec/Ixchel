@@ -12,6 +12,7 @@ use File::Spec;
 use YAML::yq::Helper;
 use Hash::Merge;
 use File::Copy;
+use base 'Ixchel::Actions::base';
 
 =head1 NAME
 
@@ -19,11 +20,11 @@ Ixchel::Actions::sagan_merged - Generated a merged base/include for Sagan.
 
 =head1 VERSION
 
-Version 0.0.2
+Version 0.2.0
 
 =cut
 
-our $VERSION = '0.0.2';
+our $VERSION = '0.2.0';
 
 =head1 CLI SYNOPSIS
 
@@ -63,13 +64,9 @@ instance setups if .sagan.multi_instance is set to 1 then
 
 =head1 FLAGS
 
-=head2 --np
-
-Do not print the status of it.
-
 =head2 -w
 
-Write the generated services to service files.
+Write out the configs.
 
 =head2 -i instance
 
@@ -83,58 +80,10 @@ A instance to operate on.
 
 =cut
 
-sub new {
-	my ( $empty, %opts ) = @_;
+sub new_extra { }
 
-	my $self = {
-		config => {},
-		vars   => {},
-		arggv  => [],
-		opts   => {},
-	};
-	bless $self;
-
-	if ( defined( $opts{config} ) ) {
-		$self->{config} = $opts{config};
-	}
-
-	if ( defined( $opts{t} ) ) {
-		$self->{t} = $opts{t};
-	} else {
-		die('$opts{t} is undef');
-	}
-
-	if ( defined( $opts{share_dir} ) ) {
-		$self->{share_dir} = $opts{share_dir};
-	}
-
-	if ( defined( $opts{opts} ) ) {
-		$self->{opts} = \%{ $opts{opts} };
-	}
-
-	if ( defined( $opts{argv} ) ) {
-		$self->{argv} = $opts{argv};
-	}
-
-	if ( defined( $opts{vars} ) ) {
-		$self->{vars} = $opts{vars};
-	}
-
-	if ( defined( $opts{ixchel} ) ) {
-		$self->{ixchel} = $opts{ixchel};
-	}
-
-	return $self;
-} ## end sub new
-
-sub action {
+sub action_extra {
 	my $self = $_[0];
-
-	my $results = {
-		errors      => [],
-		status_text => '',
-		ok          => 0,
-	};
 
 	my $config_base = $self->{config}{sagan}{config_base};
 
@@ -165,9 +114,11 @@ sub action {
 		$have_config = 1;
 	};
 	if ($@) {
-		my $error = 'Fetching ' . $self->{config}{sagan}{base_config} . ' failed... ' . $@;
-		push( @{ $results->{errors} }, $error );
-		$results->{status_text} = '# ' . $error . "\n";
+		$self->status_add(
+			status => 'Fetching and proccessing ' . $self->{config}{sagan}{base_config} . ' failed... ' . $@,
+			error  => 1,
+		);
+		return undef;
 	}
 
 	if ($have_config) {
@@ -213,25 +164,21 @@ sub action {
 						write_file( $config_file, $filled_in );
 					}
 
-					$results->{status_text}
-						= $results->{status_text}
-						. '-----[ Instance '
-						. $instance
-						. ' ]-------------------------------------' . "\n"
-						. $filled_in . "\n";
+					$self->status_add( status => '-----[ Instance '
+							. $instance
+							. ' ]-------------------------------------' . "\n"
+							. $filled_in
+							. "\n" );
 				};
 				if ($@) {
-					$results->{status_text}
-						= $results->{status_text}
-						. '-----[ Error: Instance '
-						. $instance
-						. ' ]-------------------------------------' . "\n";
-
-					my $error = 'Creating merged base/include failed... ' . $@;
-					push( @{ $results->{errors} }, $error );
-					$results->{status_text} = $results->{status_text} . '# ' . $error . "\n";
-					$self->{ixchel}{errors_count}++;
-				} ## end if ($@)
+					$self->status_add(
+						status => '-----[ Error: Instance '
+							. $instance
+							. " ]-------------------------------------\nCreating merged base/include failed... "
+							. $@,
+						error => 1,
+					);
+				}
 			} ## end foreach my $instance (@instances)
 		} else {
 		  # clean it up so there is less likely of a chance of some one deciding to do that by hand and borking the file
@@ -253,35 +200,32 @@ sub action {
 			eval {
 				$raw_yaml = read_file($tmp_base);
 
+				$self->status_add( status => "Base... \n" . $raw_yaml );
+
 				if ( $self->{opts}{w} ) {
 					write_file( $config_file, $raw_yaml );
 				}
-
-				$results->{status_text} = $results->{status_text} . $raw_yaml;
 			};
 			if ($@) {
-				my $error = 'Writing ' . $config_file . ' failed... ' . $@;
-				push( @{ $results->{errors} }, $error );
-				$results->{status_text} = $results->{status_text} . '# ' . $error . "\n";
-				$self->{ixchel}{errors_count}++;
+				$self->status_add(
+					status => 'Died... ' . $@,
+					error  => 1,
+				);
+
 			}
 		} ## end else [ if ( $self->{config}{sagan}{multi_instance...})]
 	} ## end if ($have_config)
 
-	if ( !$self->{opts}{np} ) {
-		print $results->{status_text};
+	eval { unlink($tmp_base); };
+	if ($@) {
+		$self->status_add(
+			error  => 1,
+			status => 'Unlinking "' . $tmp_base . '" failed ... ' . $@
+		);
 	}
 
-	if ( !defined( $self->{results}{errors}[0] ) ) {
-		$self->{results}{ok} = 1;
-	} else {
-		$self->{results}{ok} = 0;
-	}
-
-	unlink($tmp_base);
-
-	return $results;
-} ## end sub action
+	return undef;
+} ## end sub action_extra
 
 sub short {
 	return 'Generated a merged base/include for Sagan.';
@@ -289,7 +233,6 @@ sub short {
 
 sub opts_data {
 	return 'i=s
-np
 w
 ';
 }
