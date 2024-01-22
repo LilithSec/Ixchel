@@ -4,6 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 use Config::Tiny;
+use base 'Ixchel::Actions::base';
 
 =head1 NAME
 
@@ -11,11 +12,11 @@ Ixchel::Actions::systemd_journald_conf - Generate a systemd journald config incl
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.2.0
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.2.0';
 
 =head1 CLI SYNOPSIS
 
@@ -49,57 +50,18 @@ Write it out to /etc/systemd/journald.conf.d/99-ixchel.conf
 
 Do not print out the results.
 
-=head2 --die
+=head1 RESULT HASH REF
 
-Die on write failure.
+    .errors :: A array of errors encountered.
+    .status_text :: A string description of what was done and the results.
+    .ok :: Set to zero if any of the above errored.
+    .filled_in :: The filled in template.
 
 =cut
 
-sub new {
-	my ( $empty, %opts ) = @_;
+sub new_extra { }
 
-	my $self = {
-		config => {},
-		vars   => {},
-		arggv  => [],
-		opts   => {},
-	};
-	bless $self;
-
-	if ( defined( $opts{config} ) ) {
-		$self->{config} = $opts{config};
-	}
-
-	if ( defined( $opts{t} ) ) {
-		$self->{t} = $opts{t};
-	} else {
-		die('$opts{t} is undef');
-	}
-
-	if ( defined( $opts{share_dir} ) ) {
-		$self->{share_dir} = $opts{share_dir};
-	}
-
-	if ( defined( $opts{opts} ) ) {
-		$self->{opts} = \%{ $opts{opts} };
-	}
-
-	if ( defined( $opts{argv} ) ) {
-		$self->{argv} = $opts{argv};
-	}
-
-	if ( defined( $opts{vars} ) ) {
-		$self->{vars} = $opts{vars};
-	}
-
-	if ( defined( $opts{ixchel} ) ) {
-		$self->{ixchel} = $opts{ixchel};
-	}
-
-	return $self;
-} ## end sub new
-
-sub action {
+sub action_extra {
 	my $self = $_[0];
 
 	my $string = '';
@@ -122,19 +84,21 @@ sub action {
 		}
 	};
 	if ($@) {
-		if ( $self->{opts}{die} ) {
-			die($@);
+		if ( !defined($string) ) {
+			$string = '';
 		}
-		$string = '# ' . $@ . "\n" . $string;
-		$self->{ixchel}{errors_count}++;
+		$self->status_add( status => $@ . "\n" . $string );
+		return undef;
 	}
+
+	$self->{results}{filled_in} = $string;
 
 	if ( !$self->{opts}{np} ) {
 		print $string;
 	}
 
-	return $string;
-} ## end sub action
+	return undef;
+} ## end sub action_extra
 
 sub short {
 	return 'Generate a systemd journald config include';
