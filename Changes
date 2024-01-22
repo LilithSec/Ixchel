@@ -1,5 +1,8 @@
 Revision history for Ixchel
 
+0.6.1  2024-01-22/10:15
+		 -  add missing lib/Ixchel/Actions/base.pm to the MANIFEST
+
 0.6.0  2024-01-22/09:45
 		 - pkgs action, don't mark end report as errors
 		 - snmp_service, add new action

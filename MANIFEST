@@ -53,6 +53,7 @@ lib/Ixchel/Actions/sneck_install.pm
 lib/Ixchel/Actions/snmp_install.pm
 lib/Ixchel/Actions/lilith_install.pm
 lib/Ixchel/Actions/snmp_service.pm
+lib/Ixchel/Actions/base.pm
 Makefile.PL
 MANIFEST			This list of files
 README.md
