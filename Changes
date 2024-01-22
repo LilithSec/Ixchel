@@ -1,5 +1,8 @@
 Revision history for Ixchel
 
+0.6.2  2024-01-22/12:15
+		 - fix typo for pkgs
+
 0.6.1  2024-01-22/10:15
 		 -  add missing lib/Ixchel/Actions/base.pm to the MANIFEST
 
