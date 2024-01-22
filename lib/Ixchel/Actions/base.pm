@@ -270,6 +270,8 @@ sub status_add {
 
 	if ( $opts{error} ) {
 		push( @{ $self->{results}{errors} }, $opts{status} );
+
+		eval { $self->status_add_error_extra; };
 	}
 } ## end sub status_add
 

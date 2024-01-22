@@ -14,6 +14,7 @@ use Ixchel::functions::install_cpanm;
 use Ixchel::functions::python_module_via_pkg;
 use Ixchel::functions::install_pip;
 use Cwd;
+use base 'Ixchel::Actions::base';
 
 =head1 NAME
 
@@ -248,12 +249,6 @@ The following functions are available.
 
     - shell_quote :: shell_quote from String::ShellQuote
 
-=head1 RESULT HASH REF
-
-    .errors :: A array of errors encountered.
-    .status :: A string description of what was done and the results.
-    .ok :: True if everyting okay.
-
 =head1 Determining OS
 
 L<Rex::Commands::Gather> is used for this.
@@ -331,28 +326,24 @@ Below is a example for installing Sagan on Debian and FreeBSD.
           - libjson-c-dev
           - libmaxminddb-dev
 
+=head1 RESULT HASH REF
+
+    .errors :: A array of errors encountered.
+    .status :: A string description of what was done and the results.
+    .ok :: True if everyting okay.
+
 =cut
 
-sub new {
-	my ( $empty, %opts ) = @_;
-
-	my $self = {
-		config        => {},
-		vars          => {},
-		arggv         => [],
-		opts          => {},
-		os            => $^O,
-		template_vars => {
+sub new_extra{
+	my ( $self ) = @_;
+	$self->{template_vars}={
 			shell_quote    => \&shell_quote,
 			env            => \%ENV,
 			vars           => {},
-			templated_vars => {},
-		},
-	};
-	bless $self;
-	# in two places as .template_vars will get passed to TT
-	$self->{template_vars}{config} = $self->{config};
-	# having it in two places for the purposes of simplicity
+							templated_vars => {},
+							};
+
+		# having it in two places for the purposes of simplicity
 	$self->{template_vars}{os} = $self->{os};
 
 	if (is_freebsd) {
@@ -388,39 +379,8 @@ sub new {
 		$self->{template_vars}{is_systemd} = 0;
 	}
 
-	if ( defined( $opts{config} ) ) {
-		$self->{config} = $opts{config};
-	}
 	$self->{template_vars}{config} = $self->{config};
-
-	if ( defined( $opts{t} ) ) {
-		$self->{t} = $opts{t};
-	} else {
-		die('$opts{t} is undef');
-	}
-
-	if ( defined( $opts{share_dir} ) ) {
-		$self->{share_dir} = $opts{share_dir};
-	}
-
-	if ( defined( $opts{opts} ) ) {
-		$self->{opts} = \%{ $opts{opts} };
-	}
-
-	if ( defined( $opts{argv} ) ) {
-		$self->{argv} = $opts{argv};
-	}
-
-	if ( defined( $opts{vars} ) ) {
-		$self->{vars} = $opts{vars};
-	}
-
-	if ( defined( $opts{ixchel} ) ) {
-		$self->{ixchel} = $opts{ixchel};
-	}
-
-	return $self;
-} ## end sub new
+}
 
 sub action {
 	my $self = $_[0];
@@ -1172,34 +1132,11 @@ sub opts_data {
 ';
 }
 
-sub status_add {
-	my ( $self, %opts ) = @_;
+sub status_add_error_extra {
+	my ( $self ) = @_;
 
-	if ( !defined( $opts{status} ) ) {
-		return;
-	}
+	chdir( $self->{opts}{xeno_build}{options}{tmpdir} . '/..' );
 
-	if ( !defined( $opts{error} ) ) {
-		$opts{error} = 0;
-	}
-
-	if ( !defined( $opts{type} ) ) {
-		$opts{type} = 'xeno_build';
-	}
-
-	my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);
-	my $timestamp = sprintf( "%04d-%02d-%02dT%02d:%02d:%02d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
-
-	my $status = '[' . $timestamp . '] [' . $opts{type} . ', ' . $opts{error} . '] ' . $opts{status};
-
-	print $status. "\n";
-
-	$self->{results}{status_text} = $self->{results}{status_text} . $status;
-
-	if ( $opts{error} ) {
-		push( @{ $self->{results}{errors} }, $opts{status} );
-		chdir( $self->{opts}{xeno_build}{options}{tmpdir} . '/..' );
-	}
 } ## end sub status_add
 
 1;
