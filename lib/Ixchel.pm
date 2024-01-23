@@ -15,11 +15,11 @@ Ixchel - Automate various sys admin stuff.
 
 =head1 VERSION
 
-Version 0.6.2
+Version 0.6.3
 
 =cut
 
-our $VERSION = '0.6.2';
+our $VERSION = '0.6.3';
 
 =head1 METHODS
 
