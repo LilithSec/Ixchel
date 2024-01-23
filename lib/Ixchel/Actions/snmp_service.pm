@@ -16,11 +16,11 @@ Ixchel::Actions::snmp_service - Manage the snmpd service.
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.1.1
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.1.1';
 
 =head1 CLI SYNOPSIS
 
@@ -137,12 +137,18 @@ sub action_extra {
 
 	# enable/disable it
 	if ( $self->{opts}{enable} ) {
-		eval { service 'snmpd', ensure => 'started'; };
+		eval {
+			service 'snmpd', ensure => 'started';
+			$self->status_add( error => 1, status => 'snmpd enabled' );
+		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored enabling snmpd... ' . $@ );
 		}
 	} elsif ( $self->{opts}{disable} ) {
-		eval { service 'snmpd', ensure => 'stopped'; };
+		eval {
+			service 'snmpd', ensure => 'stopped';
+			$self->status_add( error => 1, status => 'snmpd disabled' );
+		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored disabling snmpd... ' . $@ );
 		}
@@ -150,35 +156,40 @@ sub action_extra {
 
 	# start/stop it etc
 	if ( $self->{opts}{restart} ) {
-		eval { service 'snmpd' => 'restart'; };
+		eval {
+			service 'snmpd' => 'restart';
+			$self->status_add( error => 1, status => 'snmped restarted' );
+		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored restarting snmpd... ' . $@ );
 		}
 	} elsif ( $self->{opts}{start} ) {
-		eval { service 'snmpd' => 'start'; };
+		eval {
+			service 'snmpd' => 'start';
+			$self->status_add( error => 1, status => 'snmped started' );
+		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored starting snmpd... ' . $@ );
 		}
 	} elsif ( $self->{opts}{stop} ) {
-		eval { service 'snmpd' => 'stop'; };
+		eval {
+			service 'snmpd' => 'stop';
+			$self->status_add( error => 1, status => 'snmped stopped' );
+		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored stopping snmpd... ' . $@ );
 		}
 	} elsif ( $self->{opts}{stopstart} ) {
 		eval {
 			service 'snmpd' => 'stop';
+			$self->status_add( error => 1, status => 'snmped stopped' );
 			service 'snmpd' => 'start';
+			$self->status_add( error => 1, status => 'snmped started' );
 		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored stopping and then starting snmpd... ' . $@ );
 		}
-	}
-
-	if ( !defined( $self->{results}{errors}[0] ) ) {
-		$self->{results}{ok} = 1;
-	} else {
-		$self->{results}{ok} = 0;
-	}
+	} ## end elsif ( $self->{opts}{stopstart} )
 
 	return undef;
 } ## end sub action_extra
