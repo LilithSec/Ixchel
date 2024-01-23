@@ -113,8 +113,6 @@ sub new_extra { }
 sub action_extra {
 	my $self = $_[0];
 
-	$self->status_add( status => 'Enabling snmpd' );
-
 	# make sure we don't have extra start/stop stuff specified
 	my $extra_opts   = 0;
 	my @various_opts = ( 'restart', 'start', 'stop', 'stopstart' );
