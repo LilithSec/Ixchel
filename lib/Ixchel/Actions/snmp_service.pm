@@ -139,15 +139,15 @@ sub action_extra {
 	if ( $self->{opts}{enable} ) {
 		eval {
 			service 'snmpd', ensure => 'started';
-			$self->status_add( error => 1, status => 'snmpd enabled' );
+			$self->status_add( status => 'snmpd enabled' );
 		};
 		if ($@) {
-			$self->status_add( error => 1, status => 'Errored enabling snmpd... ' . $@ );
+			$self->status_add( status => 'Errored enabling snmpd... ' . $@ );
 		}
 	} elsif ( $self->{opts}{disable} ) {
 		eval {
 			service 'snmpd', ensure => 'stopped';
-			$self->status_add( error => 1, status => 'snmpd disabled' );
+			$self->status_add( status => 'snmpd disabled' );
 		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored disabling snmpd... ' . $@ );
@@ -158,7 +158,7 @@ sub action_extra {
 	if ( $self->{opts}{restart} ) {
 		eval {
 			service 'snmpd' => 'restart';
-			$self->status_add( error => 1, status => 'snmped restarted' );
+			$self->status_add( status => 'snmped restarted' );
 		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored restarting snmpd... ' . $@ );
@@ -166,7 +166,7 @@ sub action_extra {
 	} elsif ( $self->{opts}{start} ) {
 		eval {
 			service 'snmpd' => 'start';
-			$self->status_add( error => 1, status => 'snmped started' );
+			$self->status_add( status => 'snmped started' );
 		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored starting snmpd... ' . $@ );
@@ -174,7 +174,7 @@ sub action_extra {
 	} elsif ( $self->{opts}{stop} ) {
 		eval {
 			service 'snmpd' => 'stop';
-			$self->status_add( error => 1, status => 'snmped stopped' );
+			$self->status_add( status => 'snmped stopped' );
 		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored stopping snmpd... ' . $@ );
@@ -182,9 +182,9 @@ sub action_extra {
 	} elsif ( $self->{opts}{stopstart} ) {
 		eval {
 			service 'snmpd' => 'stop';
-			$self->status_add( error => 1, status => 'snmped stopped' );
+			$self->status_add( status => 'snmped stopped' );
 			service 'snmpd' => 'start';
-			$self->status_add( error => 1, status => 'snmped started' );
+			$self->status_add( status => 'snmped started' );
 		};
 		if ($@) {
 			$self->status_add( error => 1, status => 'Errored stopping and then starting snmpd... ' . $@ );
