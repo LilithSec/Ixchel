@@ -11,11 +11,11 @@ Ixchel::DefaultConfig - The default config used for with Ixchel.
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.2.0
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.2.0';
 
 =head1 SYNOPSIS
 
@@ -68,6 +68,10 @@ sub get {
 				syslog_facility => 'local5',
 				syslog_format   => '[%i] <%d> -- ',
 				syslog_json     => 0,
+			},
+			lilith => {
+				enable => 0,
+				config => {},
 			},
 			update => {
 				enable       => 0,
