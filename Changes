@@ -1,5 +1,8 @@
 Revision history for Ixchel
 
+0.7.0  2024-01-25/
+		 - action suricata_base, .netmap and .nflog added to items to remove by default
+
 0.6.3  2024-01-22/23:45
 		 - minor fixes for snmp_services
 

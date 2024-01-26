@@ -16,11 +16,11 @@ Ixchel::Actions::suricata_base - Reels in the base Suricata config and uses it f
 
 =head1 VERSION
 
-Version 0.3.0
+Version 0.4.0
 
 =cut
 
-our $VERSION = '0.3.0';
+our $VERSION = '0.4.0';
 
 =head1 CLI SYNOPSIS
 
@@ -156,9 +156,9 @@ sub action_extra {
 	#
 	#
 	my @to_remove = (
-		'.logging.outputs', '.outputs',    '.af-packet', '.pcap',
-		'.include',         '.rule-files', '.af-xdp',    '.napatech',
-		'.dpdk',            '.sensor-name'
+		'.logging.outputs', '.outputs',     '.af-packet', '.pcap',
+		'.include',         '.rule-files',  '.af-xdp',    '.napatech',
+		'.dpdk',            '.sensor-name', '.nflog',     '.netmap'
 	);
 	eval {
 		my ( $tnp_fh, $tmp_file ) = tempfile();
