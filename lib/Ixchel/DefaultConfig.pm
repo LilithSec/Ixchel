@@ -42,7 +42,7 @@ sub get {
 			multi_instance    => 0,
 			config_base       => '/usr/local/etc/suricata',
 			instances         => {},
-			config            => { 'rule-files' => ['suricata.rules'] },
+			config            => { 'rule-files' => [] },
 			enable            => 0,
 			enable_fastlog    => 1,
 			enable_syslog     => 0,
