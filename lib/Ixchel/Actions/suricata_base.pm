@@ -159,7 +159,7 @@ sub action_extra {
 		'.logging.outputs', '.outputs',     '.af-packet', '.pcap',
 		'.include',         '.rule-files',  '.af-xdp',    '.napatech',
 		'.dpdk',            '.sensor-name', '.nflog',     '.netmap',
-		'.pfring',
+		'.pfring', '.rule-files',
 	);
 	eval {
 		my ( $tnp_fh, $tmp_file ) = tempfile();
