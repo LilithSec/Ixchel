@@ -129,26 +129,26 @@ sub action_extra {
 
 				my $merger = Hash::Merge->new('RIGHT_PRECEDENT');
 				# make sure arrays from the actual config replace any arrays in the defaultconfig
-				$merger->add_behavior_spec(
-					{
-						'SCALAR' => {
-							'SCALAR' => sub { $_[1] },
-							'ARRAY'  => sub { [ $_[0], @{ $_[1] } ] },
-							'HASH'   => sub { $_[1] },
-						},
-						'ARRAY' => {
-							'SCALAR' => sub { $_[1] },
-							'ARRAY'  => sub { [ @{ $_[1] } ] },
-							'HASH'   => sub { $_[1] },
-						},
-						'HASH' => {
-							'SCALAR' => sub { $_[1] },
-							'ARRAY'  => sub { [ values %{ $_[0] }, @{ $_[1] } ] },
-							'HASH'   => sub { Hash::Merge::_merge_hashes( $_[0], $_[1] ) },
-						},
-					},
-					'Ixchel',
-				);
+#				$merger->add_behavior_spec(
+#					{
+#						'SCALAR' => {
+#							'SCALAR' => sub { $_[1] },
+#							'ARRAY'  => sub { [ $_[0], @{ $_[1] } ] },
+#							'HASH'   => sub { $_[1] },
+#						},
+#						'ARRAY' => {
+#							'SCALAR' => sub { $_[1] },
+#							'ARRAY'  => sub { [ @{ $_[1] } ] },
+#							'HASH'   => sub { $_[1] },
+#						},
+#						'HASH' => {
+#							'SCALAR' => sub { $_[1] },
+#							'ARRAY'  => sub { [ values %{ $_[0] }, @{ $_[1] } ] },
+#							'HASH'   => sub { Hash::Merge::_merge_hashes( $_[0], $_[1] ) },
+#						},
+#					},
+#					'Ixchel',
+#				);
 				my %tmp_config      = %{$config};
 				my %tmp_base_config = %{$base_config};
 				my $merged          = $merger->merge( \%tmp_base_config, \%tmp_config );
@@ -178,7 +178,7 @@ sub action_extra {
 		} ## end foreach my $instance (@instances)
 	} else {
 		if ( defined( $self->{opts}{i} ) ) {
-			$self->status_add( status => '-i may not be used in single instance mode, .suricata.multi_instance=-' );
+			$self->status_add( status => '-i may not be used in single instance mode, .suricata.multi_instance=0' );
 		}
 
 		my $filled_in;
