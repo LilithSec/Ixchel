@@ -1,5 +1,10 @@
 Revision history for Ixchel
 
+0.8.0  2024-02-14/12:00
+		 - remove .pfring from suricata base
+		 - fix typo in suricata_outputs template preenting syslog outputs from working
+		 - don't try to install perl modules from cpanm more than once
+
 0.7.0  2024-01-26/15:15
 		 - action suricata_base, .netmap and .nflog added to items to remove by default
 		 - action lilith_config, add new action for configuring lilith

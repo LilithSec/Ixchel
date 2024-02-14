@@ -13,11 +13,11 @@ Ixchel::Actions::perl - Handles making sure desired Perl modules are installed a
 
 =head1 VERSION
 
-Version 0.3.0
+Version 0.4.0
 
 =cut
 
-our $VERSION = '0.3.0';
+our $VERSION = '0.4.0';
 
 =head1 CLI SYNOPSIS
 
