@@ -9,7 +9,7 @@ outputs:
 [% END %]
 [% IF vars.enable_syslog %]      
   - eve-log:
-      enabled: 'no'
+      enabled: no
       filetype: syslog
       pcap-file: false
       community-id: false
@@ -36,7 +36,7 @@ outputs:
         - stats:
             totals: yes
   - eve-log:
-      enabled: yes
+      enabled: no
       filetype: syslog
       pcap-file: false
       community-id: false
