@@ -11,11 +11,11 @@ Ixchel::DefaultConfig - The default config used for with Ixchel.
 
 =head1 VERSION
 
-Version 0.2.0
+Version 0.3.0
 
 =cut
 
-our $VERSION = '0.2.0';
+our $VERSION = '0.3.0';
 
 =head1 SYNOPSIS
 
@@ -49,8 +49,16 @@ sub get {
 			filestore_enable  => 1,
 			dhcp_in_alert_eve => 0,
 			enable_pcap_log   => 0,
-			base_config       => 'https://raw.githubusercontent.com/OISF/suricata/master/suricata.yaml.in',
-			base_fill_in      => {
+			auto_threading    => {
+				enable  => 0,
+				exclude => undef,
+			},
+			auto_sensor_name => {
+				enable => 1,
+				full   => 0,
+			},
+			base_config  => 'https://raw.githubusercontent.com/OISF/suricata/master/suricata.yaml.in',
+			base_fill_in => {
 				e_logdir             => '/var/log/suricata/',
 				e_magic_file_comment => '',
 				e_magic_file         => '/usr/share/misc/magic',
@@ -68,10 +76,6 @@ sub get {
 				syslog_facility => 'local5',
 				syslog_format   => '[%i] <%d> -- ',
 				syslog_json     => 0,
-			},
-			lilith => {
-				enable => 0,
-				config => {},
 			},
 			update => {
 				enable       => 0,
@@ -91,6 +95,10 @@ sub get {
 				update_file  => undef,
 				when         => '33 0 * * *',
 			},
+		},
+		lilith => {
+			enable => 0,
+			config => {},
 		},
 		suricata_extract => {
 			enable      => 0,

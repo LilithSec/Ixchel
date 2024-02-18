@@ -1,5 +1,8 @@
 Revision history for Ixchel
 
+0.9.0  2024-02-17/
+		 - add in automatic threading and sensor-name capabilities for Suricata
+
 0.8.1  2024-02-14/16:00
 		 - don't enable anomaly syslog logging for suricata as it can't use both syslog and the flows file
 
