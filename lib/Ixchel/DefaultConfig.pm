@@ -97,8 +97,12 @@ sub get {
 			},
 		},
 		lilith => {
-			enable => 0,
-			config => {},
+			enable      => 0,
+			config      => {},
+			auto_config => {
+				enabled => 1,
+				full    => 0,
+			},
 		},
 		suricata_extract => {
 			enable      => 0,
@@ -133,6 +137,7 @@ sub get {
 		},
 		cape => {
 			enable => 0,
+			eve    => '/opt/CAPEv2/log/eve.json',
 		},
 		mariadb => {
 			enable => 0,
