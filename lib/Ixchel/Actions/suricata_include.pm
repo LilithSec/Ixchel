@@ -14,11 +14,11 @@ Ixchel::Actions::suricata_include - Generates the instance specific include for 
 
 =head1 VERSION
 
-Version 0.3.0
+Version 0.3.1
 
 =cut
 
-our $VERSION = '0.3.0';
+our $VERSION = '0.3.1';
 
 =head1 CLI SYNOPSIS
 
