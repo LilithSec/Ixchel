@@ -1,6 +1,6 @@
 Revision history for Ixchel
 
-0.9.0  2024-02-17/
+0.9.0  2024-02-20/07:30
 		 - add in automatic threading and sensor-name capabilities for Suricata
 		 - add in autoconfig for Lilith
 
