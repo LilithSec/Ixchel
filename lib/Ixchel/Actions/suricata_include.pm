@@ -344,7 +344,7 @@ sub threading {
 		}
 	} ## end if ( $^O eq 'linux' )
 
-	my @lstopo_split = split( /\n/, `lstopo --logical --no-io --no-caches` );
+	my @lstopo_split = split( /\n/, `lstopo--no-io --no-caches` );
 	my @numa_check   = grep( /NUMANode\ +L\#[0-9]/, @lstopo_split );
 	my @cores;
 	my $node       = 0;
