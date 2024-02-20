@@ -58,8 +58,8 @@ Most cores are used for worker-cpu-set with those excluded from it being used fo
 management-cpu-set and receive-cpu-set. The count is per NUMA node. Non-NUMA are treated
 as a single node NUMA.
 
-    core count <  16 = excluded 2
-    core count >= 16 = excluded 3
+    core count <= 16 = excluded 2
+    core count >  16 = excluded 3
 
 This can be overrided by setting .suricata.auto_threading.exclude .
 
@@ -392,7 +392,7 @@ sub threading {
 
 	my $exclude = 2;
 	if ( !defined( $self->{opts}{E} ) ) {
-		if ( !defined( $self->{config}{suricata}{auto_threading}{exclude} ) && $proc_count >= 16 ) {
+		if ( !defined( $self->{config}{suricata}{auto_threading}{exclude} ) && $proc_count > 16 ) {
 			$exclude = 3;
 		} else {
 			$exclude = $self->{config}{suricata}{auto_threading}{exclude};
