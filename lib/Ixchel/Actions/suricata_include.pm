@@ -394,7 +394,7 @@ sub threading {
 	if ( !defined( $self->{opts}{E} ) ) {
 		if ( !defined( $self->{config}{suricata}{auto_threading}{exclude} ) && $proc_count > 16 ) {
 			$exclude = 3;
-		} else {
+		} elsif (defined( $self->{config}{suricata}{auto_threading}{exclude} )) {
 			$exclude = $self->{config}{suricata}{auto_threading}{exclude};
 			if ( ref($exclude) ne '' && ref($exclude) ne 'SCALAR' ) {
 				die( '.suricata.auto_threading.execlude is of ref type "' . ref($exclude) . '" and not a scalar' );
@@ -406,7 +406,7 @@ sub threading {
 	} else {
 		$exclude = $self->{opts}{E};
 		if ( $exclude < 1 ) {
-			die('.suricata.auto_threading.execlude or -E is less than 1');
+			die('-E is less than 1');
 		}
 	}
 
