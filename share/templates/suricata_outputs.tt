@@ -544,7 +544,7 @@ outputs:
 [% IF vars.enable_pcap_log %]
   - pcap-log:
     enabled: yes
-    filename: pcap/[% vars.instance_part2 %].pcap
+    filename: pcap/[% vars.instance_part2 %]pcap
     limit: 32
     conditional: alerts
 [% END %]
