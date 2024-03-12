@@ -131,11 +131,11 @@ sub process_config {
 		return;
 	}
 
-	my $orig_asn = $self->{config}{suricata}{auto_sensor_name};
+	my $orig_asn = $self->{config}{suricata}{auto_sensor_name}{enable};
 	if (   !defined( $self->{config}{suricata}{config}{'sensor-name'} )
 		&& !defined( $self->{config}{suricata}{ubstabces}{ $opts{instance} }{'sensor-name'} ) )
 	{
-		$self->{config}{suricata}{auto_sensor_name} = 1;
+		$self->{config}{suricata}{auto_sensor_name}{enable} = 1;
 	}
 
 	eval {
@@ -180,7 +180,7 @@ sub process_config {
 		die($@);
 	}
 
-	$self->{config}{suricata}{auto_sensor_name} = $orig_asn;
+	$self->{config}{suricata}{auto_sensor_name}{enable} = $orig_asn;
 
 	return;
 } ## end sub process_config
