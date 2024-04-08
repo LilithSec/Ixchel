@@ -217,7 +217,7 @@ sub action_extra {
 	my $to_eval = 'use TOML::Tiny qw(to_toml); $toml = to_toml($config);';
 	eval $to_eval;
 	if ($@) {
-		$self->status_add( error => 1, status => 'Errored generating TOML for config ... ' . $@ );
+		$self->status_add( error => 1, status => 'Errored generating TOML for config... Is TOML::Tiny installed? cpanm TOML::Tiny ?... ' . $@ );
 		return undef;
 	}
 
