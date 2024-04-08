@@ -4,7 +4,6 @@ use 5.006;
 use strict;
 use warnings;
 use File::Slurp;
-use TOML::Tiny qw(to_toml);
 use base 'Ixchel::Actions::base';
 use Sys::Hostname;
 
@@ -214,8 +213,9 @@ sub action_extra {
 		} ## end elsif ( $self->{config}{sagan}{enable} && $self...)
 	} ## end if ( $self->{config}{lilith}{auto_config}{...})
 
-	my $toml = to_toml($config);
-	eval { };
+	my $toml;
+	my $to_eval='use TOML::Tiny qw(to_toml); $toml = to_toml($config);';
+	eval $to_eval;
 	if ($@) {
 		$self->status_add( error => 1, status => 'Errored generating TOML for config ... ' . $@ );
 		return undef;
