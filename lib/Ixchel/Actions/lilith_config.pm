@@ -13,11 +13,11 @@ Ixchel::Actions::lilith_config - Generates the config for Lilith.
 
 =head1 VERSION
 
-Version 0.1.0
+Version 0.2.0
 
 =cut
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.2.0';
 
 =head1 CLI SYNOPSIS
 
@@ -214,7 +214,7 @@ sub action_extra {
 	} ## end if ( $self->{config}{lilith}{auto_config}{...})
 
 	my $toml;
-	my $to_eval='use TOML::Tiny qw(to_toml); $toml = to_toml($config);';
+	my $to_eval = 'use TOML::Tiny qw(to_toml); $toml = to_toml($config);';
 	eval $to_eval;
 	if ($@) {
 		$self->status_add( error => 1, status => 'Errored generating TOML for config ... ' . $@ );
