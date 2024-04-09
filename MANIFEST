@@ -118,9 +118,10 @@ t/pod.t
 bin/.exists
 src_bin/ixchel
 share/templates/apt_proxy.tt
-share/templates/snmp_v2.tt
 share/templates/auto_cron.tt
-share/templates/systemd_service.tt
 share/templates/extend_logsize.tt
-share/templates/suricata_outputs.tt
+share/templates/sneck.tt
+share/templates/snmp_v2.tt
 share/templates/suricata_extract_submit.tt
+share/templates/suricata_outputs.tt
+share/templates/systemd_service.tt
