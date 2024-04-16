@@ -11,11 +11,11 @@ Ixchel::DefaultConfig - The default config used for with Ixchel.
 
 =head1 VERSION
 
-Version 0.3.0
+Version 0.4.0
 
 =cut
 
-our $VERSION = '0.3.0';
+our $VERSION = '0.4.0';
 
 =head1 SYNOPSIS
 
@@ -294,6 +294,7 @@ sub get {
 				sagan              => { enable => 0, args => '', },
 				hv_monitor         => { enable => 0, },
 				fail2ban           => { enable => 0, },
+				lilith             => { enable => 0, },
 				supvervisord       => { enable => 0, },
 				linux_softnet_stat => { enable => 0, },
 				opensearch         => { enable => 0, host     => '127.0.0.1', port => 9200 },

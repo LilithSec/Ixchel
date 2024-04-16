@@ -127,6 +127,10 @@ extend hv-monitor /bin/cat /var/cache/hv-monitor.json
 extend systemd /bin/cat /var/cache/systemd.extend
 
 [% END %]
+[% IF config.snmp.extends.lilith.enable && config.lilith.enable %]
+extend lilith /bin/cat /var/cache/lilith.extend
+
+[% END %]
 [% IF config.supervisord.enable && config.snmp.extends.supervisord.enable %]
 extend supervisord /bin/cat /var/cache/supervisord.extend
 
