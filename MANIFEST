@@ -27,7 +27,6 @@ lib/Ixchel/Actions/systemd_journald_conf.pm
 lib/Ixchel/Actions/sagan_include.pm
 lib/Ixchel/Actions/sagan_base.pm
 lib/Ixchel/Actions/sagan_rules.pm
-lib/Ixchel/Actions/sagan_rules_in_place.pm
 lib/Ixchel/Actions/sagan_conf_update.pm
 lib/Ixchel/Actions/apt_proxy.pm
 lib/Ixchel/Actions/xeno_build.pm
@@ -113,7 +112,6 @@ t/050-load-Ixchel__Action__sneck_install.t
 t/051-load-Ixchel__Action__snmp_install.t
 t/052-load-Ixchel__Action__snmp_service.t
 t/053-load-Ixchel__Action__lilith_config.t
-t/054-load-Ixchel__Actions__sagan_rules_in_place.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
