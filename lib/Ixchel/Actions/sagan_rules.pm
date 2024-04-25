@@ -16,11 +16,11 @@ Ixchel::Actions::sagan_rules - Generate the rules include for Sagan.
 
 =head1 VERSION
 
-Version 0.3.0
+Version 0.4.0
 
 =cut
 
-our $VERSION = '0.3.0';
+our $VERSION = '0.4.0';
 
 =head1 CLI SYNOPSIS
 
@@ -74,7 +74,7 @@ sub new_extra { }
 sub action_extra {
 	my $self = $_[0];
 
-	my $url = 'https://raw.githubusercontent.com/quadrantsec/sagan-rules/main/rules.yaml';
+	my $url = $self->{config}{sagan}{rules};
 
 	my $base_config_raw;
 	eval {
