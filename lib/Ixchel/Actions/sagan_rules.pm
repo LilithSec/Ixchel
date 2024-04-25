@@ -24,7 +24,7 @@ our $VERSION = '0.4.0';
 
 =head1 CLI SYNOPSIS
 
-ixchel -a sagan_rules [B<--np>] [B<-w>] [B<-i> <instance>]
+ixchel -a sagan_rules [B<-w>] [B<-i> <instance>]
 
 =head1 CODE SYNOPSIS
 
@@ -35,11 +35,6 @@ ixchel -a sagan_rules [B<--np>] [B<-w>] [B<-i> <instance>]
     print Dumper($results);
 
 =head1 DESCRIPTION
-
-Generates the rules include for sagan using the array .sagan.rules and
-if .sagan.instances_rules.$instance exists, that will be merged into it.
-
-The resulting array is deduplicated using L<List::Util>->uniq.
 
 Any item that does not match /\// or /\$/ has '$RULE_PATH/' prepended to it.
 
@@ -56,10 +51,6 @@ Write out the generated rule files.
 =head2 -i <instance>
 
 A instance to operate on.
-
-=head2 --no_die_at_end
-
-Don't die if there are errors encounted at the end.
 
 =head1 RESULT HASH REF
 
@@ -216,7 +207,7 @@ sub process_file {
 				$custom_rules->{$rule} = 1;
 			}
 		}
-		my $custom_rules_array = keys( %{$custom_rules} );
+		my @custom_rules_array = keys( %{$custom_rules} );
 
 		# begin putting it back together
 		$filled_in = '';
@@ -253,6 +244,13 @@ sub process_file {
 				}
 			} ## end else [ if ($ignore_line) ]
 		} ## end foreach my $line ( @{ $self->{base_config_split...}})
+
+		if ( defined( $custom_rules_array[0] ) ) {
+			$filled_in = $filled_in = "\n\n\n  # rules found in the file but not in the source rules.yaml file\n";
+			foreach my $custom_rule (@custom_rules_array) {
+				$filled_in = $filled_in . '  - ' . $custom_rule . "\n";
+			}
+		}
 
 		$self->status_add(
 			status => '-----[ ' . $file . ' ]-------------------------------------' . "\n" . $filled_in );
