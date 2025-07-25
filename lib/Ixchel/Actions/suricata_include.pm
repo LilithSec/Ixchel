@@ -448,10 +448,12 @@ sub threading {
 			'management-cpu-set' => {
 				mode => 'balanced',
 				cpu  => [],
-			} 'receive-cpu-set' => {
+			},
+			'receive-cpu-set' => {
 				mode => 'balanced',
 				cpu  => [],
-			} 'worker-cpu-set' => {
+			},
+			'worker-cpu-set' => {
 				mode => 'exclusive',
 				cpu  => [],
 			}
