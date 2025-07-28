@@ -115,7 +115,6 @@ t/053-load-Ixchel__Action__lilith_config.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
-bin/.exists
 src_bin/ixchel
 share/templates/apt_proxy.tt
 share/templates/auto_cron.tt
