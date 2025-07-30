@@ -1,5 +1,8 @@
 Revision history for Ixchel
 
+0.14.0 ?/?
+		 - remove all Sagan stuff for now
+
 0.13.0 2025-07-28/16:00
 		 - Update suricata_include for 8.0.0 for in regards to changes to threading
 
